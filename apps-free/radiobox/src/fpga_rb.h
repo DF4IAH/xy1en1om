@@ -186,7 +186,11 @@ typedef struct fpga_rb_reg_mem_s {
      *
      * bit h16: RX_CAR_OSC OFS SRC STREAM - '1' places input MUXer for RX_CAR_OSC DDS offset input to the second streamed input pipe. '0' places MUXer to registers "RX_CAR_OSC OFS HI" and "RX_CAR_OSC OFS LO".
      *
-     * bit h1B..h17: n/a
+     * bit h17: n/a
+     *
+     * bit h18: ADC_AUTO_OFS - '1' enables automatic A/D-Converter offset compensation.  '0' disables that automatic compensation.
+     *
+     * bit h1B..h19: n/a
      *
      * bit h1C: RX_MOD_OSC RESYNC - '1' stops incrementing the accumulating phase register. That holds the oscillator just there, where it is. With '0' the RX_MOD_OSC resumes operation.
      *
@@ -390,9 +394,21 @@ typedef struct fpga_rb_reg_mem_s {
      *
      *   value = h50  RX_AUDIO output.
      *
-     *   value = hF8  TX_CAR_OSC_INC frequency value.
-     *   value = hF9  RX_CAR_OSC_INC frequency value.
-     *   value = hFE  current status of the overdrive signals.
+     *   value = hC0  TX_CAR_OSC_INC frequency value.
+     *   value = hC1  RX_CAR_OSC_INC frequency value.
+     *
+     *   value = hD0  ADC_AUTO_OFS_RFIN1    offset register monitor.
+     *   value = hD1  ADC_AUTO_OFS_RFIN2    offset register monitor.
+     *   value = hD2  ADC_AUTO_OFS_EXT_CH0  offset register monitor.
+     *   value = hD3  ADC_AUTO_OFS_EXT_CH8  offset register monitor.
+     *   value = hD4  ADC_AUTO_OFS_EXT_CH1  offset register monitor.
+     *   value = hD5  ADC_AUTO_OFS_EXT_CH9  offset register monitor.
+     *   value = hD6  ADC_AUTO_OFS_EXT_VpVn offset register monitor.
+     *
+     *   value = hF0  AC97 diagnostic LEDs.
+     *
+     *   value = hF8  current status of the overdrive signals.
+     *
      *   value = hFF  current test vector @see red_pitaya_radiobox.sv for details.
      *
      * bit h0F..h08: n/a
@@ -1025,12 +1041,16 @@ typedef struct fpga_rb_reg_mem_s {
      */
     uint32_t reserved_158;
 
-    /** @brief  Placeholder for addr: 0x4060015C
+
+    /** @brief  R/W RB_RX_EMENV_FILT_VARIANT -  bits  1..0 (addr: 0x4060015C)
      *
-     * n/a
+     * bit h01..h00: AM-Envelope filter wide, middle, narrow
+     *
+     * bit h1F..h02: n/a
      *
      */
-    uint32_t reserved_15c;
+    uint32_t rx_amenv_filtvar;
+
 
 
     /** @brief  R/W RB_RX_MUX_SRC -  bits 31..0 (addr: 0x40600160)
@@ -1267,6 +1287,14 @@ void fpga_rb_enable(int enable);
  */
 void fpga_rb_reset(void);
 
+/**
+ * @brief Activates RadioBox FPGA ADC biasing/calibration
+ *
+ * @param[in]     calib     Variant of the ADC biasing/calibration to be done.
+ * @param[in]     enabled   Should after the calibration the RadioBox state being enabled?
+ */
+void fpga_rb_calib(int calib, int enabled);
+
 
 /**
  * @brief Updates all modified data attributes to the RadioBox FPGA sub-module
@@ -1306,6 +1334,7 @@ int fpga_rb_get_fpga_params(rb_app_params_t* pb, rb_app_params_t** p_pn);
  * @param[in]  tx_modtyp        2==USB, 3==LSB, 4==AM, 7==FM, 8==PM - else ignored.
  * @param[in]  rx_modtyp        2==USB, 3==LSB, 4==AMenv, 5==AMsync_USB, 6==AMsync_LSB, 7==FM, 8==PM - else ignored.
  * @param[in]  src_con_pnt      RB LED controller, RF Output 1 and RF Output 2 setting to be used.
+ * @param[in]  src_con2_pnt     AC97 LineIn Left and AC97 LineIn Right setting to be used.
  * @param[in]  rx_muxin_src     0==Off, 1==RF Input 1, 2==RF Input 2.
  * @param[in]  tx_car_osc_qrg   Frequency for TX_CAR_OSC in Hz.
  * @param[in]  rx_car_osc_qrg   Frequency for RX_CAR_OSC in Hz.
@@ -1320,7 +1349,7 @@ int fpga_rb_get_fpga_params(rb_app_params_t* pb, rb_app_params_t** p_pn);
  * @param[in]  term_rfout2      Termination of RFOut2: 0==neutral, 1==50 ohms, 2==open ended.
  * @param[in]  qrg_inc          Frequency QRG range controller increment value, 0%-100%.
  */
-void fpga_rb_set_ctrl(int rb_run, int tx_modsrc, int tx_modtyp, int rx_modtyp, int src_con_pnt, int rx_muxin_src,
+void fpga_rb_set_ctrl(int rb_run, int tx_modsrc, int tx_modtyp, int rx_modtyp, int src_con_pnt, int src_con2_pnt, int rx_muxin_src,
         double tx_car_osc_qrg, double rx_car_osc_qrg,
         double tx_mod_osc_qrg, int tx_muxin_gain, int rx_muxin_gain, int tx_qrg_sel, int rx_qrg_sel,
         int tx_amp_rf_gain, int tx_mod_osc_mag, int term_rfout1, int term_rfout2, int qrg_inc);
@@ -1477,6 +1506,13 @@ void fpga_rb_set_rx_mod_osc_qrg__4mod_ssbweaver_am(double rx_mod_osc_qrg);
  * @param[in]  rx_weaver_qrg   Weaver frequency in Hz to correct AFC frequency offset.
  */
 void fpga_rb_set_rx_calc_afc_weaver__4mod_am_fm_pm(double rx_weaver_qrg);
+
+/**
+ * @brief Sets the FPGA RB_RX_EMENV_FILT_VARIANT register
+ *
+ * @param[in]  rx_amenv_filtvar   Filter selection: 0=wide, 1=middle, 2=narrow.
+ */
+void fpga_rb_set_rx_amenv_filtvar(int rx_amenv_filtvar);
 
 /**
  * @brief Calculates and programs the FPGA RX_MOD_SSB_AM mixer
