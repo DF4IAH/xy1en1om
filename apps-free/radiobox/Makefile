@@ -7,6 +7,7 @@
 APP=$(notdir $(CURDIR:%/=%))
 SHARED_OBJS = 
 
+FPGA=../../target/fpga/fpga.bit
 FPGACFG=fpga.conf
 PDF=doc/RedPitaya_RadioBox_Development_Manual.pdf
 
