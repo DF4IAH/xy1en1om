@@ -102,6 +102,11 @@ module red_pitaya_radiobox #(
 
 
 //---------------------------------------------------------------------------------
+// current date of compilation
+localparam CURRENT_DATE = 32'h16052001;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+
+
+//---------------------------------------------------------------------------------
 //  Registers accessed by the system bus
 
 enum {
@@ -144,7 +149,7 @@ enum {
                                                 //      d32=adc_i[0], d33=adc_i[1]
     REG_RW_RB_TX_MUXIN_GAIN,                    // h064: RB analog TX MUX gain:      UNSIGNED 16 bit
     REG_RW_RB_TX_MUXIN_OFS,                     // h068: RB analog TX MUX gain:        SIGNED 16 bit
-    //REG_RD_RB_TX_RSVD_H06C,
+    REG_RD_RB_VERSION,                          // h06C: RB version stamp - presented as the current date of FPGA compilation: 0xYYMMDDss
 
 
     /* RX section */
@@ -4631,6 +4636,10 @@ else begin
       20'h00068: begin
          sys_ack   <= sys_en;
          sys_rdata <= regs[REG_RW_RB_TX_MUXIN_OFS];
+         end
+      20'h0006C: begin
+         sys_ack   <= sys_en;
+         sys_rdata <= CURRENT_DATE;
          end
 
       /* RX_CAR_CALC_WEAVER */
