@@ -533,8 +533,8 @@ APP_UPDATER_DIR    = Applications/updater
 apps_tools: scpi_server updater
 
 scpi_server: api $(NGINX)
-	#$(MAKE) -C $(APP_SCPISERVER_DIR)
-	#$(MAKE) -C $(APP_SCPISERVER_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
+	$(MAKE) -C $(APP_SCPISERVER_DIR)
+	$(MAKE) -C $(APP_SCPISERVER_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 
 updater: api $(NGINX)
 	$(MAKE) -C $(APP_UPDATER_DIR)
