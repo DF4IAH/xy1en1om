@@ -271,8 +271,8 @@ $(INSTALL_DIR):
 	mkdir -p $(INSTALL_DIR)
 
 buildroot: $(INSTALL_DIR)
-	$(MAKE) -C $(URAMDISK_DIR) DL=$(DL)
-	$(MAKE) -C $(URAMDISK_DIR) DL=$(DL) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
+	$(MAKE) -C $(URAMDISK_DIR) DL=../../$(DL)
+	$(MAKE) -C $(URAMDISK_DIR) DL=../../$(DL) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 
 ################################################################################
 # API libraries
