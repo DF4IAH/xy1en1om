@@ -31,7 +31,7 @@
 #define FPGA_RB_BASE_SIZE       0x10000
 
 /** @brief RadioBox minimum FPGA version needed for this driver to work. */
-#define FPGA_VERSION_MIN        0x16052001
+#define FPGA_VERSION_MIN        0x16052002
 
 
 /** @brief FPGA register offset addresses of the RadioBox sub-system base address.
