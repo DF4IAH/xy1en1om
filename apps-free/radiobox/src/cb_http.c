@@ -53,9 +53,9 @@ int rp_app_init(void)
 {
     fprintf(stderr, "\n<=== Loading RadioBox version %s-%s ===>\n\n", VERSION, REVISION);
 
-    rp_ac97_module_load();
-
     fpga_init();
+
+    rp_ac97_module_load();
 
     //fprintf(stderr, "INFO rp_app_init: sizeof(double)=%d, sizeof(float)=%d, sizeof(long long)=%d, sizeof(long)=%d, sizeof(int)=%d, sizeof(short)=%d\n",
     //        sizeof(double), sizeof(float), sizeof(long long), sizeof(long), sizeof(int), sizeof(short));
@@ -97,6 +97,8 @@ int rp_app_exit(void)
     //fprintf(stderr, "rp_app_exit: BEGIN\n");
     fprintf(stderr, "\n<=== Unloading radiobox version %s-%s. ===>\n\n", VERSION, REVISION);
 
+    rp_ac97_module_unload();
+
     /* turn off all LEDs */
     fpga_hk_setLeds(0, 0xff, 0x00);
 
@@ -106,8 +108,6 @@ int rp_app_exit(void)
     //fprintf(stderr, "rp_app_exit: calling worker_exit()\n");
     /* shut-down worker thread */
     worker_exit();
-
-    rp_ac97_module_unload();
 
     //fprintf(stderr, "rp_app_exit: END.\n");
     //fprintf(stderr, "RadioBox unloaded\n\n");

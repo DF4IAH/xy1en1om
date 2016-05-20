@@ -52,23 +52,23 @@
     editing: false,
     resized: false,
     eventLast: {
-        id: ""
+      id: ""
     },
     eventClickId: '',
     qrgController: {
-        tx: {
-            button_checked: false
-        },
-        rx: {
-            button_checked: true
-        },
-        mousewheelsum: 0,
-        digit: {
-            e: [ 0, 0, 0, 0, 0, 0, 0, 0 ]  // reversed digits
-        },
-        editing: false,
-        enter: false,
-        frequency: 0.0
+      tx: {
+        button_checked: false
+      },
+      rx: {
+        button_checked: true
+      },
+      mousewheelsum: 0,
+      digit: {
+        e: [ 0, 0, 0, 0, 0, 0, 0, 0 ]  // reversed digits
+      },
+      editing: false,
+      enter: false,
+      frequency: 0.0
     }
   };
 
@@ -287,16 +287,16 @@
       // console.log("CHECK RB.processParameters: param_name='" + param_name + "', content_old='" + old_params[param_name] + "', content_new='" + new_params[param_name] + "', dblVal=" + dblVal);
 
       if (param_name == 'rb_run') {
-          if (intVal) {  // enabling RB
-              $('#RB_STOP').hide();
-              $('#RB_RUN').show();
-              $('#RB_RUN').css('display', 'block');
+        if (intVal) {  // enabling RB
+          $('#RB_STOP').hide();
+          $('#RB_RUN').show();
+          $('#RB_RUN').css('display', 'block');
 
-          } else {  // disabling RB
-              $('#RB_RUN').hide();
-              $('#RB_STOP').show();
-              $('#RB_STOP').css('display', 'block');
-          }
+        } else {  // disabling RB
+          $('#RB_RUN').hide();
+          $('#RB_STOP').show();
+          $('#RB_STOP').css('display', 'block');
+        }
       }
       else if (param_name == 'tx_modsrc_s') {
         $('#'+param_name).val(intVal);
