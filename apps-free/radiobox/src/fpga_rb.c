@@ -73,6 +73,8 @@ int fpga_rb_init(void)
     // Check for valid FPGA
     uint32_t ver = fpga_get_version();
     if ((ver < FPGA_VERSION_MIN) || (ver & 0x80000000)) {  // RadioBox to old or contains no RadioBox sub-module at all
+        fprintf(stderr, "INFO - fpga_rb_init: central fpga.bit file outdated - FPGA found: %08x, requested: %08x\n", ver, FPGA_VERSION_MIN);
+
         // do a fresh set-up
         fpga_rb_exit();
 
