@@ -79,6 +79,7 @@ IDGEN_DIR       = Bazaar/tools/idgen
 OS_TOOLS_DIR    = OS/tools
 ECOSYSTEM_DIR   = Applications/ecosystem
 LIBRP_DIR       = api/rpbase
+LIBRPLCR_DIR	= api/rpApplications/lcr_meter
 LIBRPAPP_DIR    = api/rpApplications
 SDK_DIR         = SDK/
 
@@ -133,7 +134,7 @@ $(TMP):
 
 $(TARGET): $(BOOT_UBOOT) u-boot $(DEVICETREE) $(LINUX) buildroot $(IDGEN) $(NGINX) \
 	   examples $(DISCOVERY) ecosystem \
-	   scpi api apps_pro rp_communication
+	   scpi api apps_pro apps_tools rp_communication
 	mkdir -p               $(TARGET)
 	# copy boot images and select FSBL as default
 	cp $(BOOT_UBOOT)       $(TARGET)/boot.bin
@@ -270,14 +271,14 @@ $(INSTALL_DIR):
 	mkdir -p $(INSTALL_DIR)
 
 buildroot: $(INSTALL_DIR)
-	$(MAKE) -C $(URAMDISK_DIR)
-	$(MAKE) -C $(URAMDISK_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
+	$(MAKE) -C $(URAMDISK_DIR) DL=$(DL)
+	$(MAKE) -C $(URAMDISK_DIR) DL=$(DL) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 
 ################################################################################
 # API libraries
 ################################################################################
 
-.PHONY: api librp librpapp libredpitaya
+.PHONY: api librp librpapp libredpitaya liblcr_meter
 
 libredpitaya:
 	$(MAKE) -C shared
@@ -288,11 +289,15 @@ librp:
 
 ifdef ENABLE_LICENSING
 
-api: librp librpapp
+api: librp librpapp liblcr_meter
 
 librpapp:
 	$(MAKE) -C $(LIBRPAPP_DIR)
 	$(MAKE) -C $(LIBRPAPP_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
+
+liblcr_meter:
+	$(MAKE) -C $(LIBRPLCR_DIR)
+	$(MAKE) -C $(LIBRPLCR_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 
 else
 
@@ -327,7 +332,7 @@ LUANGINX_DIR    = Bazaar/nginx/ngx_ext_modules/lua-nginx-module
 NGINX_SRC_DIR   = Bazaar/nginx/nginx-1.5.3
 BOOST_DIR       = Bazaar/nginx/ngx_ext_modules/ws_server/boost
 
-.PHONY: ecosystem nginx 
+.PHONY: ecosystem nginx
 
 $(WEBSOCKETPP_TAR): | $(DL)
 	curl -L $(WEBSOCKETPP_URL) -o $@
@@ -419,11 +424,12 @@ CALIB_DIR       = Test/calib
 CALIBRATE_DIR   = Test/calibrate
 COMM_DIR        = Examples/Communication/C
 XADC_DIR        = Test/xadc
+DISCOVERY_DIR   = Test/discovery
 
 .PHONY: examples rp_communication
-.PHONY: lcr bode monitor generate acquire calib calibrate
+.PHONY: lcr bode monitor generate acquire calib calibrate discovery
 
-examples: lcr bode monitor generate acquire calib
+examples: lcr bode monitor generate acquire calib discovery
 # calibrate
 
 lcr:
@@ -449,6 +455,10 @@ acquire:
 calib:
 	$(MAKE) -C $(CALIB_DIR)
 	$(MAKE) -C $(CALIB_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
+
+discovery:
+	$(MAKE) -C $(DISCOVERY_DIR)
+	$(MAKE) -C $(DISCOVERY_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 
 calibrate: api
 	$(MAKE) -C $(CALIBRATE_DIR)
@@ -481,7 +491,7 @@ ecosystem:
 
 apps-free: lcr bode
 	$(MAKE) -C $(APPS_FREE_DIR) all
-	$(MAKE) -C $(APPS_FREE_DIR) install 
+	$(MAKE) -C $(APPS_FREE_DIR) install
 
 ################################################################################
 # Red Pitaya PRO applications
@@ -491,10 +501,11 @@ ifdef ENABLE_LICENSING
 
 APP_SCOPEGENPRO_DIR = Applications/scopegenpro
 APP_SPECTRUMPRO_DIR = Applications/spectrumpro
+APP_LCRMETER_DIR    = Applications/lcr_meter
 
-.PHONY: apps_pro scopegenpro spectrumpro
+.PHONY: apps_pro scopegenpro spectrumpro lcr_meter
 
-apps_pro: scopegenpro spectrumpro
+apps_pro: scopegenpro spectrumpro lcr_meter
 
 scopegenpro: api $(NGINX)
 	$(MAKE) -C $(APP_SCOPEGENPRO_DIR)
@@ -504,11 +515,30 @@ spectrumpro: api $(NGINX)
 	$(MAKE) -C $(APP_SPECTRUMPRO_DIR)
 	$(MAKE) -C $(APP_SPECTRUMPRO_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 
+lcr_meter: api $(NGINX)
+	$(MAKE) -C $(APP_LCRMETER_DIR)
+	$(MAKE) -C $(APP_LCRMETER_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 else
 
-apps_pro:
+apps_pro: scpi_server updater
 
 endif
+
+
+APP_SCPISERVER_DIR    = Applications/scpi_server
+APP_UPDATER_DIR    = Applications/updater
+
+.PHONY: apps_tools scpi_server updater
+
+apps_tools: scpi_server updater
+
+scpi_server: api $(NGINX)
+	$(MAKE) -C $(APP_SCPISERVER_DIR)
+	$(MAKE) -C $(APP_SCPISERVER_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
+
+updater: api $(NGINX)
+	$(MAKE) -C $(APP_UPDATER_DIR)
+	$(MAKE) -C $(APP_UPDATER_DIR) install INSTALL_DIR=$(abspath $(INSTALL_DIR))
 
 ################################################################################
 # Red Pitaya SDK
@@ -538,10 +568,12 @@ clean:
 	make -C $(GENERATE_DIR) clean
 	make -C $(ACQUIRE_DIR) clean
 	make -C $(CALIB_DIR) clean
+	make -C $(DISCOVERY_DIR) clean
 	-make -C $(SCPI_SERVER_DIR) clean
 	make -C $(LIBRP_DIR)    clean
 ifdef ENABLE_LICENSING
 	make -C $(LIBRPAPP_DIR) clean
+	make -C $(LIBRPLCR_DIR) clean
 endif
 	make -C $(SDK_DIR) clean
 	make -C $(COMM_DIR) clean
