@@ -74,7 +74,7 @@ scpi_result_t RP_FpgaBitStream(scpi_t *context){
     int fo, fi, fpga_s, fpga_dir_s;
     struct stat st;
 
-    /* Read first param(fpga bit file typ (0.93, 0.94)) fom context */
+    /* Read first param(fpga bit file typ (0.93, 0.94, 0.95)) fom context */
     if(!SCPI_ParamCharacters(context, &param, &param_len, true)){
         RP_LOG(LOG_ERR, "*RP:FPGA:BITSTR Failed to parse first parameter.\n");
         return SCPI_RES_ERR;
