@@ -30,6 +30,10 @@
 /** @brief RadioBox memory map size of FPGA registers. */
 #define FPGA_RB_BASE_SIZE       0x10000
 
+/** @brief RadioBox minimum FPGA version needed for this driver to work. */
+#define FPGA_VERSION_MIN        0x16052001
+
+
 /** @brief FPGA register offset addresses of the RadioBox sub-system base address.
  */
 enum {
@@ -42,7 +46,7 @@ enum {
     FPGA_RW_RB_DMA_CTRL                                                                        = 0x00010,  // h010: RB DMA control register
     FPGA_RW_RB_PWR_CTRL                                                                        = 0x00014,  // h014: RB power savings control register             RX_MOD:     (Bit  7: 0), TX_MOD:     (Bit 15: 8)
     FPGA_RW_RB_CON_SRC_PNT                                                                     = 0x00018,  // h018: RB_LED, RB_RFOUT1 and RB_RFOUT2 connection matrix
-	FPGA_RW_RB_LINE_IN_SRC_CON_PNT                                                             = 0x0001C,  // h01C: LINE-IN11 L/R, LINE-IN2 L/R connection matrix
+    FPGA_RW_RB_LINE_IN_SRC_CON_PNT                                                             = 0x0001C,  // h01C: LINE-IN11 L/R, LINE-IN2 L/R connection matrix
 
     /* TX section */
     FPGA_RW_RB_TX_CAR_OSC_INC_LO                                                               = 0x00020,  // h020: RB TX_CAR_OSC increment register              LSB:        (Bit 31: 0)
@@ -72,7 +76,7 @@ enum {
                                                                                                            //       d32=adc_i[0], d33=adc_i[1]
     FPGA_RW_RB_TX_MUXIN_GAIN                                                                   = 0x00064,  // h064: RB analog TX MUX gain:      UNSIGNED 16 bit
     FPGA_RW_RB_TX_MUXIN_OFS                                                                    = 0x00068,  // h068: RB analog TX MUX gain:        SIGNED 16 bit
-    //FPGA_RD_RB_TX_RSVD_H06C,
+    FPGA_RD_RB_VERSION                                                                         = 0x0006C,  // h06C: RB version stamp - presented as the current date of FPGA compilation: 0xYYMMDDss,
 
     /* RX section */
     FPGA_RW_RB_RX_CAR_CALC_WEAVER_INC_LO                                                       = 0x00100,  // h100: weaver increment phase correction register    LSB:        (Bit 31: 0)
@@ -837,12 +841,13 @@ typedef struct fpga_rb_reg_mem_s {
      */
     uint32_t tx_muxin_ofs;
 
-    /** @brief  Placeholder for addr: 0x4060006C
+    /** @brief  R/O RB_VERSION - version stamp - presented as the current date of FPGA compilation: 0xYYMMDDss (addr: 0x4060006C)
      *
-     * n/a
+     * bit h1F..h00: UNSIGNED 32 bit - current date of FPGA compilation: 0xYYMMDDss -
+     *                                 YY=year, MM=month, DD=day, ss=sequence as: 0x01 .. 0x09, 0x10, 0x11 .. 0x99
      *
      */
-    uint32_t reserved_06C;
+    uint32_t version;
 
 
     /** @brief  Placeholder for addr: 0x40600070 .. 0x406000FC
@@ -1286,6 +1291,30 @@ void fpga_rb_enable(int enable);
  *
  */
 void fpga_rb_reset(void);
+
+/**
+ * @brief Updates all modified data attributes to the RadioBox FPGA sub-module
+ *
+ * @retval        version   Date and serial number stamp, < 0: error
+ * @retval        -1        FPGA not initialized
+ * @retval        -2        Date out of valid span
+ * @retval        -3        Hex numbers found within date/serial version format
+ */
+uint32_t fpga_get_version();
+
+/**
+ * @brief Move current fpga.bit file out of the way and copy local file to the central directory
+ *
+ * @retval        0         success
+ * @retval        -1        error
+ */
+int fpga_rb_prepare_file();
+
+/**
+ * @brief Reload new configuration to the FPGA
+ *
+ */
+void fpga_rb_reload_fpga();
 
 /**
  * @brief Activates RadioBox FPGA ADC biasing/calibration

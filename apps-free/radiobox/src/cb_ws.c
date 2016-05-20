@@ -13,7 +13,7 @@
 #include "cb_ws.h"
 
 
-/* v0.94 WebSocket call-back functions */
+/* v0.95 WebSocket call-back functions */
 
 #if 0  // disable new WebSocket interface until documentation as available
 

@@ -44,10 +44,20 @@ extern int                  g_fpga_rb_mem_fd;
 extern fpga_rb_reg_mem_t*   g_fpga_rb_reg_mem;
 
 
+/** @brief Filename of the default FPGA configuration. */
+const char fn_bit[]       = "/opt/redpitaya/fpga/fpga.bit";
+
+/** @brief Filename of the safed FPGA configuration. */
+const char fn_bit_orig[]  = "/opt/redpitaya/fpga/fpga.bit_orig";
+
+/** @brief Filename of a fresh RadioBox FPGA configuration. */
+const char fn_bit_fresh[] = "/opt/redpitaya/www/apps/radiobox/fpga.bit";
+
+
 /*----------------------------------------------------------------------------*/
 int fpga_rb_init(void)
 {
-    //fprintf(stderr, "fpga_rb_init: BEGIN\n");
+    //fprintf(stderr, "DEBUG fpga_rb_init: BEGIN\n");
 
     /* make sure all previous data is vanished */
     fpga_rb_exit();
@@ -60,11 +70,31 @@ int fpga_rb_init(void)
     }
     //fprintf(stderr, "DEBUG fpga_rb_init: g_fpga_rb_reg_mem - having access pointer.\n");
 
+    // Check for valid FPGA
+    uint32_t ver = fpga_get_version();
+    if ((ver < FPGA_VERSION_MIN) || (ver & 0x80000000)) {  // RadioBox to old or contains no RadioBox sub-module at all
+        // do a fresh set-up
+        fpga_rb_exit();
+
+        // move current fpga.bit file out of the way and copy local file to the central directory
+        fpga_rb_prepare_file();
+
+        // reload new configuration to the FPGA
+        fpga_rb_reload_fpga();
+
+        // try again to map the new FPGA configuration
+        if (fpga_mmap_area(&g_fpga_rb_mem_fd, (void**) &g_fpga_rb_reg_mem, FPGA_RB_BASE_ADDR, FPGA_RB_BASE_SIZE)) {
+            fprintf(stderr, "ERROR - fpga_rb_init: g_fpga_rb_reg_mem - mmap() failed: %s\n", strerror(errno));
+            fpga_exit();
+            return -1;
+        }
+    }
+
     // enable RadioBox sub-module
     fpga_rb_reset();
     fpga_rb_enable(1);
 
-    //fprintf(stderr, "fpga_rb_init: END\n");
+    //fprintf(stderr, "DEBUG fpga_rb_init: END\n");
     return 0;
 }
 
@@ -168,13 +198,85 @@ void fpga_rb_reset(void)
 }
 
 /*----------------------------------------------------------------------------*/
+uint32_t fpga_get_version()
+{
+    if (!g_fpga_rb_reg_mem) {
+        return -1;
+    }
+
+    uint32_t version = g_fpga_rb_reg_mem->version;
+    fprintf(stderr, "INFO - fpga_get_version: current FPGA RadioBox version: %08x\n", version);
+
+    if (version < 0x12010101 || version > 0x29123299) {
+        //fprintf(stderr, "DEBUG - fpga_get_version: error -2\n");
+        return -2;
+    }
+
+    int pos;
+    for (pos = 28; pos >= 0; pos -= 4) {
+        if (((version >> pos) & 0xf) > 0x9) {  // no HEX entries allowed as date and serial number
+            //fprintf(stderr, "DEBUG - fpga_get_version: error -3\n");
+            return -3;
+        }
+    }
+
+    return version;  // valid date found
+}
+
+/*----------------------------------------------------------------------------*/
+int fpga_rb_prepare_file()
+{
+    struct stat sb         = { 0 };
+    const int CMDBUFLEN    = 256;
+    char cmdbuf[CMDBUFLEN];
+
+    //fprintf(stderr, "DEBUG - fpga_rb_prepare_file: begin\n");
+
+    // make the partition RW accessible
+    system("/opt/redpitaya/sbin/rw");
+
+    // safe the original fpga.bit file if not already done
+    if (stat(fn_bit_orig, &sb)) {
+        // safe the non-safed bit-file
+        rename(fn_bit, fn_bit_orig);
+    } else {
+        // do not safe, but remove old RadioBox FPGA file
+        remove(fn_bit);
+    }
+
+    // copy local fresh RadioBox FPGA configuration to the centralized place
+    snprintf(cmdbuf, CMDBUFLEN - 1, "cp -a %s %s", fn_bit_fresh, fn_bit);
+    system(cmdbuf);
+
+    // make the partition RO again
+    system("/opt/redpitaya/sbin/ro");
+
+    //fprintf(stderr, "DEBUG - fpga_rb_prepare_file: end\n");
+    return 0;
+}
+
+/*----------------------------------------------------------------------------*/
+void fpga_rb_reload_fpga()
+{
+    const int CMDBUFLEN = 256;
+    char cmdbuf[CMDBUFLEN];
+
+    //fprintf(stderr, "DEBUG - fpga_rb_reload_fpga: begin\n");
+
+    snprintf(cmdbuf, CMDBUFLEN - 1, "cat %s >/dev/xdevcfg", fn_bit);
+    system(cmdbuf);
+
+    //fprintf(stderr, "DEBUG - fpga_rb_reload_fpga: end\n");
+}
+
+/*----------------------------------------------------------------------------*/
 void fpga_rb_calib(int calib, int enabled)
 {
-	if (calib > 0) {
-		rp_measure_calib_params(&g_rp_main_calib_params);
-	}
+    if (calib > 0) {
+        rp_measure_calib_params(&g_rp_main_calib_params);
+    }
 
-	fpga_rb_enable(enabled);
+    fpga_rb_enable(enabled);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1482,10 +1584,10 @@ void fpga_rb_set_rx_calc_afc_weaver__4mod_am_fm_pm(double rx_weaver_qrg)
 /*----------------------------------------------------------------------------*/
 void fpga_rb_set_rx_amenv_filtvar(int rx_amenv_filtvar)
 {
-	if (rx_amenv_filtvar < 0)
-		rx_amenv_filtvar = 0;
-	else if (rx_amenv_filtvar > 2)
-		rx_amenv_filtvar = 2;
+    if (rx_amenv_filtvar < 0)
+        rx_amenv_filtvar = 0;
+    else if (rx_amenv_filtvar > 2)
+        rx_amenv_filtvar = 2;
 
     g_fpga_rb_reg_mem->rx_amenv_filtvar = ((uint32_t) rx_amenv_filtvar) & 0x0003;
 }

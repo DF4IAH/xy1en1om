@@ -15,7 +15,7 @@
  * @{
  */
 
-/* v0.94 WebSocket call-back functions */
+/* v0.95 WebSocket call-back functions */
 
 void ws_set_params_interval(int interval);
 void ws_set_signals_interval(int interval);
