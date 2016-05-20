@@ -163,9 +163,9 @@ enum rb_rx_modtyp_enum_t {
 
 /** @brief RadioBox RX modulation sub types (filter bandwidth) - using 4 bits */
 enum rb_rx_amenv_filtvar_enum_t {
-	RB_RX_AMENV_FILTVAR_wide = 0,
-	RB_RX_AMENV_FILTVAR_mid,
-	RB_RX_AMENV_FILTVAR_nar
+    RB_RX_AMENV_FILTVAR_wide = 0,
+    RB_RX_AMENV_FILTVAR_mid,
+    RB_RX_AMENV_FILTVAR_nar
 } RB_RX_AMENV_FILTVAR_ENUM;
 
 

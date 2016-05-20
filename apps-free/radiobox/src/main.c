@@ -275,18 +275,18 @@ const char* rp_app_desc(void)
 void rp_ac97_module_load(void)
 {
 #if 0
-	// unload sound module first
-	rp_ac97_module_unload();
+    // unload sound module first
+    rp_ac97_module_unload();
 #endif
 
-	system("redpitaya-ac97_start &");
+    system("redpitaya-ac97_start &");
 }
 
 
 /*----------------------------------------------------------------------------------*/
 void rp_ac97_module_unload(void)
 {
-	system("redpitaya-ac97_stop &");
+    system("redpitaya-ac97_stop &");
 }
 
 
