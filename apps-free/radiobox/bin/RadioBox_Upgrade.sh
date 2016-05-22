@@ -76,9 +76,9 @@ echo "... done."
 #echo "Step 9: adding dpkg selections and upgrading to the current Ubuntu release."
 #echo "------"
 #rw
-#dpkg --get-selections > data/RadioBox-Upgrade_dpkg-selections-current.dat
-#LC_ALL=C cat data/RadioBox-Upgrade_dpkg-selections-needed.dat data/RadioBox-Upgrade_dpkg-selections-current.dat | grep -v deinstall | sort | uniq > data/RadioBox-Upgrade_dpkg-selections-new.dat
-#dpkg --set-selections < data/RadioBox-Upgrade_dpkg-selections-new.dat
+#dpkg --get-selections > /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-current.dat
+#LC_ALL=C cat /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-needed.dat /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-current.dat | grep -v deinstall | sort | uniq > /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-new.dat
+#dpkg --set-selections < /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-new.dat
 #echo "... done."
 
 #echo
@@ -141,10 +141,11 @@ echo "-------"
 rw
 redpitaya-ac97_stop
 cp -a /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_asound.state /var/lib/alsa/asound.state
+tar -C / -Jxf /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_root-config-pulse.tar.7z
 redpitaya-ac97_start
 alsactl restore
-# amixer -D pulse sset Master 100% on
-# amixer -D pulse sset Capture 100% on
+amixer -D pulse sset Master 100% on
+amixer -D pulse sset Capture 100% on
 # amixer -D hw:CARD=RedPitayaAC97 sset Master 100% on
 # amixer -D hw:CARD=RedPitayaAC97 sset PCM 100% on
 # amixer -D hw:CARD=RedPitayaAC97 sset Line 100% off
@@ -152,6 +153,7 @@ alsactl restore
 pactl set-sink-volume 0 100%
 pactl set-source-volume 1 100%
 pactl set-source-output-volume 0 100%
+alsactl store
 echo "... done."
 
 echo
