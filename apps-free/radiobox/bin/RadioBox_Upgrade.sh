@@ -76,9 +76,9 @@ echo "... done."
 #echo "Step 9: adding dpkg selections and upgrading to the current Ubuntu release."
 #echo "------"
 #rw
-#dpkg --get-selections > /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-current.dat
-#LC_ALL=C cat /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-needed.dat /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-current.dat | grep -v deinstall | sort | uniq > /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-new.dat
-#dpkg --set-selections < /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_dpkg-selections-new.dat
+#dpkg --get-selections > data/RadioBox-Upgrade_dpkg-selections-current.dat
+#LC_ALL=C cat data/RadioBox-Upgrade_dpkg-selections-needed.dat data/RadioBox-Upgrade_dpkg-selections-current.dat | grep -v deinstall | sort | uniq > data/RadioBox-Upgrade_dpkg-selections-new.dat
+#dpkg --set-selections < data/RadioBox-Upgrade_dpkg-selections-new.dat
 #echo "... done."
 
 #echo
@@ -140,8 +140,19 @@ echo "Step 15: setting up sound system"
 echo "-------"
 rw
 redpitaya-ac97_stop
-cp -a /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_asound.state /var/lib/alsa/asound.state
+# renaming of pulse machine dependant files
+rm -rf /root/.config/pulse
 tar -C / -Jxf /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_root-config-pulse.tar.7z
+MI=`cat /etc/machine-id`
+for FILE in /root/.config/pulse/MACHINEID*; do
+	echo $FILE > /tmp/tmp.txt
+	NEWFILE=`sed -e s/MACHINEID/${MI}/ </tmp/tmp.txt`
+	mv $FILE $NEWFILE 2>/dev/null
+done
+ln -s /tmp/pulse-* /root/.config/pulse/$MI-runtime
+rm -f /tmp/tmp.txt
+cp -a /opt/redpitaya/www/apps/radiobox/bin/data/RadioBox-Upgrade_asound.state /var/lib/alsa/asound.state
+# done
 redpitaya-ac97_start
 alsactl restore
 amixer -D pulse sset Master 100% on
