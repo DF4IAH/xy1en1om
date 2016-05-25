@@ -56,57 +56,42 @@
 module regs #(
   // parameter RSZ = 14  // RAM size 2^RSZ
 )(
-   // ADC clock & reset
-   input                 clk_adc_125mhz  ,      // ADC based clock, 125 MHz
-   input                 adc_rstn_i      ,      // ADC reset - active low
-   input        [  1: 0] ac97_clks_i     ,      // sound interface sample rates
+   // clock & reset
+   input                 clk_100mhz      , // clock 100 MHz
+   input                 rstn_i          , // ADC reset - active low
 
    // activation
-   output                rb_activated    ,      // RB sub-module is activated
-
-   // LEDs
-   output reg            rb_leds_en      ,      // RB LEDs are enabled and overwrites HK sub-module
-   output reg   [  7: 0] rb_leds_data    ,      // RB LEDs data, LED0 is located at the connector, ... , LED7 is located near to the red / green / blue LEDs
-   input        [  7: 0] ac97_leds_i     ,      // AC97 diagnostic LEDs
-
-   // ADC data
-   input        [ 13: 0] adc_i[1:0]      ,      // ADC data { CHB, CHA }
-
-   // DAC data
-   output reg   [ 15: 0] rb_out_ch [1:0] ,      // RadioBox output signals
-
-   // ALSA
-   input        [ 31: 0] rb_line_out_i   ,      // Linux sound system ALSA LINE-OUT stereo, 2x 16 bit
-   output reg   [ 31: 0] rb_line_in_o    ,      // Linux sound system ALSA LINE-IN  stereo, 2x 16 bit
-   input                 ac97_irq_play_i ,      // monitor IRQ line for playing stream
-   input                 ac97_irq_rec_i  ,      // monitor IRQ line for recording stream
+   output                rb_activated    , // RB sub-module is activated
 
    // System bus - slave
-   input        [ 31: 0] sys_addr        ,      // bus saddress
-   input        [ 31: 0] sys_wdata       ,      // bus write data
-   input        [  3: 0] sys_sel         ,      // bus write byte select
-   input                 sys_wen         ,      // bus write enable
-   input                 sys_ren         ,      // bus read enable
-   output reg   [ 31: 0] sys_rdata       ,      // bus read data
-   output reg            sys_err         ,      // bus error indicator
-   output reg            sys_ack         ,      // bus acknowledge signal
+   input        [ 31: 0] sys_addr        ,  // bus saddress
+   input        [ 31: 0] sys_wdata       ,  // bus write data
+   input        [  3: 0] sys_sel         ,  // bus write byte select
+   input                 sys_wen         ,  // bus write enable
+   input                 sys_ren         ,  // bus read enable
+   output reg   [ 31: 0] sys_rdata       ,  // bus read data
+   output reg            sys_err         ,  // bus error indicator
+   output reg            sys_ack            // bus acknowledge signal
 
+/*
    // AXI streaming master from XADC
-   input              xadc_axis_aclk     ,      // AXI-streaming from the XADC, clock from the AXI-S FIFO
-   input   [ 16-1: 0] xadc_axis_tdata    ,      // AXI-streaming from the XADC, data
-   input   [  5-1: 0] xadc_axis_tid      ,      // AXI-streaming from the XADC, analog data source channel for this data
-                                                // TID=0x10:VAUXp0_VAUXn0 & TID=0x18:VAUXp8_VAUXn8, TID=0x11:VAUXp1_VAUXn1 & TID=0x19:VAUXp9_VAUXn9, TID=0x03:Vp_Vn
-   output reg         xadc_axis_tready   ,      // AXI-streaming from the XADC, slave indicating ready for data
-   input              xadc_axis_tvalid   ,      // AXI-streaming from the XADC, data transfer valid
+   input              xadc_axis_aclk     ,  // AXI-streaming from the XADC, clock from the AXI-S FIFO
+   input   [  151: 0] xadc_axis_tdata    ,  // AXI-streaming from the XADC, data
+   input   [    4: 0] xadc_axis_tid      ,  // AXI-streaming from the XADC, analog data source channel for this data
+                                            // TID=0x10:VAUXp0_VAUXn0 & TID=0x18:VAUXp8_VAUXn8, TID=0x11:VAUXp1_VAUXn1 & TID=0x19:VAUXp9_VAUXn9, TID=0x03:Vp_Vn
+   output reg         xadc_axis_tready   ,  // AXI-streaming from the XADC, slave indicating ready for data
+   input              xadc_axis_tvalid   ,  // AXI-streaming from the XADC, data transfer valid
+*/
 
+/*
    // AXI0 master
    output                axi0_clk_o      ,  // global clock
    output                axi0_rstn_o     ,  // global reset
-   output     [ 32-1: 0] axi0_waddr_o    ,  // system write address
-   output     [ 64-1: 0] axi0_wdata_o    ,  // system write data
-   output     [  8-1: 0] axi0_wsel_o     ,  // system write byte select
+   output     [   31: 0] axi0_waddr_o    ,  // system write address
+   output     [   63: 0] axi0_wdata_o    ,  // system write data
+   output     [    7: 0] axi0_wsel_o     ,  // system write byte select
    output                axi0_wvalid_o   ,  // system write data valid
-   output     [  4-1: 0] axi0_wlen_o     ,  // system write burst length
+   output     [    3: 0] axi0_wlen_o     ,  // system write burst length
    output                axi0_wfixed_o   ,  // system write burst type (fixed / incremental)
    input                 axi0_werr_i     ,  // system write error
    input                 axi0_wrdy_i     ,  // system write ready
@@ -114,20 +99,21 @@ module regs #(
    // AXI1 master
    output                axi1_clk_o      ,  // global clock
    output                axi1_rstn_o     ,  // global reset
-   output     [ 32-1: 0] axi1_waddr_o    ,  // system write address
-   output     [ 64-1: 0] axi1_wdata_o    ,  // system write data
-   output     [  8-1: 0] axi1_wsel_o     ,  // system write byte select
+   output     [   31: 0] axi1_waddr_o    ,  // system write address
+   output     [   63: 0] axi1_wdata_o    ,  // system write data
+   output     [    7: 0] axi1_wsel_o     ,  // system write byte select
    output                axi1_wvalid_o   ,  // system write data valid
-   output     [  4-1: 0] axi1_wlen_o     ,  // system write burst length
+   output     [    3: 0] axi1_wlen_o     ,  // system write burst length
    output                axi1_wfixed_o   ,  // system write burst type (fixed / incremental)
    input                 axi1_werr_i     ,  // system write error
    input                 axi1_wrdy_i        // system write ready
+*/
 );
 
 
 //---------------------------------------------------------------------------------
 // current date of compilation
-localparam CURRENT_DATE = 32'h16052501;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16052601;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -233,7 +219,7 @@ enum {
 //---------------------------------------------------------------------------------
 // Short hand names
 
-wire                   rb_enable              = regs[REG_RW_RB_CTRL][RB_CTRL_ENABLE];
+wire                   rb_enable = regs[REG_RW_RB_CTRL][RB_CTRL_ENABLE];
 
 
 //---------------------------------------------------------------------------------
@@ -245,8 +231,8 @@ assign        rb_activated = rb_reset_n;
 
 red_pitaya_rst_clken rb_rst_clken_master (
   // global signals
-  .clk                     ( clk_adc_125mhz              ),  // global 125 MHz clock
-  .global_rst_n            ( adc_rstn_i                  ),  // ADC global reset
+  .clk                     ( clk_100mhz                  ),  // clock 100 MHz
+  .global_rst_n            ( rstn_i                      ),  // global reset
 
   // input signals
   .enable_i                ( rb_enable                   ),
@@ -262,11 +248,11 @@ red_pitaya_rst_clken rb_rst_clken_master (
 //---------------------------------------------------------------------------------
 //  Status register
 
-always @(posedge clk_adc_125mhz)
-if (!adc_rstn_i)
+always @(posedge clk_100mhz)
+if (!rstn_i)
    regs[REG_RD_RB_STATUS] <= 32'b0;
 else begin
-   regs[REG_RD_RB_STATUS][RB_STAT_CLK_EN]                    <= rb_clk_en;
+   regs[REG_RD_RB_STATUS][RB_STAT_CLK_EN]         <= rb_clk_en;
    end
 
 
@@ -274,9 +260,9 @@ else begin
 //  System bus connection
 
 // write access to the registers
-always @(posedge clk_adc_125mhz)
-if (!adc_rstn_i) begin
-   regs[REG_RW_RB_CTRL]                      <= 32'h00000000;
+always @(posedge clk_100mhz)
+if (!rstn_i) begin
+   regs[REG_RW_RB_CTRL]                           <= 32'h00000000;
    end
 
 else begin
@@ -300,8 +286,8 @@ wire sys_en;
 assign sys_en = sys_wen | sys_ren;
 
 // read access to the registers
-always @(posedge clk_adc_125mhz)
-if (!adc_rstn_i) begin
+always @(posedge clk_100mhz)
+if (!rstn_i) begin
    sys_err      <= 1'b0;
    sys_ack      <= 1'b0;
    sys_rdata    <= 32'h00000000;
@@ -338,5 +324,6 @@ else begin
       sys_ack <= 1'b0;
       end
    end
+
 
 endmodule

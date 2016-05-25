@@ -16,7 +16,7 @@
 
 module top (
    // PS connections
-   inout  [54-1: 0] FIXED_IO_mio       ,
+   inout  [  53: 0] FIXED_IO_mio       ,
    inout            FIXED_IO_ps_clk    ,
    inout            FIXED_IO_ps_porb   ,
    inout            FIXED_IO_ps_srstb  ,
@@ -24,17 +24,17 @@ module top (
    inout            FIXED_IO_ddr_vrp   ,
 
    // DDR
-   inout  [15-1: 0] DDR_addr           ,
-   inout  [ 3-1: 0] DDR_ba             ,
+   inout  [  14: 0] DDR_addr           ,
+   inout  [   2: 0] DDR_ba             ,
    inout            DDR_cas_n          ,
    inout            DDR_ck_n           ,
    inout            DDR_ck_p           ,
    inout            DDR_cke            ,
    inout            DDR_cs_n           ,
-   inout  [ 4-1: 0] DDR_dm             ,
-   inout  [32-1: 0] DDR_dq             ,
-   inout  [ 4-1: 0] DDR_dqs_n          ,
-   inout  [ 4-1: 0] DDR_dqs_p          ,
+   inout  [   3: 0] DDR_dm             ,
+   inout  [  31: 0] DDR_dq             ,
+   inout  [   3: 0] DDR_dqs_n          ,
+   inout  [   3: 0] DDR_dqs_p          ,
    inout            DDR_odt            ,
    inout            DDR_ras_n          ,
    inout            DDR_reset_n        ,
@@ -44,48 +44,45 @@ module top (
    // Red Pitaya periphery
 
    // ADC
-   input  [16-1: 2] adc_dat_a_i        ,  // ADC CH1
-   input  [16-1: 2] adc_dat_b_i        ,  // ADC CH2
+   input  [  15: 2] adc_dat_a_i        ,  // ADC CH1
+   input  [  15: 2] adc_dat_b_i        ,  // ADC CH2
    input            adc_clk_p_i        ,  // ADC data clock
    input            adc_clk_n_i        ,  // ADC data clock
-   output [ 2-1: 0] adc_clk_o          ,  // optional ADC clock source
+   output [   1: 0] adc_clk_o          ,  // optional ADC clock source
    output           adc_cdcs_o         ,  // ADC clock duty cycle stabilizer
 
    // DAC
-   output [14-1: 0] dac_dat_o          ,  // DAC combined data
+   output [  13: 0] dac_dat_o          ,  // DAC combined data
    output           dac_wrt_o          ,  // DAC write
    output           dac_sel_o          ,  // DAC channel select
    output           dac_clk_o          ,  // DAC clock
    output           dac_rst_o          ,  // DAC reset
 
    // PWM DAC
-   output [ 4-1: 0] dac_pwm_o          ,  // serial PWM DAC
+   output [   3: 0] dac_pwm_o          ,  // serial PWM DAC
 
    // XADC
-   input  [ 5-1: 0] vinp_i             ,  // voltages p
-   input  [ 5-1: 0] vinn_i             ,  // voltages n
+   input  [   4: 0] vinp_i             ,  // voltages p
+   input  [   4: 0] vinn_i             ,  // voltages n
 
    // Expansion connector
-   inout  [ 8-1: 0] exp_p_io           ,
-   inout  [ 8-1: 0] exp_n_io           ,
+   inout  [   7: 0] exp_p_io           ,
+   inout  [   7: 0] exp_n_io           ,
 
-   // SATA connector
-   output [ 2-1: 0] daisy_p_o          ,  // line 1 is clock capable
-   output [ 2-1: 0] daisy_n_o          ,
-   input  [ 2-1: 0] daisy_p_i          ,  // line 1 is clock capable
-   input  [ 2-1: 0] daisy_n_i          ,
+   // SATA connectors
+   output [   1: 0] daisy_p_o          ,  // line 1 is clock capable
+   output [   1: 0] daisy_n_o          ,
+   input  [   1: 0] daisy_p_i          ,  // line 1 is clock capable
+   input  [   1: 0] daisy_n_i          ,
 
    // LED
-   output [ 8-1: 0] led_o       
+   output [   7: 0] led_o
 );
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // local signals
 ////////////////////////////////////////////////////////////////////////////////
-
-// Clocks
-wire         [ 1:0]   ac97_clks;                                                                            // AC97 sample clocks in ascending order
 
 // PLL signals
 wire                  adc_clk_in;
@@ -100,85 +97,68 @@ wire                  pll_locked;
 // fast serial signals
 wire                  ser_clk ;
 
-// PWM clock and reset
-wire                  pwm_clk ;
-reg                   pwm_rstn;
-
 // Interrupt signals
-wire                  ac97_irq_play;
-wire                  ac97_irq_rec;
-wire         [15:1]   irqs = { 13'b0, ac97_irq_rec, ac97_irq_play };                                        // irqs[1] is mapped to IRQ-ID=62, SPI[30] -  high active. SPI[30]: play IRQ, SPI[31]: record IRQ
+wire         [  15:1] irqs = { 15'b0 };                                                                     // irqs[1] is mapped to IRQ-ID=62, SPI[30] -  high active. SPI[30]: play IRQ, SPI[31]: record IRQ
 
 // ADC signals
 wire                  adc_clk;
 reg                   adc_rstn;
-reg          [14-1:0] adc_dat_a, adc_dat_b;
-wire  signed [14-1:0] adc_a    , adc_b    ;
+reg          [  13:0] adc_dat_a, adc_dat_b;
+wire  signed [  13:0] adc_a    , adc_b    ;
 
 // DAC signals
 wire                  dac_clk_1x;
 wire                  dac_clk_2x;
 wire                  dac_clk_2p;
 reg                   dac_rst;
-reg          [14-1:0] dac_dat_a, dac_dat_b;
-wire         [14-1:0] dac_a    , dac_b    ;
-wire  signed [15-1:0] dac_a_sum, dac_b_sum;
+reg          [  13:0] dac_dat_a, dac_dat_b;
+wire         [  13:0] dac_a    , dac_b    ;
+wire  signed [  14:0] dac_a_sum, dac_b_sum;
 
-// AC97 audio/signal nodes
-wire     [ 2*16-1: 0] ac97_line_in;                                                                         // [15:0] = LEFT, [31:16] = RIGHT
-wire     [ 2*16-1: 0] ac97_line_out;                                                                        // [15:0] = LEFT, [31:16] = RIGHT
+wire         [  15:0] rb_out_ch     [1:0] ;
 
-// ASG
-wire  signed [14-1:0] asg_a    , asg_b    ;
 
-// PID
-wire  signed [14-1:0] pid_a    , pid_b    ;
+// TODO: to be removed when rb_out_ch[x] driver exists
+assign rb_out_ch[0] = 16'b0;
+assign rb_out_ch[1] = 16'b0;
+assign led_o        =  8'b0;
+assign dac_pwm_o    =  4'b0;
 
-// configuration
-wire                  digital_loop;
-
-// RadioBox in signals
-wire         [ 8-1:0] ac97_leds;
-// RadioBox out signals
-wire                  rb_leds_en;
-wire         [ 8-1:0] rb_leds_data;
-wire                  rb_activated        ;  // RadioBox is activated
-wire         [16-1:0] rb_out_ch     [1:0] ;  // RadioBox output signals
 
 //---------------------------------------------------------------------------------
 //
 //  Connections to PS
 
-wire  [  4-1: 0] fclk                      ; //[0]-125MHz, [1]-250MHz, [2]-50MHz, [3]-200MHz
-wire  [  4-1: 0] frstn                     ;
+wire  [    0: 0] fclk                      ; //[0]-100MHz.
+wire  [    0: 0] frstn                     ;
 
 wire             ps_sys_clk                ;
 wire             ps_sys_rstn               ;
-wire  [ 32-1: 0] ps_sys_addr               ;
-wire  [ 32-1: 0] ps_sys_wdata              ;
-wire  [  4-1: 0] ps_sys_sel                ;
+wire  [   31: 0] ps_sys_addr               ;
+wire  [   31: 0] ps_sys_wdata              ;
+wire  [    3: 0] ps_sys_sel                ;
 wire             ps_sys_wen                ;
 wire             ps_sys_ren                ;
-wire  [ 32-1: 0] ps_sys_rdata              ;
+wire  [   31: 0] ps_sys_rdata              ;
 wire             ps_sys_err                ;
 wire             ps_sys_ack                ;
 
 // AXI masters
 wire             axi1_clk    , axi0_clk    ;
 wire             axi1_rstn   , axi0_rstn   ;
-wire  [ 32-1: 0] axi1_waddr  , axi0_waddr  ;
-wire  [ 64-1: 0] axi1_wdata  , axi0_wdata  ;
-wire  [  8-1: 0] axi1_wsel   , axi0_wsel   ;
+wire  [   31: 0] axi1_waddr  , axi0_waddr  ;
+wire  [   63: 0] axi1_wdata  , axi0_wdata  ;
+wire  [    7: 0] axi1_wsel   , axi0_wsel   ;
 wire             axi1_wvalid , axi0_wvalid ;
-wire  [  4-1: 0] axi1_wlen   , axi0_wlen   ;
+wire  [    3: 0] axi1_wlen   , axi0_wlen   ;
 wire             axi1_wfixed , axi0_wfixed ;
 wire             axi1_werr   , axi0_werr   ;
 wire             axi1_wrdy   , axi0_wrdy   ;
 
 // AXIS MASTER from the XADC
 wire             xadc_axis_aclk            ;
-wire  [ 16-1: 0] xadc_axis_tdata           ;
-wire  [  5-1: 0] xadc_axis_tid             ;
+wire  [   15: 0] xadc_axis_tdata           ;
+wire  [    4: 0] xadc_axis_tid             ;
 wire             xadc_axis_tready          ;
 wire             xadc_axis_tvalid          ;
 
@@ -189,6 +169,7 @@ red_pitaya_ps i_ps (
   .FIXED_IO_ps_srstb  (  FIXED_IO_ps_srstb           ),
   .FIXED_IO_ddr_vrn   (  FIXED_IO_ddr_vrn            ),
   .FIXED_IO_ddr_vrp   (  FIXED_IO_ddr_vrp            ),
+
   // DDR
   .DDR_addr      (DDR_addr    ),
   .DDR_ba        (DDR_ba      ),
@@ -209,11 +190,14 @@ red_pitaya_ps i_ps (
   .fclk_clk_o    (fclk        ),
   .fclk_rstn_o   (frstn       ),
   .dcm_locked    (pll_locked  ),
+
   // Interrupts
   .irq_f2p       (irqs        ),
+
   // ADC analog inputs
   .vinp_i        (vinp_i      ),  // voltages p
   .vinn_i        (vinn_i      ),  // voltages n
+
    // system read/write channel
   .sys_clk_o     (ps_sys_clk  ),  // system clock
   .sys_rstn_o    (ps_sys_rstn ),  // system reset - active low
@@ -225,6 +209,7 @@ red_pitaya_ps i_ps (
   .sys_rdata_i   (ps_sys_rdata),  // system read data
   .sys_err_i     (ps_sys_err  ),  // system error indicator
   .sys_ack_i     (ps_sys_ack  ),  // system acknowledge signal
+
   // AXI masters
   .axi1_clk_i    (axi1_clk    ),  .axi0_clk_i    (axi0_clk    ),  // global clock
   .axi1_rstn_i   (axi1_rstn   ),  .axi0_rstn_i   (axi0_rstn   ),  // global reset
@@ -236,6 +221,7 @@ red_pitaya_ps i_ps (
   .axi1_wfixed_i (axi1_wfixed ),  .axi0_wfixed_i (axi0_wfixed ),  // system write burst type (fixed / incremental)
   .axi1_werr_o   (axi1_werr   ),  .axi0_werr_o   (axi0_werr   ),  // system write error
   .axi1_wrdy_o   (axi1_wrdy   ),  .axi0_wrdy_o   (axi0_wrdy   ),  // system write ready
+
   // AXIS MASTER from the XADC
   .xadc_axis_aclk     (xadc_axis_aclk             ),  // AXI-streaming from the XADC, clock to the AXI-S FIFO
   .xadc_axis_tdata    (xadc_axis_tdata            ),  // AXI-streaming from the XADC, data
@@ -244,15 +230,16 @@ red_pitaya_ps i_ps (
   .xadc_axis_tvalid   (xadc_axis_tvalid           )   // AXI-streaming from the XADC, data transfer valid
 );
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // system bus decoder & multiplexer (it breaks memory addresses into 8 regions)
 ////////////////////////////////////////////////////////////////////////////////
 
 wire              sys_clk   = ps_sys_clk  ;
 wire              sys_rstn  = ps_sys_rstn ;
-wire  [  32-1: 0] sys_addr  = ps_sys_addr ;
-wire  [  32-1: 0] sys_wdata = ps_sys_wdata;
-wire  [   4-1: 0] sys_sel   = ps_sys_sel  ;
+wire  [    31: 0] sys_addr  = ps_sys_addr ;
+wire  [    31: 0] sys_wdata = ps_sys_wdata;
+wire  [     3: 0] sys_sel   = ps_sys_sel  ;
 wire  [8   -1: 0] sys_wen   ;
 wire  [8   -1: 0] sys_ren   ;
 wire  [8*32-1: 0] sys_rdata ;
@@ -279,15 +266,17 @@ IBUFDS i_clk (.I (adc_clk_p_i), .IB (adc_clk_n_i), .O (adc_clk_in));  // differe
 
 red_pitaya_pll i_pll (
   // inputs
-  .clk         (adc_clk_in),  // clock
-  .rstn        (frstn[0]  ),  // reset - active low
+  .clk         (adc_clk_in    ),  // clock ADC 125 MHz
+  .rstn        (frstn[0]      ),  // reset - active low
+
   // output clocks
-  .clk_adc     (pll_adc_clk   ),  // ADC clock
+  .clk_adc     (pll_adc_clk   ),  // ADC clock 125MHz
   .clk_dac_1x  (pll_dac_clk_1x),  // DAC clock 125MHz
   .clk_dac_2x  (pll_dac_clk_2x),  // DAC clock 250MHz
-  .clk_dac_2p  (pll_dac_clk_2p),  // DAC clock 250MHz -45DGR
+  .clk_dac_2p  (pll_dac_clk_2p),  // DAC clock 250MHz -45 deg
   .clk_ser     (pll_ser_clk   ),  // fast serial clock
   .clk_pwm     (pll_pwm_clk   ),  // PWM clock
+
   // status outputs
   .pll_locked  (pll_locked)
 );
@@ -307,9 +296,6 @@ adc_rstn <=  frstn[0] &  pll_locked;
 always @(posedge dac_clk_1x)
 dac_rst  <= ~frstn[0] | ~pll_locked;
 
-// PWM reset (active low)
-always @(posedge pwm_clk)
-pwm_rstn <=  frstn[0] &  pll_locked;
 
 ////////////////////////////////////////////////////////////////////////////////
 // ADC IO
@@ -327,38 +313,24 @@ assign adc_cdcs_o = 1'b1 ;
 // lowest 2 bits reserved for 16bit ADC
 always @(posedge adc_clk)
 begin
-  adc_dat_a <= adc_dat_a_i[16-1:2];
-  adc_dat_b <= adc_dat_b_i[16-1:2];
+  adc_dat_a <= adc_dat_a_i[15:2];
+  adc_dat_b <= adc_dat_b_i[15:2];
 end
     
 // transform into 2's complement (negative slope)
-assign adc_a = digital_loop ? dac_a : {adc_dat_a[14-1], ~adc_dat_a[14-2:0]};
-assign adc_b = digital_loop ? dac_b : {adc_dat_b[14-1], ~adc_dat_b[14-2:0]};
+assign adc_a = digital_loop ?  dac_a : {adc_dat_a[13], ~adc_dat_a[12:0]};
+assign adc_b = digital_loop ?  dac_b : {adc_dat_b[13], ~adc_dat_b[12:0]};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // DAC IO
 ////////////////////////////////////////////////////////////////////////////////
 
-// Sumation of ASG and PID signal perform saturation before sending to DAC 
-assign dac_a_sum = asg_a + pid_a;
-assign dac_b_sum = asg_b + pid_b;
-
-// saturation
-assign dac_a = (^dac_a_sum[15-1:15-2]) ? {dac_a_sum[15-1], {13{~dac_a_sum[15-1]}}} : dac_a_sum[14-1:0];
-assign dac_b = (^dac_b_sum[15-1:15-2]) ? {dac_b_sum[15-1], {13{~dac_b_sum[15-1]}}} : dac_b_sum[14-1:0];
-
 // output registers + signed to unsigned (also to negative slope)
 always @(posedge dac_clk_1x)
 begin
-   if (rb_activated) begin
-      dac_dat_a <= {rb_out_ch[0][16-1], ~rb_out_ch[0][16-2:2]};
-      dac_dat_b <= {rb_out_ch[1][16-1], ~rb_out_ch[1][16-2:2]};
-      end
-
-   else begin
-      dac_dat_a <= {dac_a[14-1], ~dac_a[14-2:0]};
-      dac_dat_b <= {dac_b[14-1], ~dac_b[14-2:0]};
-      end
+   dac_dat_a <= {rb_out_ch[0][15], ~rb_out_ch[0][14:2]};
+   dac_dat_b <= {rb_out_ch[1][15], ~rb_out_ch[1][14:2]};
 end
 
 // DDR outputs
@@ -366,7 +338,8 @@ ODDR oddr_dac_clk          (.Q(dac_clk_o), .D1(1'b0     ), .D2(1'b1     ), .C(da
 ODDR oddr_dac_wrt          (.Q(dac_wrt_o), .D1(1'b0     ), .D2(1'b1     ), .C(dac_clk_2x), .CE(1'b1), .R(1'b0   ), .S(1'b0));
 ODDR oddr_dac_sel          (.Q(dac_sel_o), .D1(1'b1     ), .D2(1'b0     ), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0));
 ODDR oddr_dac_rst          (.Q(dac_rst_o), .D1(dac_rst  ), .D2(dac_rst  ), .C(dac_clk_1x), .CE(1'b1), .R(1'b0   ), .S(1'b0));
-ODDR oddr_dac_dat [14-1:0] (.Q(dac_dat_o), .D1(dac_dat_b), .D2(dac_dat_a), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0));
+ODDR oddr_dac_dat [  13:0] (.Q(dac_dat_o), .D1(dac_dat_b), .D2(dac_dat_a), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0));
+
 
 //---------------------------------------------------------------------------------
 // 0: House Keeping
@@ -378,12 +351,15 @@ wire  [  8-1: 0] hk_leds_data        ;
 
 red_pitaya_hk i_hk (
   // system signals
-  .clk_i           (  adc_clk                    ),  // clock
-  .rstn_i          (  adc_rstn                   ),  // reset - active low
+  .clk_i           (  fclk[0]                    ),  // clock 100 MHz
+  .rstn_i          (  frstn[0]                   ),  // reset - active low
+
   // LED
   .led_o           (  hk_leds_data               ),  // LED output
+
   // global configuration
   .digital_loop    (  digital_loop               ),
+
   // Expansion connector
   .exp_p_dat_i     (  exp_p_in                   ),  // input data
   .exp_p_dat_o     (  exp_p_out                  ),  // output data
@@ -391,6 +367,7 @@ red_pitaya_hk i_hk (
   .exp_n_dat_i     (  exp_n_in                   ),
   .exp_n_dat_o     (  exp_n_out                  ),
   .exp_n_dir_o     (  exp_n_dir                  ),
+
    // System bus
   .sys_addr        (  sys_addr                   ),  // address
   .sys_wdata       (  sys_wdata                  ),  // write data
@@ -402,8 +379,8 @@ red_pitaya_hk i_hk (
   .sys_ack         (  sys_ack[0]                 )   // acknowledge signal
 );
 
-IOBUF i_iobufp [8-1:0] (.O(exp_p_in), .IO(exp_p_io), .I(exp_p_out), .T(~exp_p_dir) );
-IOBUF i_iobufn [8-1:0] (.O(exp_n_in), .IO(exp_n_io), .I(exp_n_out), .T(~exp_n_dir) );
+IOBUF i_iobufp [7:0] (.O(exp_p_in), .IO(exp_p_io), .I(exp_p_out), .T(~exp_p_dir) );
+IOBUF i_iobufn [7:0] (.O(exp_n_in), .IO(exp_n_io), .I(exp_n_out), .T(~exp_n_dir) );
 
 //---------------------------------------------------------------------------------
 // 1: unused system bus slave ports
@@ -415,29 +392,22 @@ assign sys_ack  [1       ] =  1'b1;
 */
 
 regs i_regs (
-  // ADC clock & reset
-  .clk_adc_125mhz  ( adc_clk                     ),  // clock 125 MHz
-  .adc_rstn_i      ( adc_rstn                    ),  // reset - active low
-  .ac97_clks_i     ( ac97_clks                   ),  // sound interface sample rates
+  // clock & reset
+  .clk_100mhz      ( fclk[0]                     ),  // clock 100 MHz
+  .rstn_i          ( frstn[0]                    ),  // reset - active low
 
   // activation
   .rb_activated    ( rb_activated                ),  // RadioBox is enabled
 
-  // LEDs
-  .rb_leds_en      ( rb_leds_en                  ),  // RB does overwrite LEDs state
-  .rb_leds_data    ( rb_leds_data                ),  // RB LEDs data
-  .ac97_leds_i     ( ac97_leds                   ),  // AC97 diagnostic LEDs
-
+/*
   // ADC data
   .adc_i           ( {adc_b, adc_a}              ),  // ADC data { CHB, CHA }
+*/
+
+/*
   // DAC data
   .rb_out_ch       ({rb_out_ch[1], rb_out_ch[0] }),  // RadioBox output signals
-
-  // ALSA
-  .rb_line_out_i   ( ac97_line_out[2*16-1:0]     ),  // Linux sound system ALSA LINE-OUT stereo, 2x 16 bit
-  .rb_line_in_o    ( ac97_line_in [2*16-1:0]     ),  // Linux sound system ALSA LINE-IN  stereo, 2x 16 bit
-  .ac97_irq_play_i ( ac97_irq_play               ),  // monitor IRQ line for playing stream
-  .ac97_irq_rec_i  ( ac97_irq_rec                ),  // monitor IRQ line for recording stream
+*/
 
   // System bus
   .sys_addr        ( sys_addr                    ),  // address
@@ -447,15 +417,18 @@ regs i_regs (
   .sys_ren         ( sys_ren[1]                  ),  // read enable
   .sys_rdata       ( sys_rdata[ 1*32+:32]        ),  // read data
   .sys_err         ( sys_err[1]                  ),  // error indicator
-  .sys_ack         ( sys_ack[1]                  ),  // acknowledge signal
+  .sys_ack         ( sys_ack[1]                  )   // acknowledge signal
 
+/*
   // AXIS MASTER from the XADC
   .xadc_axis_aclk  ( xadc_axis_aclk              ),  // AXI-streaming from the XADC, clock from the AXI-S FIFO
   .xadc_axis_tdata ( xadc_axis_tdata             ),  // AXI-streaming from the XADC, data
   .xadc_axis_tid   ( xadc_axis_tid               ),  // AXI-streaming from the XADC, analog data source channel for this data
   .xadc_axis_tready( xadc_axis_tready            ),  // AXI-streaming from the XADC, slave indicating ready for data
   .xadc_axis_tvalid( xadc_axis_tvalid            ),  // AXI-streaming from the XADC, data transfer valid
+*/
 
+/*
   // AXI0 master                 // AXI1 master
   .axi0_clk_o    (axi0_clk   ),  .axi1_clk_o    (axi1_clk   ),
   .axi0_rstn_o   (axi0_rstn  ),  .axi1_rstn_o   (axi1_rstn  ),
@@ -467,6 +440,7 @@ regs i_regs (
   .axi0_wfixed_o (axi0_wfixed),  .axi1_wfixed_o (axi1_wfixed),
   .axi0_werr_i   (axi0_werr  ),  .axi1_werr_i   (axi1_werr  ),
   .axi0_wrdy_i   (axi0_wrdy  ),  .axi1_wrdy_i   (axi1_wrdy  )
+*/
 );
 
 
@@ -515,8 +489,7 @@ assign sys_ack  [7       ] =  1'b1;
 
 
 //---------------------------------------------------------------------------------
-//  Daisy chain
-//  simple communication module
+//  SATA connectors
 
 assign daisy_p_o = 2'bzz;
 assign daisy_n_o = 2'bzz;
