@@ -1,12 +1,12 @@
 /**
- * $Id: red_pitaya_top.v 1271 2014-02-25 12:32:34Z matej.oblak $
+ * $Id: top.sv 1271 2016-05-25 15:42:00Z espero7757@gmx.net $
  *
- * @brief Red Pitaya TOP module. It connects external pins and PS part with 
- *        other application modules. 
+ * @brief TOP module. It connects the external pins and the
+ *        PS part with other application modules. 
  *
- * @Author Matej Oblak
+ * @Author Ulrich Habel (DF4IAH)
  *
- * (c) Red Pitaya  http://www.redpitaya.com
+ * (c) DF4IAH-Solutions
  *
  * This part of code is written in Verilog hardware description language (HDL).
  * Please visit http://en.wikipedia.org/wiki/Verilog
@@ -14,54 +14,7 @@
  */
 
 
-/**
- * GENERAL DESCRIPTION:
- *
- * Top module connects PS part with rest of Red Pitaya applications.  
- *
- *
- *                   /-------\      
- *   PS DDR <------> |  PS   |      AXI <-> custom bus
- *   PS MIO <------> |   /   | <------------+
- *   PS CLK -------> |  ARM  |              |
- *                   \-------/              |
- *                                          |
- *                            /-------\     |
- *                         -> | SCOPE | <---+
- *                         |  \-------/     |
- *                         |                |
- *            /--------\   |   /-----\      |
- *   ADC ---> |        | --+-> |     |      |
- *            | ANALOG |       | PID | <----+
- *   DAC <--- |        | <---- |     |      |
- *            \--------/   ^   \-----/      |
- *                         |                |
- *                         |  /-------\     |
- *                         -- |  ASG  | <---+ 
- *                            \-------/     |
- *                                          |
- *             /--------\                   |
- *    RX ----> |        |                   |
- *   SATA      | DAISY  | <-----------------+
- *    TX <---- |        | 
- *             \--------/ 
- *               |    |
- *               |    |
- *               (FREE)
- *
- *
- * Inside analog module, ADC data is translated from unsigned neg-slope into
- * two's complement. Similar is done on DAC data.
- *
- * Scope module stores data from ADC into RAM, arbitrary signal generator (ASG)
- * sends data from RAM to DAC. MIMO PID uses ADC ADC as input and DAC as its output.
- *
- * Daisy chain connects with other boards with fast serial link. Data which is
- * send and received is at the moment undefined. This is left for the user.
- * 
- */
-
-module red_pitaya_top (
+module top (
    // PS connections
    inout  [54-1: 0] FIXED_IO_mio       ,
    inout            FIXED_IO_ps_clk    ,
@@ -324,7 +277,7 @@ assign ps_sys_ack   = |(sys_cs & sys_ack);
 // diferential clock input
 IBUFDS i_clk (.I (adc_clk_p_i), .IB (adc_clk_n_i), .O (adc_clk_in));  // differential clock input
 
-red_pitaya_pll pll (
+red_pitaya_pll i_pll (
   // inputs
   .clk         (adc_clk_in),  // clock
   .rstn        (frstn[0]  ),  // reset - active low
@@ -416,7 +369,7 @@ ODDR oddr_dac_rst          (.Q(dac_rst_o), .D1(dac_rst  ), .D2(dac_rst  ), .C(da
 ODDR oddr_dac_dat [14-1:0] (.Q(dac_dat_o), .D1(dac_dat_b), .D2(dac_dat_a), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0));
 
 //---------------------------------------------------------------------------------
-//  0: House Keeping
+// 0: House Keeping
 
 wire  [  8-1: 0] exp_p_in , exp_n_in ;
 wire  [  8-1: 0] exp_p_out, exp_n_out;
@@ -453,171 +406,15 @@ IOBUF i_iobufp [8-1:0] (.O(exp_p_in), .IO(exp_p_io), .I(exp_p_out), .T(~exp_p_di
 IOBUF i_iobufn [8-1:0] (.O(exp_n_in), .IO(exp_n_io), .I(exp_n_out), .T(~exp_n_dir) );
 
 //---------------------------------------------------------------------------------
-//  1: Oscilloscope application
+// 1: unused system bus slave ports
 
 /*
-// unused system bus slave ports
 assign sys_rdata[1*32+:32] = 32'h0;
 assign sys_err  [1       ] =  1'b0;
 assign sys_ack  [1       ] =  1'b1;
 */
 
-wire trig_asg_out ;
-
-red_pitaya_scope i_scope (
-  // ADC
-  .adc_a_i         (  adc_a                      ),  // CH 1
-  .adc_b_i         (  adc_b                      ),  // CH 2
-  .adc_clk_i       (  adc_clk                    ),  // clock
-  .adc_rstn_i      (  adc_rstn                   ),  // reset - active low
-  .trig_ext_i      (  exp_p_in[0]                ),  // external trigger
-  .trig_asg_i      (  trig_asg_out               ),  // ASG trigger
-  // AXI0 master                 // AXI1 master
-  .axi0_clk_o    (axi0_clk   ),  .axi1_clk_o    (axi1_clk   ),
-  .axi0_rstn_o   (axi0_rstn  ),  .axi1_rstn_o   (axi1_rstn  ),
-  .axi0_waddr_o  (axi0_waddr ),  .axi1_waddr_o  (axi1_waddr ),
-  .axi0_wdata_o  (axi0_wdata ),  .axi1_wdata_o  (axi1_wdata ),
-  .axi0_wsel_o   (axi0_wsel  ),  .axi1_wsel_o   (axi1_wsel  ),
-  .axi0_wvalid_o (axi0_wvalid),  .axi1_wvalid_o (axi1_wvalid),
-  .axi0_wlen_o   (axi0_wlen  ),  .axi1_wlen_o   (axi1_wlen  ),
-  .axi0_wfixed_o (axi0_wfixed),  .axi1_wfixed_o (axi1_wfixed),
-  .axi0_werr_i   (axi0_werr  ),  .axi1_werr_i   (axi1_werr  ),
-  .axi0_wrdy_i   (axi0_wrdy  ),  .axi1_wrdy_i   (axi1_wrdy  ),
-  // System bus
-  .sys_addr        (  sys_addr                   ),  // address
-  .sys_wdata       (  sys_wdata                  ),  // write data
-  .sys_sel         (  sys_sel                    ),  // write byte select
-  .sys_wen         (  sys_wen[1]                 ),  // write enable
-  .sys_ren         (  sys_ren[1]                 ),  // read enable
-  .sys_rdata       (  sys_rdata[ 1*32+31: 1*32]  ),  // read data
-  .sys_err         (  sys_err[1]                 ),  // error indicator
-  .sys_ack         (  sys_ack[1]                 )   // acknowledge signal
-);
-
-//---------------------------------------------------------------------------------
-//  2: DAC arbitrary signal generator
-
-/*
-// unused system bus slave ports
-assign sys_rdata[2*32+:32] = 32'h0;
-assign sys_err  [2       ] =  1'b0;
-assign sys_ack  [2       ] =  1'b1;
-*/
-
-red_pitaya_asg i_asg (
-   // DAC
-  .dac_a_o         (  asg_a                      ),  // CH 1
-  .dac_b_o         (  asg_b                      ),  // CH 2
-  .dac_clk_i       (  adc_clk                    ),  // clock
-  .dac_rstn_i      (  adc_rstn                   ),  // reset - active low
-  .trig_a_i        (  exp_p_in[0]                ),
-  .trig_b_i        (  exp_p_in[0]                ),
-  .trig_out_o      (  trig_asg_out               ),
-  // System bus
-  .sys_addr        (  sys_addr                   ),  // address
-  .sys_wdata       (  sys_wdata                  ),  // write data
-  .sys_sel         (  sys_sel                    ),  // write byte select
-  .sys_wen         (  sys_wen[2]                 ),  // write enable
-  .sys_ren         (  sys_ren[2]                 ),  // read enable
-  .sys_rdata       (  sys_rdata[ 2*32+31: 2*32]  ),  // read data
-  .sys_err         (  sys_err[2]                 ),  // error indicator
-  .sys_ack         (  sys_ack[2]                 )   // acknowledge signal
-);
-
-//---------------------------------------------------------------------------------
-//  3: MIMO PID controller
-
-/*
-// unused system bus slave ports
-assign sys_rdata[3*32+:32] = 32'h0;
-assign sys_err  [3       ] =  1'b0;
-assign sys_ack  [3       ] =  1'b1;
-*/
-
-red_pitaya_pid i_pid (
-   // signals
-  .clk_i           (  adc_clk                    ),  // clock
-  .rstn_i          (  adc_rstn                   ),  // reset - active low
-  .dat_a_i         (  adc_a                      ),  // in 1
-  .dat_b_i         (  adc_b                      ),  // in 2
-  .dat_a_o         (  pid_a                      ),  // out 1
-  .dat_b_o         (  pid_b                      ),  // out 2
-  // System bus
-  .sys_addr        (  sys_addr                   ),  // address
-  .sys_wdata       (  sys_wdata                  ),  // write data
-  .sys_sel         (  sys_sel                    ),  // write byte select
-  .sys_wen         (  sys_wen[3]                 ),  // write enable
-  .sys_ren         (  sys_ren[3]                 ),  // read enable
-  .sys_rdata       (  sys_rdata[ 3*32+31: 3*32]  ),  // read data
-  .sys_err         (  sys_err[3]                 ),  // error indicator
-  .sys_ack         (  sys_ack[3]                 )   // acknowledge signal
-);
-
-//---------------------------------------------------------------------------------
-//  4: Analog mixed signals
-//  XADC and slow PWM DAC control
-
-/*
-// unused system bus slave ports
-assign sys_rdata[4*32+:32] = 32'h0;
-assign sys_err  [4       ] =  1'b0;
-assign sys_ack  [4       ] =  1'b1;
-*/
-
-wire  [ 24-1: 0] pwm_cfg_a;
-wire  [ 24-1: 0] pwm_cfg_b;
-wire  [ 24-1: 0] pwm_cfg_c;
-wire  [ 24-1: 0] pwm_cfg_d;
-
-red_pitaya_ams i_ams (
-   // power test
-  .clk_i           (  adc_clk                    ),  // clock
-  .rstn_i          (  adc_rstn                   ),  // reset - active low
-  // PWM configuration
-  .dac_a_o         (  pwm_cfg_a                  ),
-  .dac_b_o         (  pwm_cfg_b                  ),
-  .dac_c_o         (  pwm_cfg_c                  ),
-  .dac_d_o         (  pwm_cfg_d                  ),
-   // System bus
-  .sys_addr        (  sys_addr                   ),  // address
-  .sys_wdata       (  sys_wdata                  ),  // write data
-  .sys_sel         (  sys_sel                    ),  // write byte select
-  .sys_wen         (  sys_wen[4]                 ),  // write enable
-  .sys_ren         (  sys_ren[4]                 ),  // read enable
-  .sys_rdata       (  sys_rdata[ 4*32+31: 4*32]  ),  // read data
-  .sys_err         (  sys_err[4]                 ),  // error indicator
-  .sys_ack         (  sys_ack[4]                 )   // acknowledge signal
-);
-
-red_pitaya_pwm pwm [4-1:0] (
-  // system signals
-  .clk   (pwm_clk ),
-  .rstn  (pwm_rstn),
-  // configuration
-  .cfg   ({pwm_cfg_d, pwm_cfg_c, pwm_cfg_b, pwm_cfg_a}),
-  // PWM outputs
-  .pwm_o (dac_pwm_o),
-  .pwm_s ()
-);
-
-//---------------------------------------------------------------------------------
-// 5: unused system bus slave port
-
-assign sys_rdata[5*32+:32] = 32'h0;
-assign sys_err  [5       ] =  1'b0;
-assign sys_ack  [5       ] =  1'b1;
-
-//---------------------------------------------------------------------------------
-//  6: RadioBox module
-
-/*
-// unused system bus slave ports
-assign sys_rdata[6*32+:32] = 32'h0;
-assign sys_err  [6       ] =  1'b0;
-assign sys_ack  [6       ] =  1'b1;
-*/
-
-red_pitaya_radiobox i_radiobox (
+regs i_regs (
   // ADC clock & reset
   .clk_adc_125mhz  ( adc_clk                     ),  // clock 125 MHz
   .adc_rstn_i      ( adc_rstn                    ),  // reset - active low
@@ -646,57 +443,75 @@ red_pitaya_radiobox i_radiobox (
   .sys_addr        ( sys_addr                    ),  // address
   .sys_wdata       ( sys_wdata                   ),  // write data
   .sys_sel         ( sys_sel                     ),  // write byte select
-  .sys_wen         ( sys_wen[6]                  ),  // write enable
-  .sys_ren         ( sys_ren[6]                  ),  // read enable
-  .sys_rdata       ( sys_rdata[ 6*32+:32]        ),  // read data
-  .sys_err         ( sys_err[6]                  ),  // error indicator
-  .sys_ack         ( sys_ack[6]                  ),  // acknowledge signal
+  .sys_wen         ( sys_wen[1]                  ),  // write enable
+  .sys_ren         ( sys_ren[1]                  ),  // read enable
+  .sys_rdata       ( sys_rdata[ 1*32+:32]        ),  // read data
+  .sys_err         ( sys_err[1]                  ),  // error indicator
+  .sys_ack         ( sys_ack[1]                  ),  // acknowledge signal
 
   // AXIS MASTER from the XADC
   .xadc_axis_aclk  ( xadc_axis_aclk              ),  // AXI-streaming from the XADC, clock from the AXI-S FIFO
   .xadc_axis_tdata ( xadc_axis_tdata             ),  // AXI-streaming from the XADC, data
   .xadc_axis_tid   ( xadc_axis_tid               ),  // AXI-streaming from the XADC, analog data source channel for this data
   .xadc_axis_tready( xadc_axis_tready            ),  // AXI-streaming from the XADC, slave indicating ready for data
-  .xadc_axis_tvalid( xadc_axis_tvalid            )   // AXI-streaming from the XADC, data transfer valid
+  .xadc_axis_tvalid( xadc_axis_tvalid            ),  // AXI-streaming from the XADC, data transfer valid
+
+  // AXI0 master                 // AXI1 master
+  .axi0_clk_o    (axi0_clk   ),  .axi1_clk_o    (axi1_clk   ),
+  .axi0_rstn_o   (axi0_rstn  ),  .axi1_rstn_o   (axi1_rstn  ),
+  .axi0_waddr_o  (axi0_waddr ),  .axi1_waddr_o  (axi1_waddr ),
+  .axi0_wdata_o  (axi0_wdata ),  .axi1_wdata_o  (axi1_wdata ),
+  .axi0_wsel_o   (axi0_wsel  ),  .axi1_wsel_o   (axi1_wsel  ),
+  .axi0_wvalid_o (axi0_wvalid),  .axi1_wvalid_o (axi1_wvalid),
+  .axi0_wlen_o   (axi0_wlen  ),  .axi1_wlen_o   (axi1_wlen  ),
+  .axi0_wfixed_o (axi0_wfixed),  .axi1_wfixed_o (axi1_wfixed),
+  .axi0_werr_i   (axi0_werr  ),  .axi1_werr_i   (axi1_werr  ),
+  .axi0_wrdy_i   (axi0_wrdy  ),  .axi1_wrdy_i   (axi1_wrdy  )
 );
+
 
 //---------------------------------------------------------------------------------
-// 7: OPB-AC97-Controller register compatible module  (like it is used as IP for the ML403 design)
+// 2: unused system bus slave ports
+assign sys_rdata[2*32+:32] = 32'h0;
+assign sys_err  [2       ] =  1'b0;
+assign sys_ack  [2       ] =  1'b1;
 
-red_pitaya_ac97ctrl i_ac97ctrl (
-  // ADC clock & reset
-  .clk_adc_125mhz  ( adc_clk                     ),  // clock 125 MHz
-  .adc_rstn_i      ( adc_rstn                    ),  // reset - active low
-  .ac97_clks_o     ( ac97_clks                   ),  // sound frame clock from RadioBox
 
-   // AC97 lines
-  .ac97_line_out_o ( ac97_line_out[2*16-1:0]     ),  // Linux sound system ALSA LINE-OUT stereo, 2x 16 bit
-  .ac97_line_in_i  ( ac97_line_in [2*16-1:0]     ),  // Linux sound system ALSA LINE-IN  stereo, 2x 16 bit
+//---------------------------------------------------------------------------------
+// 3: unused system bus slave ports
+assign sys_rdata[3*32+:32] = 32'h0;
+assign sys_err  [3       ] =  1'b0;
+assign sys_ack  [3       ] =  1'b1;
 
-   // Interrupts
-  .ac97_irq_play_o ( ac97_irq_play               ),  // IRQ line signaling any pending interrupts
-  .ac97_irq_rec_o  ( ac97_irq_rec                ),  // IRQ line signaling any pending interrupts
 
-  // DEBUGGING LEDs
-  .ac97_leds_o     ( ac97_leds                   ),  // AC97 diagnostic LEDs
+//---------------------------------------------------------------------------------
+// 4: unused system bus slave ports
+assign sys_rdata[4*32+:32] = 32'h0;
+assign sys_err  [4       ] =  1'b0;
+assign sys_ack  [4       ] =  1'b1;
 
-  // System bus
-  .sys_addr        ( sys_addr                    ),  // address
-  .sys_wdata       ( sys_wdata                   ),  // write data
-  .sys_sel         ( sys_sel                     ),  // write byte select
-  .sys_wen         ( sys_wen[7]                  ),  // write enable
-  .sys_ren         ( sys_ren[7]                  ),  // read enable
-  .sys_rdata       ( sys_rdata[ 7*32+:32]        ),  // read data
-  .sys_err         ( sys_err[7]                  ),  // error indicator
-  .sys_ack         ( sys_ack[7]                  )   // acknowledge signal
-);
 
-/*
-// unused system bus slave ports
+//---------------------------------------------------------------------------------
+// 5: unused system bus slave port
+
+assign sys_rdata[5*32+:32] = 32'h0;
+assign sys_err  [5       ] =  1'b0;
+assign sys_ack  [5       ] =  1'b1;
+
+//---------------------------------------------------------------------------------
+// 6: unused system bus slave ports
+
+assign sys_rdata[6*32+:32] = 32'h0;
+assign sys_err  [6       ] =  1'b0;
+assign sys_ack  [6       ] =  1'b1;
+
+
+//---------------------------------------------------------------------------------
+// 7: unused system bus slave ports
+
 assign sys_rdata[7*32+:32] = 32'h0;
 assign sys_err  [7       ] =  1'b0;
 assign sys_ack  [7       ] =  1'b1;
-*/
 
 
 //---------------------------------------------------------------------------------
@@ -706,10 +521,5 @@ assign sys_ack  [7       ] =  1'b1;
 assign daisy_p_o = 2'bzz;
 assign daisy_n_o = 2'bzz;
 
-//---------------------------------------------------------------------------------
-// LED output to be shared between HK, RB and PS
-
-assign led_o = rb_leds_en  ?  rb_leds_data :
-                              hk_leds_data;           // LED multiplexer for HK, RadioBox and PS switching
 
 endmodule
