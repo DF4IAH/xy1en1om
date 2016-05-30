@@ -1,18 +1,23 @@
-/**
- * $Id: top.sv 1271 2016-05-25 15:42:00Z espero7757@gmx.net $
- *
- * @brief TOP module. It connects the external pins and the
- *        PS part with other application modules. 
- *
- * @Author Ulrich Habel (DF4IAH)
- *
- * (c) DF4IAH-Solutions
- *
- * This part of code is written in Verilog hardware description language (HDL).
- * Please visit http://en.wikipedia.org/wiki/Verilog
- * for more details on the language used herein.
- */
-
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: DF4IAH-Solutions
+// Engineer: Ulrich Habel, DF4IAH
+//
+// Create Date: 29.05.2016 22:21:43
+// Design Name: x11, sha3
+// Module Name: top
+// Project Name: xy1en1om
+// Target Devices: xc7z010clg400-1
+// Tool Versions: Vivado 2015.4
+// Description: top design of FPGA section of Zynq010 on the RedPitaya V1.1 board
+//
+// Dependencies: Hardware RedPitaya V1.1 board, Software RedPitaya image with uboot and Ubuntu partition
+//
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
 
 module top (
    // PS connections
@@ -95,7 +100,7 @@ wire                  pll_pwm_clk;
 wire                  pll_locked;
 
 // fast serial signals
-wire                  ser_clk ;
+wire                  ser_clk;
 
 // Interrupt signals
 wire         [  15:1] irqs = { 15'b0 };                                                                     // irqs[1] is mapped to IRQ-ID=62, SPI[30] -  high active. SPI[30]: play IRQ, SPI[31]: record IRQ
@@ -115,8 +120,9 @@ reg          [  13:0] dac_dat_a, dac_dat_b;
 wire         [  13:0] dac_a    , dac_b    ;
 wire  signed [  14:0] dac_a_sum, dac_b_sum;
 
-wire         [  15:0] rb_out_ch     [1:0] ;
+wire         [  15:0] rb_out_ch[1:0];
 
+wire                  x11_activated;
 
 // TODO: to be removed when rb_out_ch[x] driver exists
 assign rb_out_ch[0] = 16'b0;
@@ -397,7 +403,7 @@ regs i_regs (
   .rstn_i          ( frstn[0]                    ),  // reset - active low
 
   // activation
-  .rb_activated    ( rb_activated                ),  // RadioBox is enabled
+  .x11_activated   ( x11_activated               ),  // x11 crypto engine is enabled
 
 /*
   // ADC data

@@ -1,57 +1,24 @@
-/**
- * $Id: red_pitaya_radiobox.v 001 2015-09-11 18:10:00Z DF4IAH $
- *
- * @brief Red Pitaya RadioBox application, used to expand RedPitaya for
- * radio ham operators. Transmitter as well as receiver components are
- * included like modulators/demodulators, filters, (R)FFT transformations
- * and that like.
- *
- * @Author Ulrich Habel, DF4IAH
- *
- * (c) Ulrich Habel / GitHub.com open source  https://github.com/DF4IAH/RedPitaya_RadioBox/
- *
- * This part of code is written in Verilog hardware description language (HDL).
- * Please visit http://en.wikipedia.org/wiki/Verilog
- * for more details on the language used herein.
- */
-
-/**
- * GENERAL DESCRIPTION:
- *
- * This modules enables the Red Pitaya to behave like a Transceiver for voice transmission. At the time of writing these modulation variants are supported:
- *   transmitter:  SSB - USB upper-side-band modulation                      - realized with a weaver oscillator @ 1700 Hz
- *                 SSB - LSB lower-side-band modulation                      - realized with a weaver oscillator @ 1700 Hz
- *                 AM  - amplitude modulation                                - realized by modulating the carrier output amplifier
- *                 FM  - frequency modulation                                - realized by modulating the DDS phase increment value
- *                 PM  - phase modulation                                    - realized by modulating the DDS phase offset value
- *
- *   receiver:     SSB - USB upper-side-band demodulation                    - realized with a weaver oscillator @ 1700 Hz
- *                 SSB - LSB lower-side-band demodulation                    - realized with a weaver oscillator @ 1700 Hz
- *                 AM  - amplitude envelope demodulation                     - realized by the OORDIC magnitude information
- *                 AM  - synchronized carrier upper-side-band demodulation   - realized by a CORDIC assisted automatic frequency correction (AFC) and weaver USB demodulation
- *                 AM  - synchronized carrier lower-side-band demodulation   - realized by a CORDIC assisted automatic frequency correction (AFC) and weaver LSB demodulation
- *                 FM  - frequency demodulation                              - realized by a CORDIC assisted automatic frequency correction (AFC) frequency offset as demodulation information
- *                 PM  - phase demodulation                                  - realized by an integrator of the FM signal
- *
- *
- * TODO: graphics - exmaple by red_pitaya_scope.v
- *
- *
- * The idea of this concept is to realize a complete audio transceiver for all known analog voice transmissions by short wave radio stations as well as HAM radio operators. Due to the used digital
- * concept all frequencies could be kept at a very low value because the "amplifiers" and "mixers" are simply multiplicators which does not have any "DC" blockers within. Students and radio enthusiasts
- * are able to play and learn about the idea behind modulation and demodulation of radio frequencies (RF). Any new ideas to have any variants of "modulation" and "demodulation" are welcome.
- *
- * For any further connections to the Red Pitaya the Linux sound system could be connected as audio streams to enable SDR radio-software to access this RadioBox submodule. Want to connect digital
- * CODECS to this RadioBox submodule? Simply connect the audio system to and from it. By doinf this it would be easy to use fldigi or other digital software working with a baseband concept.
- *
- * Another realization would be to adapt a front plate on top of the Red Pitaya to have a display, controllers and anything you need to operate this Red Pitaya anywhere you like and without the help
- * of a browser.
- *
- * Just have fun and learn!
- */
-
-
 `timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: DF4IAH-Solutions
+// Engineer: Ulrich Habel, DF4IAH
+//
+// Create Date: 29.05.2016 20:33:43
+// Design Name: sha3
+// Module Name: regs
+// Project Name: xy1en1om
+// Target Devices: xc7z010clg400-1
+// Tool Versions: Vivado 2015.4
+// Description: PS to PL register access
+//
+// Dependencies: Hardware RedPitaya V1.1 board, Software RedPitaya image with uboot and Ubuntu partition
+//
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
+
 
 module regs #(
   // parameter RSZ = 14  // RAM size 2^RSZ
@@ -61,7 +28,7 @@ module regs #(
    input                 rstn_i          , // ADC reset - active low
 
    // activation
-   output                rb_activated    , // RB sub-module is activated
+   output                x11_activated   , // RB sub-module is activated
 
    // System bus - slave
    input        [ 31: 0] sys_addr        ,  // bus saddress
@@ -113,7 +80,7 @@ module regs #(
 
 //---------------------------------------------------------------------------------
 // current date of compilation
-localparam CURRENT_DATE = 32'h16052601;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16052901;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -121,125 +88,151 @@ localparam CURRENT_DATE = 32'h16052601;         // current date: 0xYYMMDDss - YY
 
 enum {
     /* OMNI section */
-    REG_RW_RB_CTRL                        =  0, // h000: RB control register
-    REG_RD_RB_STATUS,                           // h004: EB status register
+    REG_RW_CTRL                           =  0, // h000: RB control register
+    REG_RD_STATUS,                              // h004: EB status register
 
-    REG_RB_COUNT
-} REG_RB_ENUMS;
+    REG_COUNT
+} REG_ENUMS;
 
-reg  [31: 0]    regs    [REG_RB_COUNT];         // registers to be accessed by the system bus
-
-enum {
-    RB_CTRL_ENABLE                        =  0, // enabling the RadioBox sub-module
-    RB_CTRL_RSVD_D01,
-    RB_CTRL_RSVD_D02,
-    RB_CTRL_RSVD_D03,
-
-    RB_CTRL_RSVD_D04,
-    RB_CTRL_RSVD_D05,
-    RB_CTRL_RSVD_D06,
-    RB_CTRL_RSVD_D07,
-
-    RB_CTRL_RSVD_D08,
-    RB_CTRL_RSVD_D09,
-    RB_CTRL_RSVD_D10,
-    RB_CTRL_RSVD_D11,
-
-    RB_CTRL_RSVD_D12,
-    RB_CTRL_RSVD_D13,
-    RB_CTRL_RSVD_D14,
-    RB_CTRL_RSVD_D15,
-
-    RB_CTRL_RSVD_D16,
-    RB_CTRL_RSVD_D17,
-    RB_CTRL_RSVD_D18,
-    RB_CTRL_RSVD_D19,
-
-    RB_CTRL_RSVD_D20,
-    RB_CTRL_RSVD_D21,
-    RB_CTRL_RSVD_D22,
-    RB_CTRL_RSVD_D23,
-
-    RB_CTRL_RSVD_D24,
-    RB_CTRL_RSVD_D25,
-    RB_CTRL_RSVD_D26,
-    RB_CTRL_RSVD_D27,
-
-    RB_CTRL_RSVD_D28,
-    RB_CTRL_RSVD_D29,
-    RB_CTRL_RSVD_D30,
-    RB_CTRL_RSVD_D31
-} RB_CTRL_BITS_ENUM;
+reg  [31: 0]    regs    [REG_COUNT];            // registers to be accessed by the system bus
 
 enum {
-    RB_STAT_CLK_EN                        =  0, // RB clock enable
-    RB_STAT_RSVD_D01,
-    RB_STAT_RSVD_D02,
-    RB_STAT_RSVD_D03,
+    CTRL_ENABLE                           =  0, // enabling the RadioBox sub-module
+    CTRL_RSVD_D01,
+    CTRL_RSVD_D02,
+    CTRL_RSVD_D03,
 
-    RB_STAT_RSVD_D04,
-    RB_STAT_RSVD_D05,
-    RB_STAT_RSVD_D06,
-    RB_STAT_RSVD_D07,
+    CTRL_RSVD_D04,
+    CTRL_RSVD_D05,
+    CTRL_RSVD_D06,
+    CTRL_RSVD_D07,
 
-    RB_STAT_RSVD_D08,
-    RB_STAT_RSVD_D09,
-    RB_STAT_RSVD_D10,
-    RB_STAT_RSVD_D11,
+    CTRL_RSVD_D08,
+    CTRL_RSVD_D09,
+    CTRL_RSVD_D10,
+    CTRL_RSVD_D11,
 
-    RB_STAT_RSVD_D12,
-    RB_STAT_RSVD_D13,
-    RB_STAT_RSVD_D14,
-    RB_STAT_RSVD_D15,
+    CTRL_RSVD_D12,
+    CTRL_RSVD_D13,
+    CTRL_RSVD_D14,
+    CTRL_RSVD_D15,
 
-    RB_STAT_RSVD_D16,
-    RB_STAT_RSVD_D17,
-    RB_STAT_RSVD_D18,
-    RB_STAT_RSVD_D19,
+    CTRL_RSVD_D16,
+    CTRL_RSVD_D17,
+    CTRL_RSVD_D18,
+    CTRL_RSVD_D19,
 
-    RB_STAT_RSVD_D20,
-    RB_STAT_RSVD_D21,
-    RB_STAT_RSVD_D22,
-    RB_STAT_RSVD_D23,
+    CTRL_RSVD_D20,
+    CTRL_RSVD_D21,
+    CTRL_RSVD_D22,
+    CTRL_RSVD_D23,
 
-    RB_STAT_RSVD_D24,
-    RB_STAT_RSVD_D25,
-    RB_STAT_RSVD_D26,
-    RB_STAT_RSVD_D27,
+    CTRL_RSVD_D24,
+    CTRL_RSVD_D25,
+    CTRL_RSVD_D26,
+    CTRL_RSVD_D27,
 
-    RB_STAT_RSVD_D28,
-    RB_STAT_RSVD_D29,
-    RB_STAT_RSVD_D30,
-    RB_STAT_RSVD_D31
-} RB_STAT_BITS_ENUM;
+    CTRL_RSVD_D28,
+    CTRL_RSVD_D29,
+    CTRL_RSVD_D30,
+    CTRL_RSVD_D31
+} CTRL_BITS_ENUM;
+
+enum {
+    STAT_CLK_EN                           =  0, // RB clock enable
+    STAT_RSVD_D01,
+    STAT_RSVD_D02,
+    STAT_RSVD_D03,
+
+    STAT_KEK_RDY,
+    STAT_RSVD_D05,
+    STAT_RSVD_D06,
+    STAT_RSVD_D07,
+
+    STAT_RSVD_D08,
+    STAT_RSVD_D09,
+    STAT_RSVD_D10,
+    STAT_RSVD_D11,
+
+    STAT_RSVD_D12,
+    STAT_RSVD_D13,
+    STAT_RSVD_D14,
+    STAT_RSVD_D15,
+
+    STAT_RSVD_D16,
+    STAT_RSVD_D17,
+    STAT_RSVD_D18,
+    STAT_RSVD_D19,
+
+    STAT_RSVD_D20,
+    STAT_RSVD_D21,
+    STAT_RSVD_D22,
+    STAT_RSVD_D23,
+
+    STAT_RSVD_D24,
+    STAT_RSVD_D25,
+    STAT_RSVD_D26,
+    STAT_RSVD_D27,
+
+    STAT_RSVD_D28,
+    STAT_RSVD_D29,
+    STAT_RSVD_D30,
+    STAT_RSVD_D31
+} STAT_BITS_ENUM;
 
 
 // === OMNI section ===
 
 //---------------------------------------------------------------------------------
+// Global signals
+
+wire                     kek_rdy;                            // keccak function is ready to feed and/or to read-out
+reg           [63:0]     kek_in[25]  = '{25{0}};             // feeding keccak function
+reg                      kek_start   = 'b0;                  // start keccak function
+wire          [63:0]     kek_out[25] = '{25{0}};             // result of keccak function
+
+
+//---------------------------------------------------------------------------------
 // Short hand names
 
-wire                   rb_enable = regs[REG_RW_RB_CTRL][RB_CTRL_ENABLE];
+wire          x11_enable = regs[REG_RW_CTRL][CTRL_ENABLE];
 
 
 //---------------------------------------------------------------------------------
 //  regs sub-module activation
 
-wire          rb_clk_en;
-wire          rb_reset_n;
-assign        rb_activated = rb_reset_n;
+wire          x11_clk_en;
+wire          x11_reset_n;
+assign        x11_activated = x11_reset_n;
 
-red_pitaya_rst_clken rb_rst_clken_master (
+red_pitaya_rst_clken i_rst_clken_master (
   // global signals
   .clk                     ( clk_100mhz                  ),  // clock 100 MHz
   .global_rst_n            ( rstn_i                      ),  // global reset
 
   // input signals
-  .enable_i                ( rb_enable                   ),
+  .enable_i                ( x11_enable                  ),
 
   // output signals
-  .reset_n_o               ( rb_reset_n                  ),
-  .clk_en_o                ( rb_clk_en                   )
+  .reset_n_o               ( x11_reset_n                 ),
+  .clk_en_o                ( x11_clk_en                  )
+);
+
+
+// === Crypto calculations ===
+
+//---------------------------------------------------------------------------------
+// sub system keccak_f1600_round
+
+keccak_f1600_round i_keccak_f1600_round(
+  // global signals
+  .clk_100mhz              ( clk_100mhz                  ),  // clock 100 MHz
+  .rstn_i                  ( x11_reset_n                 ),  // ADC reset - active low
+
+  .ready                   ( kek_rdy                     ),  // 1: ready to fill and read out
+  .vec_i                   ( kek_in                      ),  // 1600 bit data input
+  .start                   ( kek_start                   ),  // 1: starting the function
+  .vec_o                   ( kek_out                     )   // 1600 bit data output
 );
 
 
@@ -250,9 +243,10 @@ red_pitaya_rst_clken rb_rst_clken_master (
 
 always @(posedge clk_100mhz)
 if (!rstn_i)
-   regs[REG_RD_RB_STATUS] <= 32'b0;
+   regs[REG_RD_STATUS]                            <= 32'b0;
 else begin
-   regs[REG_RD_RB_STATUS][RB_STAT_CLK_EN]         <= rb_clk_en;
+   regs[REG_RD_STATUS][STAT_CLK_EN]               <= x11_clk_en;
+   regs[REG_RD_STATUS][STAT_KEK_RDY]              <= kek_rdy;
    end
 
 
@@ -262,24 +256,35 @@ else begin
 // write access to the registers
 always @(posedge clk_100mhz)
 if (!rstn_i) begin
-   regs[REG_RW_RB_CTRL]                           <= 32'h00000000;
-   end
+  kek_in                                          <= '{25{0}};
+  kek_start                                       <= 'b0;
+  regs[REG_RW_CTRL]                               <= 32'h00000000;
+  end
 
 else begin
-   if (sys_wen) begin
-      casez (sys_addr[19:0])
+  kek_start <= 1'b0;
 
-      /* control */
-      20'h00000: begin
-         regs[REG_RW_RB_CTRL]                     <= sys_wdata[31:0];
-         end
+  if (sys_wen) begin
+    casez (sys_addr[19:0])
 
-      default:   begin
-         end
-
-      endcase
+    /* control */
+    20'h00000: begin
+      regs[REG_RW_CTRL]                           <= sys_wdata[31:0];
       end
-   end
+
+    20'h010zz: begin
+      if ((sys_addr & 20'hFF) < 8'd26) begin
+        kek_in[sys_addr & 8'hF]                   <= sys_wdata;
+        kek_start <= 1'b1;
+        end
+    end
+
+    default:   begin
+    end
+
+    endcase
+    end
+  end
 
 
 wire sys_en;
@@ -288,42 +293,58 @@ assign sys_en = sys_wen | sys_ren;
 // read access to the registers
 always @(posedge clk_100mhz)
 if (!rstn_i) begin
-   sys_err      <= 1'b0;
-   sys_ack      <= 1'b0;
-   sys_rdata    <= 32'h00000000;
-   end
+  sys_err      <= 1'b0;
+  sys_ack      <= 1'b0;
+  sys_rdata    <= 32'h00000000;
+  end
 
 else begin
-   sys_err <= 1'b0;
-   if (sys_ren) begin
-      case (sys_addr[19:0])
+  sys_err <= 1'b0;
+  if (sys_ren) begin
+    casez (sys_addr[19:0])
 
-      /* control */
-      20'h00000: begin
-         sys_ack   <= sys_en;
-         sys_rdata <= regs[REG_RW_RB_CTRL];
-         end
-      20'h00004: begin
-         sys_ack   <= sys_en;
-         sys_rdata <= regs[REG_RD_RB_STATUS];
-         end
-
-      default:   begin
-         sys_ack   <= sys_en;
-         sys_rdata <= 32'h00000000;
-         end
-
-      endcase
+    /* control */
+    20'h00000: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= regs[REG_RW_CTRL];
+      end
+    20'h00004: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= regs[REG_RD_STATUS];
       end
 
-   else if (sys_wen) begin                                                                                  // keep sys_ack assignment in this process
+    20'h010zz: begin
       sys_ack <= sys_en;
+      if ((sys_addr & 20'hFF) < 8'd26)
+        sys_rdata <= kek_in[sys_addr & 8'hFF];
+      else
+        sys_rdata <= 32'h00000000;
+    end
+
+    20'h020zz: begin
+      sys_ack <= sys_en;
+      if ((sys_addr & 20'hFF) < 8'd26)
+        sys_rdata <= kek_out[sys_addr & 8'hFF];
+      else
+        sys_rdata <= 32'h00000000;
+    end
+
+    default:   begin
+      sys_ack   <= sys_en;
+      sys_rdata <= 32'h00000000;
       end
 
-   else begin
-      sys_ack <= 1'b0;
-      end
-   end
+    endcase
+    end
+
+  else if (sys_wen) begin                                                                                   // keep sys_ack assignment in this process
+    sys_ack <= sys_en;
+    end
+
+  else begin
+    sys_ack <= 1'b0;
+    end
+  end
 
 
 endmodule
