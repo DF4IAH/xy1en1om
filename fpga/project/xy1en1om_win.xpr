@@ -56,13 +56,6 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../rtl/red_pitaya_pll.sv">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PPRDIR/../rtl/red_pitaya_hk.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -83,17 +76,17 @@
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
-        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_proc_sys_reset_0_1/system_proc_sys_reset_0.xci"/>
-        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_axi_protocol_converter_0_0_1/system_axi_protocol_converter_0_0.xci"/>
-        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_xlconcat_0_0_1/system_xlconcat_0_0.xci"/>
         <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_xlconstant_0_1/system_xlconstant_0.xci"/>
-        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_xadc_0_1/system_xadc_0.xci"/>
         <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_processing_system7_0_1/system_processing_system7_0.xci"/>
-        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="hdl/system.v"/>
-        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="system_ooc.xdc"/>
-        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="hdl/system.hwdef"/>
+        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_xadc_0_1/system_xadc_0.xci"/>
+        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_proc_sys_reset_0_1/system_proc_sys_reset_0.xci"/>
         <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="hw_handoff/system_bd.tcl"/>
         <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="hw_handoff/system.hwh"/>
+        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="system_ooc.xdc"/>
+        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="hdl/system.hwdef"/>
+        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="hdl/system.v"/>
+        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_axi_protocol_converter_0_0_1/system_axi_protocol_converter_0_0.xci"/>
+        <CompFileExtendedInfo CompFileName="system.bd" FileRelPathName="ip/system_xlconcat_0_0_1/system_xlconcat_0_0.xci"/>
       </File>
       <File Path="$PPRDIR/../rtl/red_pitaya_rst_clken.sv">
         <FileInfo>
@@ -124,6 +117,13 @@
         </FileInfo>
       </File>
       <File Path="$PPRDIR/../rtl/keccak_f1600_round.sv">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../rtl/sha256_engine.sv">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -191,6 +191,64 @@
         <Option Name="SrcSet" Val="sources_1"/>
       </Config>
     </FileSet>
+    <FileSet Name="adc_clk_pll" Type="BlockSrcs" RelSrcDir="$PSRCDIR/adc_clk_pll">
+      <File Path="$PPRDIR/../ip/adc_clk_pll.xcix">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../ip/adc_clk_pll/adc_clk_pll.xci">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <Config>
+        <Option Name="TopModule" Val="adc_clk_pll"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
+    <FileSet Name="fifo_64i_512o_128d" Type="BlockSrcs" RelSrcDir="$PSRCDIR/fifo_64i_512o_128d">
+      <File Path="$PPRDIR/../ip/fifo_64i_512o_128d.xcix">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../ip/fifo_64i_512o_128d/fifo_64i_512o_128d.xci">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d.xml"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d_ooc.xdc"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="synth/fifo_64i_512o_128d.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_generator_v13_0_1/hdl/fifo_generator_v13_0.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="blk_mem_gen_v8_3_1/hdl/blk_mem_gen_v8_3.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d.veo"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_generator_v13_0_1/hdl/fifo_generator_v13_0_rfs.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_generator_v13_0_1/simulation/fifo_generator_vhdl_beh.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="doc/fifo_generator_v13_0_changelog.txt"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_generator_v13_0_1/hdl/fifo_generator_v13_0_vhsyn_rfs.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d/fifo_64i_512o_128d.xdc"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="blk_mem_gen_v8_3_1/hdl/blk_mem_gen_v8_3_vhsyn_rfs.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="sim/fifo_64i_512o_128d.vhd"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d.vho"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d_stub.v"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d_sim_netlist.v"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d_stub.vhdl"/>
+        <CompFileExtendedInfo CompFileName="fifo_64i_512o_128d.xci" FileRelPathName="fifo_64i_512o_128d_sim_netlist.vhdl"/>
+      </File>
+      <Config>
+        <Option Name="TopModule" Val="fifo_64i_512o_128d"/>
+        <Option Name="UseBlackboxStub" Val="1"/>
+      </Config>
+    </FileSet>
   </FileSets>
   <Simulators>
     <Simulator Name="XSim">
@@ -217,7 +275,7 @@
     </Simulator>
   </Simulators>
   <Runs Version="1" Minor="10">
-    <Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Performs general area optimizations including changing the threshold for control set optimizations, forcing ternary adder implementation, applying lower thresholds for use of carry chain in comparators and also area optimized mux optimizations." State="current" Dir="$PRUNDIR/synth_1" IncludeInArchive="true">
+    <Run Id="synth_1" Type="Ft3:Synth" SrcSet="sources_1" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Performs general area optimizations including changing the threshold for control set optimizations, forcing ternary adder implementation, applying lower thresholds for use of carry chain in comparators and also area optimized mux optimizations." State="current" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Flow_AreaOptimized_high" Flow="Vivado Synthesis 2015"/>
         <Step Id="synth_design">
@@ -225,9 +283,26 @@
           <Option Id="Directive">1</Option>
         </Step>
       </Strategy>
+    </Run>
+    <Run Id="adc_clk_pll_synth_1" Type="Ft3:Synth" SrcSet="adc_clk_pll" Part="xc7z010clg400-1" ConstrsSet="adc_clk_pll" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/adc_clk_pll_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015">
+          <Desc>Vivado Synthesis Defaults</Desc>
+        </StratHandle>
+        <Step Id="synth_design"/>
+      </Strategy>
       <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
     </Run>
-    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Uses multiple optimization algorithms to get potentially fewer LUTs." State="current" Dir="$PRUNDIR/impl_1" SynthRun="synth_1" IncludeInArchive="true">
+    <Run Id="fifo_64i_512o_128d_synth_1" Type="Ft3:Synth" SrcSet="fifo_64i_512o_128d" Part="xc7z010clg400-1" ConstrsSet="fifo_64i_512o_128d" Description="Vivado Synthesis Defaults" Dir="$PRUNDIR/fifo_64i_512o_128d_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2015">
+          <Desc>Vivado Synthesis Defaults</Desc>
+        </StratHandle>
+        <Step Id="synth_design"/>
+      </Strategy>
+      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+    </Run>
+    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="constrs_1" Description="Uses multiple optimization algorithms to get potentially fewer LUTs." State="current" SynthRun="synth_1" IncludeInArchive="true">
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Area_Explore" Flow="Vivado Implementation 2015"/>
         <Step Id="init_design"/>
@@ -242,7 +317,38 @@
         <Step Id="post_route_phys_opt_design"/>
         <Step Id="write_bitstream"/>
       </Strategy>
-      <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>
+    </Run>
+    <Run Id="adc_clk_pll_impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="adc_clk_pll" Description="Vivado Implementation Defaults" SynthRun="adc_clk_pll_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015">
+          <Desc>Vivado Implementation Defaults</Desc>
+        </StratHandle>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
+    </Run>
+    <Run Id="fifo_64i_512o_128d_impl_1" Type="Ft2:EntireDesign" Part="xc7z010clg400-1" ConstrsSet="fifo_64i_512o_128d" Description="Vivado Implementation Defaults" SynthRun="fifo_64i_512o_128d_synth_1" IncludeInArchive="true">
+      <Strategy Version="1" Minor="2">
+        <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2015">
+          <Desc>Vivado Implementation Defaults</Desc>
+        </StratHandle>
+        <Step Id="init_design"/>
+        <Step Id="opt_design"/>
+        <Step Id="power_opt_design"/>
+        <Step Id="place_design"/>
+        <Step Id="post_place_power_opt_design"/>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
+        <Step Id="post_route_phys_opt_design"/>
+        <Step Id="write_bitstream"/>
+      </Strategy>
     </Run>
   </Runs>
 </Project>

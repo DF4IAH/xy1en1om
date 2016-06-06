@@ -248,7 +248,8 @@ set_property PACKAGE_PIN J14     [get_ports {led_o[7]}]
 #NET "adc_clk" TNM_NET = "adc_clk";
 #TIMESPEC TS_adc_clk = PERIOD "adc_clk" 125 MHz;
 
-create_clock -period 8.000  -name adc_clk          [get_ports adc_clk_p_i]
+#create_clock -period 8.000  -name adc_clk_p_i      [get_ports adc_clk_p_i]
+#create_clock -period 8.000  -name adc_clk          [get_ports adc_clk_p_i]
 #create_clock -period 8.000  -name dac_clk          [get_ports dac_clk_o]
 #create_clock -period 8.000  -name dac_clk          [get_nets i_pll/pll_dac_clk_1x]
 #create_clock -period 4.000  -name pll_dac_clk_2x   [get_nets i_pll/pll_dac_clk_2x]
@@ -260,25 +261,28 @@ create_clock -period 64.000 -name dna_clk   [get_nets i_hk/dna_clk]
 
 
 # ADC-A
-set_input_delay -clock [get_clocks adc_clk] -min 1.000 [get_ports {adc_dat_a_i[*]}]
-set_input_delay -clock [get_clocks adc_clk] -max 3.400 [get_ports {adc_dat_a_i[*]}]
+set_input_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {adc_dat_a_i[*]}]
+set_input_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {adc_dat_a_i[*]}]
 
 # ADC-B
-set_input_delay -clock [get_clocks adc_clk] -min 1.000 [get_ports {adc_dat_b_i[*]}]
-set_input_delay -clock [get_clocks adc_clk] -max 3.400 [get_ports {adc_dat_b_i[*]}]
+set_input_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {adc_dat_b_i[*]}]
+set_input_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {adc_dat_b_i[*]}]
 
 # DAC
-set_output_delay -clock [get_clocks adc_clk] -min 1.000 [get_ports {dac_dat_o[*]}]
-set_output_delay -clock [get_clocks adc_clk] -max 3.400 [get_ports {dac_dat_o[*]}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -min -0.200 [get_ports {dac_clk_o}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -max  0.200 [get_ports {dac_clk_o}]
 
-set_output_delay -clock [get_clocks adc_clk] -min 1.000 [get_ports {dac_rst_o}]
-set_output_delay -clock [get_clocks adc_clk] -max 3.400 [get_ports {dac_rst_o}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_dat_o[*]}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {dac_dat_o[*]}]
 
-set_output_delay -clock [get_clocks adc_clk] -min 1.000 [get_ports {dac_sel_o}]
-set_output_delay -clock [get_clocks adc_clk] -max 3.400 [get_ports {dac_sel_o}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_rst_o}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {dac_rst_o}]
 
-set_output_delay -clock [get_clocks adc_clk] -min 1.000 [get_ports {dac_wrt_o}]
-set_output_delay -clock [get_clocks adc_clk] -max 1.400 [get_ports {dac_wrt_o}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_sel_o}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {dac_sel_o}]
+
+set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_wrt_o}]
+set_output_delay -clock [get_clocks adc_clk_p_i] -max 1.400 [get_ports {dac_wrt_o}]
 
 # SATA
 #create_clock -period 4.000 -name rx_clk [get_ports {daisy_p_i[1]}]
@@ -299,34 +303,34 @@ set_max_delay -rise_from [get_pins {i_ps/axi_slave_gp0/wr_wdata_reg[*]/C}] -rise
 # False paths                                                              #
 ############################################################################
 
-set_false_path -from [get_clocks clk_fpga_0]   -to [get_clocks adc_clk]
+set_false_path -from [get_clocks clk_fpga_0]   -to [get_clocks adc_clk_p_i]
 #set_false_path -from [get_clocks clk_fpga_1]   -to [get_clocks adc_clk]
 #set_false_path -from [get_clocks clk_fpga_2]   -to [get_clocks adc_clk]
 #set_false_path -from [get_clocks clk_fpga_3]   -to [get_clocks adc_clk]
-set_false_path -from [get_clocks adc_clk]      -to [get_clocks clk_fpga_0]
-#set_false_path -from [get_clocks adc_clk]      -to [get_clocks clk_fpga_1]
-#set_false_path -from [get_clocks adc_clk]      -to [get_clocks clk_fpga_2]
-#set_false_path -from [get_clocks adc_clk]      -to [get_clocks clk_fpga_3]
+set_false_path -from [get_clocks adc_clk_p_i]      -to [get_clocks clk_fpga_0]
+#set_false_path -from [get_clocks adc_clk_p_i]      -to [get_clocks clk_fpga_1]
+#set_false_path -from [get_clocks adc_clk_p_i]      -to [get_clocks clk_fpga_2]
+#set_false_path -from [get_clocks adc_clk_p_i]      -to [get_clocks clk_fpga_3]
 
 # find a better solution
 #set_false_path -from [get_clocks pll_dac_clk_1x] -to [get_clocks dac_clk]
 #set_false_path -from [get_clocks pll_dac_clk_2x] -to [get_clocks dac_clk]
 
-set_false_path -from [get_clocks rx_clk]       -to [get_clocks adc_clk]
-set_false_path -from [get_clocks adc_clk]      -to [get_clocks rx_clk]
+set_false_path -from [get_clocks rx_clk]       -to [get_clocks adc_clk_p_i]
+set_false_path -from [get_clocks adc_clk_p_i]  -to [get_clocks rx_clk]
 
-set_false_path -from [get_ports {exp_p_io[*]}] -to [get_clocks adc_clk]
-set_false_path -from [get_ports {exp_n_io[*]}] -to [get_clocks adc_clk]
-set_false_path -from [get_clocks adc_clk]      -to [get_ports {exp_p_io[*]}]
-set_false_path -from [get_clocks adc_clk]      -to [get_ports {exp_n_io[*]}]
+set_false_path -from [get_ports {exp_p_io[*]}] -to [get_clocks adc_clk_p_i]
+set_false_path -from [get_ports {exp_n_io[*]}] -to [get_clocks adc_clk_p_i]
+set_false_path -from [get_clocks adc_clk_p_i]  -to [get_ports {exp_p_io[*]}]
+set_false_path -from [get_clocks adc_clk_p_i]  -to [get_ports {exp_n_io[*]}]
 
 #set_false_path -from [get_clocks pll_adc_clk]  -to [get_clocks dna_clk]
 #set_false_path -from [get_clocks dna_clk]      -to [get_clocks pll_adc_clk]
 
-#set_false_path -from [get_clocks adc_clk]     -to [get_clocks dac_clk_out]
+#set_false_path -from [get_clocks adc_clk_p_i] -to [get_clocks dac_clk_out]
 #set_false_path -from [get_clocks clk_fpga_0]  -to [get_clocks ser_clk_out]
 #set_false_path -from [get_clocks clk_fpga_0]  -to [get_clocks dac_2clk_out]
-set_false_path -from [get_clocks clk_fpga_0]  -to [get_clocks adc_clk]
+set_false_path -from [get_clocks clk_fpga_0]  -to [get_clocks adc_clk_p_i]
 #set_false_path -from [get_clocks clk_fpga_0]  -to [get_clocks par_clk]
 #set_false_path -from [get_clocks dac_clk_out] -to [get_clocks dac_2clk_out]
 #set_false_path -from [get_clocks dac_clk_out] -to [get_clocks dac_2ph_out]

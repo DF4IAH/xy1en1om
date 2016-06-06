@@ -263,36 +263,28 @@ assign ps_sys_rdata = sys_rdata[sys_addr[22:20]*32+:32];
 assign ps_sys_err   = |(sys_cs & sys_err);
 assign ps_sys_ack   = |(sys_cs & sys_ack);
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // PLL (clock and reset)
 ////////////////////////////////////////////////////////////////////////////////
 
-// diferential clock input
-IBUFDS i_clk (.I (adc_clk_p_i), .IB (adc_clk_n_i), .O (adc_clk_in));  // differential clock input
+adc_clk_pll i_adc_clk_pll (
+ // Clock in ports
+  .clk_adc_in_p      ( adc_clk_p_i     ),
+  .clk_adc_in_n      ( adc_clk_n_i     ),
 
-red_pitaya_pll i_pll (
-  // inputs
-  .clk         (adc_clk_in    ),  // clock ADC 125 MHz
-  .rstn        (frstn[0]      ),  // reset - active low
+  // Clock out ports
+  .clk_adc           ( adc_clk         ),
+  .clk_dac_1x        ( dac_clk_1x      ),
+  .clk_dac_2x        ( dac_clk_2x      ),
+  .clk_dac_2p        ( dac_clk_2p      ),
+  .clk_ser           ( ser_clk         ),
+  .clk_pwm           ( pwm_clk         ),
 
-  // output clocks
-  .clk_adc     (pll_adc_clk   ),  // ADC clock 125MHz
-  .clk_dac_1x  (pll_dac_clk_1x),  // DAC clock 125MHz
-  .clk_dac_2x  (pll_dac_clk_2x),  // DAC clock 250MHz
-  .clk_dac_2p  (pll_dac_clk_2p),  // DAC clock 250MHz -45 deg
-  .clk_ser     (pll_ser_clk   ),  // fast serial clock
-  .clk_pwm     (pll_pwm_clk   ),  // PWM clock
-
-  // status outputs
-  .pll_locked  (pll_locked)
+   // Status and control signals
+  .reset             ( frstn[0]        ),
+  .locked            ( pll_locked      )
 );
-
-BUFG bufg_adc_clk    (.O (adc_clk   ), .I (pll_adc_clk   ));
-BUFG bufg_dac_clk_1x (.O (dac_clk_1x), .I (pll_dac_clk_1x));
-BUFG bufg_dac_clk_2x (.O (dac_clk_2x), .I (pll_dac_clk_2x));
-BUFG bufg_dac_clk_2p (.O (dac_clk_2p), .I (pll_dac_clk_2p));
-BUFG bufg_ser_clk    (.O (ser_clk   ), .I (pll_ser_clk   ));
-BUFG bufg_pwm_clk    (.O (pwm_clk   ), .I (pll_pwm_clk   ));
 
 // ADC reset (active low) 
 always @(posedge adc_clk)

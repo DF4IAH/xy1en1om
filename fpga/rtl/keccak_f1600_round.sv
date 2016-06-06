@@ -25,7 +25,7 @@ module keccak_f1600_round(
   input                  clk_100mhz      , // clock 100 MHz
   input                  rstn_i          , // ADC reset - active low
 
-  output reg             ready           , // 1: ready to fill and read out
+  output reg             ready_o         , // 1: ready to fill and read out
   input      [63:0]      vec_i[25]       , // 1600 bit data input
   input                  start           , // 1: starting the function
   output reg [63:0]      vec_o[25]         // 1600 bit data output
@@ -46,7 +46,7 @@ reg           [ 3:0]     state;
 // processor
 always @(posedge clk_100mhz)
 if (!rstn_i) begin
-  ready                                           <= 1'b0;
+  ready_o                                         <= 1'b0;
   vec_o                                           <= '{25{0}};
   state                                           <= 'b0;
   end
@@ -56,20 +56,20 @@ else begin
 
   /* control */
   4'h0: begin
-    ready <= 1'b1;
+    ready_o <= 1'b1;
     vec_o <= '{25{0}};
     if (start)
       state <= 4'h1;
     end
 
   4'h1: begin
-    a     <= vec_i;
-    ready <= 1'b0;
+    a <= vec_i;
+    ready_o <= 1'b0;
     state <= 4'h2;
     end
 
   default:   begin
-    ready <= 1'b0;
+    ready_o <= 1'b0;
     vec_o <= '{25{0}};
     state <= 4'h0;
     end
