@@ -83,7 +83,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16060501;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16071901;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -93,6 +93,7 @@ enum {
     /* OMNI section */
     REG_RW_CTRL                           =  0, // h000: xy1en1om control register
 //  REG_RD_STATUS,                              // h004: xy1en1om status register
+//  REG_RD_VERSION,                             // h00C: FPGA version information
 
     /* SHA256 section */
     REG_RW_SHA256_CTRL,                         // h100: SHA256 submodule control register
@@ -354,6 +355,7 @@ else begin
       regs[REG_RW_CTRL]                           <= sys_wdata[31:0];
       end
 
+
     /* SHA256 section */
 
     20'h00100: begin
@@ -372,6 +374,7 @@ else begin
       sha256_64b_fifo_msb <= !sha256_64b_fifo_msb;
       sha256_64b_fifo_wr <= 1'b1;  
       end
+
 
     /* KECCAK512 section */
 
@@ -422,6 +425,11 @@ else begin
       sys_ack   <= sys_en;
       sys_rdata <= status;
       end
+    20'h0000C: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= CURRENT_DATE;
+      end
+
 
     /* SHA256 section */
 
@@ -469,6 +477,7 @@ else begin
       sys_ack   <= sys_en;
       sys_rdata <= sha256_hash_data[7*32+:32];
       end
+
 
     /* KECCAK512 section */
 

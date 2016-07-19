@@ -268,6 +268,8 @@ assign ps_sys_ack   = |(sys_cs & sys_ack);
 // PLL (clock and reset)
 ////////////////////////////////////////////////////////////////////////////////
 
+//(* //KEEP = "TRUE" *)
+//(* //ASYNC_REG = "TRUE" *)
 adc_clk_pll i_adc_clk_pll (
  // Clock in ports
   .clk_adc_in_p      ( adc_clk_p_i     ),
@@ -332,11 +334,11 @@ begin
 end
 
 // DDR outputs
-ODDR oddr_dac_clk          (.Q(dac_clk_o), .D1(1'b0     ), .D2(1'b1     ), .C(dac_clk_2p), .CE(1'b1), .R(1'b0   ), .S(1'b0));
-ODDR oddr_dac_wrt          (.Q(dac_wrt_o), .D1(1'b0     ), .D2(1'b1     ), .C(dac_clk_2x), .CE(1'b1), .R(1'b0   ), .S(1'b0));
-ODDR oddr_dac_sel          (.Q(dac_sel_o), .D1(1'b1     ), .D2(1'b0     ), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0));
-ODDR oddr_dac_rst          (.Q(dac_rst_o), .D1(dac_rst  ), .D2(dac_rst  ), .C(dac_clk_1x), .CE(1'b1), .R(1'b0   ), .S(1'b0));
-ODDR oddr_dac_dat [  13:0] (.Q(dac_dat_o), .D1(dac_dat_b), .D2(dac_dat_a), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0));
+ODDR #( .DDR_CLK_EDGE("SAME_EDGE") )  oddr_dac_clk          ( .Q(dac_clk_o), .D1(1'b0     ), .D2(1'b1     ), .C(dac_clk_2p), .CE(1'b1), .R(1'b0   ), .S(1'b0) );
+ODDR #( .DDR_CLK_EDGE("SAME_EDGE") )  oddr_dac_wrt          ( .Q(dac_wrt_o), .D1(1'b0     ), .D2(1'b1     ), .C(dac_clk_2x), .CE(1'b1), .R(1'b0   ), .S(1'b0) );
+ODDR #( .DDR_CLK_EDGE("SAME_EDGE") )  oddr_dac_sel          ( .Q(dac_sel_o), .D1(1'b1     ), .D2(1'b0     ), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0) );
+ODDR #( .DDR_CLK_EDGE("SAME_EDGE") )  oddr_dac_rst          ( .Q(dac_rst_o), .D1(dac_rst  ), .D2(dac_rst  ), .C(dac_clk_1x), .CE(1'b1), .R(1'b0   ), .S(1'b0) );
+ODDR #( .DDR_CLK_EDGE("SAME_EDGE") )  oddr_dac_dat [  13:0] ( .Q(dac_dat_o), .D1(dac_dat_b), .D2(dac_dat_a), .C(dac_clk_1x), .CE(1'b1), .R(dac_rst), .S(1'b0) );
 
 
 //---------------------------------------------------------------------------------

@@ -249,11 +249,14 @@ set_property PACKAGE_PIN J14     [get_ports {led_o[7]}]
 #TIMESPEC TS_adc_clk = PERIOD "adc_clk" 125 MHz;
 
 #create_clock -period 8.000  -name adc_clk_p_i      [get_ports adc_clk_p_i]
-#create_clock -period 8.000  -name adc_clk          [get_ports adc_clk_p_i]
-#create_clock -period 8.000  -name dac_clk          [get_ports dac_clk_o]
-#create_clock -period 8.000  -name dac_clk          [get_nets i_pll/pll_dac_clk_1x]
-#create_clock -period 4.000  -name pll_dac_clk_2x   [get_nets i_pll/pll_dac_clk_2x]
+#create_clock -period 8.000  -name clk_dac_1x       [get_nets i_adc_clk_pll/clk_dac_1x]
+#create_clock -period 4.000  -name clk_dac_2x       [get_nets i_adc_clk_pll/clk_dac_2x]
+#create_clock -period 4.000  -name clk_dac_2p       [get_nets i_adc_clk_pll/clk_dac_2p]
 create_clock -period 4.000  -name rx_clk           [get_ports daisy_p_i[1]]
+
+create_generated_clock -name clk_dac_1x -multiply_by 1 -source [get_pins i_adc_clk_pll/clk_adc_in_p] [get_nets i_adc_clk_pll/clk_dac_1x]
+create_generated_clock -name clk_dac_2x -multiply_by 2 -source [get_pins i_adc_clk_pll/clk_adc_in_p] [get_nets i_adc_clk_pll/clk_dac_2x]
+create_generated_clock -name clk_dac_2p -multiply_by 2 -source [get_pins i_adc_clk_pll/clk_adc_in_p] [get_nets i_adc_clk_pll/clk_dac_2p]
 
 
 # DNA clock
@@ -261,28 +264,28 @@ create_clock -period 64.000 -name dna_clk   [get_nets i_hk/dna_clk]
 
 
 # ADC-A
-set_input_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {adc_dat_a_i[*]}]
+set_input_delay -clock [get_clocks adc_clk_p_i] -min 0.200 [get_ports {adc_dat_a_i[*]}]
 set_input_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {adc_dat_a_i[*]}]
 
 # ADC-B
-set_input_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {adc_dat_b_i[*]}]
+set_input_delay -clock [get_clocks adc_clk_p_i] -min 0.200 [get_ports {adc_dat_b_i[*]}]
 set_input_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {adc_dat_b_i[*]}]
 
 # DAC
-set_output_delay -clock [get_clocks adc_clk_p_i] -min -0.200 [get_ports {dac_clk_o}]
-set_output_delay -clock [get_clocks adc_clk_p_i] -max  0.200 [get_ports {dac_clk_o}]
+set_output_delay -clock [get_clocks clk_dac_2p] -min 0.200 [get_ports {dac_clk_o}]
+set_output_delay -clock [get_clocks clk_dac_2p] -max 0.800 [get_ports {dac_clk_o}]
 
-set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_dat_o[*]}]
-set_output_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {dac_dat_o[*]}]
+set_output_delay -clock [get_clocks clk_dac_2x] -min 0.200 [get_ports {dac_dat_o[*]}]
+set_output_delay -clock [get_clocks clk_dac_2x] -max 0.800 [get_ports {dac_dat_o[*]}]
 
-set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_rst_o}]
-set_output_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {dac_rst_o}]
+set_output_delay -clock [get_clocks clk_dac_2x] -min 0.200 [get_ports {dac_rst_o}]
+set_output_delay -clock [get_clocks clk_dac_2x] -max 0.800 [get_ports {dac_rst_o}]
 
-set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_sel_o}]
-set_output_delay -clock [get_clocks adc_clk_p_i] -max 3.400 [get_ports {dac_sel_o}]
+set_output_delay -clock [get_clocks clk_dac_2x] -min 0.200 [get_ports {dac_sel_o}]
+set_output_delay -clock [get_clocks clk_dac_2x] -max 0.800 [get_ports {dac_sel_o}]
 
-set_output_delay -clock [get_clocks adc_clk_p_i] -min 1.000 [get_ports {dac_wrt_o}]
-set_output_delay -clock [get_clocks adc_clk_p_i] -max 1.400 [get_ports {dac_wrt_o}]
+set_output_delay -clock [get_clocks clk_dac_2x] -min 0.200 [get_ports {dac_wrt_o}]
+set_output_delay -clock [get_clocks clk_dac_2x] -max 0.800 [get_ports {dac_wrt_o}]
 
 # SATA
 #create_clock -period 4.000 -name rx_clk [get_ports {daisy_p_i[1]}]
