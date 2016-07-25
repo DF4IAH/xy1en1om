@@ -243,7 +243,8 @@ set_property PACKAGE_PIN J14           [get_ports {led_o[7]}]
 
 ## Timing Assertions Section (UG911 - Constraint Sequence)
 # Primary clocks
-create_clock -period 64.000  -name dna_clk  [get_nets  i_hk/dna_clk]
+#create_clock -period 64.000  -name dna_clk  [get_nets  i_hk/dna_clk]
+create_clock -period 64.000  -name dna_clk  [get_pins  i_hk/i_BUFH/O]
 create_clock -period  4.000  -name rx_clk   [get_ports {daisy_p_i[1]}]
 
 # Virtual clocks
@@ -279,10 +280,10 @@ set_output_delay -clock [get_clocks clk_fpga_0]                                 
 set_output_delay -clock [get_clocks clk_fpga_0]                                 -min            -1.000  [get_ports {exp_p_io[*]}]
 set_output_delay -clock [get_clocks clk_fpga_0]                                 -max             1.000  [get_ports {exp_p_io[*]}]
 
-set_output_delay -clock [get_clocks clk_dac_2p_adc_clk_pll]                     -min            -1.000  [get_ports dac_clk_o]
-set_output_delay -clock [get_clocks clk_dac_2p_adc_clk_pll]                     -max             2.000  [get_ports dac_clk_o]
-set_output_delay -clock [get_clocks clk_dac_2p_adc_clk_pll]         -clock_fall -min -add_delay -1.000  [get_ports dac_clk_o]
-set_output_delay -clock [get_clocks clk_dac_2p_adc_clk_pll]         -clock_fall -max -add_delay  2.000  [get_ports dac_clk_o]
+set_output_delay -clock [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]                     -min            -1.000  [get_ports dac_clk_o]
+set_output_delay -clock [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]                     -max             2.000  [get_ports dac_clk_o]
+set_output_delay -clock [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]         -clock_fall -min -add_delay -1.000  [get_ports dac_clk_o]
+set_output_delay -clock [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]         -clock_fall -max -add_delay  2.000  [get_ports dac_clk_o]
 
 set_output_delay -clock [get_clocks dac_clk_o]                                  -min             0.350  [get_ports dac_wrt_o]
 set_output_delay -clock [get_clocks dac_clk_o]                                  -max             0.640  [get_ports dac_wrt_o]
@@ -314,11 +315,11 @@ set_false_path  -from [get_pins dac_rst_reg/C]  -to [get_pins {oddr_dac_dat[*]/R
 #set_max_delay -rise_from [get_pins {i_ps/axi_slave_gp0/wr_wdata_reg[*]/C}] -rise_to [get_pins {i_regs/*_reg[*][0]/D}]  9.000
 
 # Multicycle Paths
-set_multicycle_path -setup 3  -from [get_clocks clk_dac_2p_adc_clk_pll]  -to [get_ports dac_clk_o]
-set_multicycle_path -hold  2  -from [get_clocks clk_dac_2p_adc_clk_pll]  -to [get_ports dac_clk_o]
+set_multicycle_path -setup 4  -from [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]  -to [get_ports dac_clk_o]
+set_multicycle_path -hold  3  -from [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]  -to [get_ports dac_clk_o]
 
-set_multicycle_path -setup 3  -from [get_clocks dac_clk_o]               -to [get_clocks clk_dac_2p_adc_clk_pll]
-set_multicycle_path -hold  2  -from [get_clocks dac_clk_o]               -to [get_clocks clk_dac_2p_adc_clk_pll]
+set_multicycle_path -setup 4  -from [get_clocks dac_clk_o]                                                        -to [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]
+set_multicycle_path -hold  3  -from [get_clocks dac_clk_o]                                                        -to [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]
 
 # Case Analysis
 

@@ -62,6 +62,7 @@ module red_pitaya_hk #(
 
 wire           dna_dout ;
 reg            dna_clk  ;
+wire           dna_clk_h;
 reg            dna_read ;
 reg            dna_shift;
 reg  [ 9-1: 0] dna_cnt  ;
@@ -91,10 +92,15 @@ end else begin
     dna_done <= 1'b1;
 end
 
+BUFH i_BUFH (
+  .O (dna_clk_h),
+  .I (dna_clk)
+);
+
 // parameter specifies a sample 57-bit DNA value for simulation
 DNA_PORT #(.SIM_DNA_VALUE (DNA)) i_DNA (
   .DOUT  ( dna_dout   ), // 1-bit output: DNA output data.
-  .CLK   ( dna_clk    ), // 1-bit input: Clock input.
+  .CLK   ( dna_clk_h  ), // 1-bit input: Clock input.
   .DIN   ( 1'b0       ), // 1-bit input: User data input pin.
   .READ  ( dna_read   ), // 1-bit input: Active high load DNA, active low read input.
   .SHIFT ( dna_shift  )  // 1-bit input: Active high shift enable input.

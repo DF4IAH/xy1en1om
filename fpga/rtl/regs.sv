@@ -83,7 +83,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16072201;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16072401;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -100,14 +100,14 @@ enum {
 //  REG_RD_SHA256_STATUS,                       // h104: SHA256 submodule status register
 //  REG_RW_SHA256_BIT_LEN,                      // h108: SHA256 submodule number of data bit to be hashed
 //  REG_WR_SHA256_DATA_PUSH,                    // h10C: SHA256 submodule data push in FIFO
-//  REG_RD_SHA256_HASH_H7,                      // h110: SHA256 submodule hash out H7, LSB
-//  REG_RD_SHA256_HASH_H6,                      // h110: SHA256 submodule hash out H6
-//  REG_RD_SHA256_HASH_H5,                      // h110: SHA256 submodule hash out H5
-//  REG_RD_SHA256_HASH_H4,                      // h110: SHA256 submodule hash out H4
-//  REG_RD_SHA256_HASH_H3,                      // h110: SHA256 submodule hash out H3
-//  REG_RD_SHA256_HASH_H2,                      // h110: SHA256 submodule hash out H2
-//  REG_RD_SHA256_HASH_H1,                      // h110: SHA256 submodule hash out H1
-//  REG_RD_SHA256_HASH_H0,                      // h11C: SHA256 submodule hash out H0, LSB
+    REG_RD_SHA256_HASH_H7,                      // h110: SHA256 submodule hash out H7, LSB
+    REG_RD_SHA256_HASH_H6,                      // h110: SHA256 submodule hash out H6
+    REG_RD_SHA256_HASH_H5,                      // h110: SHA256 submodule hash out H5
+    REG_RD_SHA256_HASH_H4,                      // h110: SHA256 submodule hash out H4
+    REG_RD_SHA256_HASH_H3,                      // h110: SHA256 submodule hash out H3
+    REG_RD_SHA256_HASH_H2,                      // h110: SHA256 submodule hash out H2
+    REG_RD_SHA256_HASH_H1,                      // h110: SHA256 submodule hash out H1
+    REG_RD_SHA256_HASH_H0,                      // h11C: SHA256 submodule hash out H0, LSB
 
     /* KECCAK512 section */
     REG_RW_KECCAK512_CTRL,                      // h200: KECCAK512 submodule control register
@@ -275,7 +275,25 @@ assign status = { 20'b0,  3'b0 , kek_en,  3'b0, sha256_en,  3'b0, omni_activated
 
 // === IMPL: SHA256 section ===
 
+reg    sha256_hash_valid_d;
 assign sha256_en = omni_reset_n & !sha256_reset;
+
+always @(posedge clk_100mhz)
+if (!sha256_en)
+   sha256_hash_valid_d <= 1'b0;
+else if (!sha256_hash_valid_d && sha256_hash_valid) begin
+   regs[REG_RD_SHA256_HASH_H0] <= sha256_hash_data[7*32+:32];
+   regs[REG_RD_SHA256_HASH_H1] <= sha256_hash_data[6*32+:32];
+   regs[REG_RD_SHA256_HASH_H2] <= sha256_hash_data[5*32+:32];
+   regs[REG_RD_SHA256_HASH_H3] <= sha256_hash_data[4*32+:32];
+   regs[REG_RD_SHA256_HASH_H4] <= sha256_hash_data[3*32+:32];
+   regs[REG_RD_SHA256_HASH_H5] <= sha256_hash_data[2*32+:32];
+   regs[REG_RD_SHA256_HASH_H6] <= sha256_hash_data[1*32+:32];
+   regs[REG_RD_SHA256_HASH_H7] <= sha256_hash_data[0*32+:32];
+   sha256_hash_valid_d <= sha256_hash_valid;
+   end
+else
+   sha256_hash_valid_d <= sha256_hash_valid;
 
 fifo_64i_512o_128d i_fifo_64i_512o (
   .clk                     ( clk_100mhz                  ), // clock 100 MHz
@@ -297,7 +315,7 @@ sha256_engine i_sha256_engine (
   .rstn_i                  ( sha256_en                   ),  // reset active low
 
   .ready_o                 ( sha256_rdy                  ),  // sha256 engine ready to start
-/*.bitlen_i                ( sha256_bit_len              ),*/// load this number of bits to calculate the hash
+//.bitlen_i                ( sha256_bit_len              ),  // load this number of bits to calculate the hash
   .start_i                 ( sha256_start                ),  // start engine
   .vec_i                   ( sha256_512b_block           ),  // data block to be fed
   .valid_o                 ( sha256_hash_valid           ),  // hash output vector is valid
@@ -353,6 +371,9 @@ else begin
 
     20'h00000: begin
       regs[REG_RW_CTRL]                           <= sys_wdata[31:0];
+      end
+    20'h0000C: begin
+      regs[REG_RW_CTRL]                           <= CURRENT_DATE[31:0];
       end
 
 
@@ -447,35 +468,35 @@ else begin
       end */
     20'h00110: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[0*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H7];
       end
     20'h00114: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[1*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H6];
       end
     20'h00118: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[2*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H5];
       end
     20'h0011C: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[3*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H4];
       end
     20'h00120: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[4*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H3];
       end
     20'h00124: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[5*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H2];
       end
     20'h00128: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[6*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H1];
       end
     20'h0012C: begin
       sys_ack   <= sys_en;
-      sys_rdata <= sha256_hash_data[7*32+:32];
+      sys_rdata <= regs[REG_RD_SHA256_HASH_H0];
       end
 
 
