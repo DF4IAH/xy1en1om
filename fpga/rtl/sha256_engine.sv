@@ -188,7 +188,7 @@ else
       w[15] <= vec_i[15];
 
       loop_i <= 16;
-
+      ready_o <= 1'b0;
       state <= 8'h01;
       end
 

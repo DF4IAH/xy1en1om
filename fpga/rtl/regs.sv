@@ -83,7 +83,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16072401;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16072601;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ wire                     sha256_rdy;
 reg          [ 63:0]     sha256_64b_fifo     = 'b0;
 reg                      sha256_64b_fifo_wr  = 'b0;
 reg                      sha256_64b_fifo_msb = 'b0;
-reg                      sha256_512b_fifo_rd = 'b0;
+wire                     sha256_512b_fifo_rd = sha256_start;
 wire         [511:0]     sha256_512b_block;
 wire                     sha256_hash_valid;
 wire         [255:0]     sha256_hash_data;
@@ -297,7 +297,7 @@ else
 
 fifo_64i_512o_128d i_fifo_64i_512o (
   .clk                     ( clk_100mhz                  ), // clock 100 MHz
-  .srst                    ( sha256_en                   ), // reset active low
+  .srst                    ( !sha256_en                  ), // reset active high
 
   .din                     ( sha256_64b_fifo             ), // 2x 32 bit word in
   .wr_en                   ( sha256_64b_fifo_wr          ), // write signal to push into the FIFO
@@ -317,7 +317,7 @@ sha256_engine i_sha256_engine (
   .ready_o                 ( sha256_rdy                  ),  // sha256 engine ready to start
 //.bitlen_i                ( sha256_bit_len              ),  // load this number of bits to calculate the hash
   .start_i                 ( sha256_start                ),  // start engine
-  .vec_i                   ( sha256_512b_block           ),  // data block to be fed
+  .vec_i                   ( {<<{sha256_512b_block}}     ),  // data block to be fed in bit reverse direction
   .valid_o                 ( sha256_hash_valid           ),  // hash output vector is valid
   .hash_o                  ( sha256_hash_data            )   // computated hash value
 );
@@ -390,10 +390,11 @@ else begin
     20'h0010C: begin
       if (!sha256_64b_fifo_msb)
         sha256_64b_fifo[ 31: 0]                   <= sys_wdata[31:0];
-      else
-        sha256_64b_fifo[ 63:31]                   <= sys_wdata[31:0];
+      else begin
+        sha256_64b_fifo[ 63:32]                   <= sys_wdata[31:0];
+        sha256_64b_fifo_wr <= 1'b1;
+        end
       sha256_64b_fifo_msb <= !sha256_64b_fifo_msb;
-      sha256_64b_fifo_wr <= 1'b1;  
       end
 
 
