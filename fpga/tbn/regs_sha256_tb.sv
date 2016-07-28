@@ -148,14 +148,15 @@ initial begin
 
   // TASK 01: enable hash facilities
   bus.write(20'h00000, 32'h00000001);           // control: enable
-  bus.write(20'h00100, 32'h00000001);           // SHA256 control: RESET
-  bus.write(20'h00200, 32'h00000000);           // KECCAK512 control: (none)
 
+  bus.write(20'h00100, 32'h00000001);           // SHA256 control: RESET
   bus.write(20'h00100, 32'h00000000);           // SHA256 control: (none)
-  
-  // write NULL data to the FIFO
+
+//bus.write(20'h00200, 32'h00000000);           // KECCAK512 control: (none)
+
+  // write data to the FIFO - LSB first
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO LSB - #0
-  bus.write(20'h0010C, 32'h80000000);           // SHA256 FIFO MSB - #0 - one bit after the last data message is set
+  bus.write(20'h0010C, 32'h41800000);           // SHA256 FIFO MSB - #0 - one bit after the last data message is set
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO LSB - #1
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO MSB - #1
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO LSB - #2
@@ -168,7 +169,7 @@ initial begin
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO MSB - #5
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO LSB - #6
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO MSB - #6
-  bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO LSB - #7
+  bus.write(20'h0010C, 32'h00000008);           // SHA256 FIFO LSB - #7
   bus.write(20'h0010C, 32'h00000000);           // SHA256 FIFO MSB - #7
 
   bus.read (20'h00104, task_check);             // read result register
@@ -177,10 +178,8 @@ initial begin
   else
      $display("FAIL - Task:01.01 read REG_RD_SHA256_STATUS, read=%08x, masked read=%08x, (should be: %08x)", task_check, task_check & 32'h00000010, 32'h00000000);
 
-  bus.write(20'h00100, 32'h00000002);           // SHA256 control: START
-  bus.write(20'h00100, 32'h00000000);           // SHA256 control: (none)
+  repeat(115) @(posedge clk_100mhz);
 
-  repeat(130) @(posedge clk_100mhz);
   bus.read (20'h00104, task_check);             // read result register
   if (task_check & 32'h00000002)
      $display("PASS - Task:01.02 read REG_RD_SHA256_STATUS");
@@ -189,7 +188,7 @@ initial begin
 
   $display("INFO - Task:99 disabling regs sub-module");
   bus.write(20'h00000, 32'h00000000);           // control: disable
-  repeat(1000) @(posedge clk_100mhz);
+  repeat(10) @(posedge clk_100mhz);
 
   $display("FINISH");
   $finish () ;

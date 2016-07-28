@@ -83,7 +83,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16072601;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16072801;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -163,8 +163,8 @@ enum {
 
 enum {
     SHA256_CTRL_RESET                     =  0, // SHA256: reset engine
-    SHA256_CTRL_START,                          // SHA256: prepare engine
-    SHA256_CTRL_FINALIZE,                       // SHA256: no more data is pushed, finalize process
+    SHA256_CTRL_RSVD_D01,
+    SHA256_CTRL_RSVD_D02,
     SHA256_CTRL_RSVD_D03,
 
     SHA256_CTRL_RSVD_D04,
@@ -216,24 +216,25 @@ reg          [ 31:0]     regs[REG_COUNT];                    // registers to be 
 // === NET: SHA256 section ===
 
 wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET];
-wire                     sha256_start        = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_START];
-wire                     sha256_finalize     = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_FINALIZE];
 //wire       [ 31:0]     sha256_bit_len      = regs[REG_RW_SHA256_BIT_LEN];
 
 wire         [ 31:0]     sha256_status;
 
 wire                     sha256_en;
 wire                     sha256_rdy;
+
 reg          [ 63:0]     sha256_64b_fifo     = 'b0;
-reg                      sha256_64b_fifo_wr  = 'b0;
 reg                      sha256_64b_fifo_msb = 'b0;
-wire                     sha256_512b_fifo_rd = sha256_start;
+reg                      sha256_64b_fifo_wr  = 'b0;
+reg                      sha256_512b_fifo_rd = 'b0;
 wire         [511:0]     sha256_512b_block;
-wire                     sha256_hash_valid;
-wire         [255:0]     sha256_hash_data;
 wire                     sha256_fifo_full;
 wire                     sha256_fifo_m1full;
 wire                     sha256_fifo_empty;
+
+reg                      sha256_start = 'b0;
+wire                     sha256_hash_valid;
+wire         [255:0]     sha256_hash_data;
 
 
 // === NET: KECCAK512 section ===
@@ -317,10 +318,24 @@ sha256_engine i_sha256_engine (
   .ready_o                 ( sha256_rdy                  ),  // sha256 engine ready to start
 //.bitlen_i                ( sha256_bit_len              ),  // load this number of bits to calculate the hash
   .start_i                 ( sha256_start                ),  // start engine
-  .vec_i                   ( {<<{sha256_512b_block}}     ),  // data block to be fed in bit reverse direction
+  .vec_i                   ( sha256_512b_block           ),  // data block to be fed
   .valid_o                 ( sha256_hash_valid           ),  // hash output vector is valid
   .hash_o                  ( sha256_hash_data            )   // computated hash value
 );
+
+always @(posedge clk_100mhz)
+if (!sha256_en) begin
+   sha256_512b_fifo_rd <= 1'b0;
+   sha256_start <= 1'b0;
+   end
+else if (!sha256_fifo_empty && sha256_rdy) begin
+   sha256_512b_fifo_rd <= 1'b1;
+   sha256_start <= 1'b1;
+   end
+else begin
+   sha256_512b_fifo_rd <= 1'b0;
+   sha256_start <= 1'b0;
+   end
 
 assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha256_fifo_empty,  2'b0, sha256_hash_valid, sha256_rdy };
 
@@ -381,7 +396,7 @@ else begin
 
     20'h00100: begin
       regs[REG_RW_SHA256_CTRL]                    <= sys_wdata[31:0];
-      if (sys_wdata[SHA256_CTRL_RESET] || sys_wdata[SHA256_CTRL_START])
+      if (sys_wdata[SHA256_CTRL_RESET])
         sha256_64b_fifo_msb <= 1'b0;
       end
 /*  20'h00108: begin
@@ -389,9 +404,9 @@ else begin
       end */
     20'h0010C: begin
       if (!sha256_64b_fifo_msb)
-        sha256_64b_fifo[ 31: 0]                   <= sys_wdata[31:0];
+        sha256_64b_fifo[31: 0]                    <= sys_wdata[31:0];
       else begin
-        sha256_64b_fifo[ 63:32]                   <= sys_wdata[31:0];
+        sha256_64b_fifo[63:32]                    <= sys_wdata[31:0];
         sha256_64b_fifo_wr <= 1'b1;
         end
       sha256_64b_fifo_msb <= !sha256_64b_fifo_msb;
