@@ -11,9 +11,9 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1958918350fs"></ZoomStartTime>
-      <ZoomEndTime time="2161118353fs"></ZoomEndTime>
-      <Cursor1Time time="2065842000fs"></Cursor1Time>
+      <ZoomStartTime time="3175200000fs"></ZoomStartTime>
+      <ZoomEndTime time="3377400003fs"></ZoomEndTime>
+      <Cursor1Time time="3375000000fs"></Cursor1Time>
    </zoom_setting>
    <WVObjectSize size="9" />
    <wave_markers>
@@ -102,6 +102,7 @@
    <wvobject fp_name="group26" type="group">
       <obj_property name="label">FIFO_FSM</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="divider" fp_name="divider43">
          <obj_property name="label">OMNI</obj_property>
          <obj_property name="DisplayName">label</obj_property>
@@ -178,12 +179,13 @@
          <obj_property name="ElementShortName">sha256_hash_data[255:0]</obj_property>
          <obj_property name="ObjectShortName">sha256_hash_data[255:0]</obj_property>
          <obj_property name="Radix">HEXRADIX</obj_property>
-         <obj_property name="CustomSignalColor">#DCDCDC</obj_property>
+         <obj_property name="CustomSignalColor">#FFFFFF</obj_property>
          <obj_property name="UseCustomSignalColor">true</obj_property>
       </wvobject>
       <wvobject fp_name="group18" type="group">
          <obj_property name="label">FIFO</obj_property>
          <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
          <wvobject fp_name="/regs_sha256_tb/regs/i_fifo_64i_512o/clk" type="logic">
             <obj_property name="ElementShortName">clk</obj_property>
             <obj_property name="ObjectShortName">clk</obj_property>

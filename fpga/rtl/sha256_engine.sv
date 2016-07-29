@@ -31,6 +31,7 @@ module sha256_engine #(
     output reg           ready_o,
 //  input       [ 31:0]  bitlen_i,
     input                start_i,
+    input                sha256_fifo_empty,
     input       [511:0]  vec_i,
     output reg           valid_o,
     output      [255:0]  hash_o
@@ -247,8 +248,10 @@ else
          ha[6] <= ha[6] + g;
          ha[7] <= ha[7] + h;
 
-         valid_o <= 1'b1;
          ready_o <= 1'b1;
+
+         if (sha256_fifo_empty)
+            valid_o <= 1'b1;
 
          state <= 8'h00;
          end

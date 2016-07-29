@@ -318,6 +318,7 @@ sha256_engine i_sha256_engine (
   .ready_o                 ( sha256_rdy                  ),  // sha256 engine ready to start
 //.bitlen_i                ( sha256_bit_len              ),  // load this number of bits to calculate the hash
   .start_i                 ( sha256_start                ),  // start engine
+  .sha256_fifo_empty       ( sha256_fifo_empty           ),  // indicator for continuation with next block
   .vec_i                   ( sha256_512b_block           ),  // data block to be fed
   .valid_o                 ( sha256_hash_valid           ),  // hash output vector is valid
   .hash_o                  ( sha256_hash_data            )   // computated hash value
