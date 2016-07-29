@@ -2,7 +2,7 @@
 # Vivado tcl script for building RedPitaya FPGA in non project mode
 #
 # Usage:
-# vivado -mode tcl -source red_pitaya_vivado.tcl
+# vivado -mode tcl -source project_make.tcl
 ################################################################################
 
 
@@ -48,7 +48,7 @@ source                            $path_ip/system_bd.tcl
 
 # generate SDK files
 generate_target all               [get_files system.bd]
-write_hwdef    -force -file       $path_sdk/red_pitaya.hwdef
+write_hwdef    -force -file       $path_sdk/project.hwdef
 
 # generate system_wrapper.v file to the target directory
 make_wrapper -files               [get_files project/.srcs/sources_1/bd/system/system.bd] -top
@@ -72,42 +72,14 @@ read_verilog                      $path_rtl/axi_pc2leds.v
 read_verilog                      $path_rtl/axi_slave.v
 read_verilog                      $path_rtl/axi_wr_fifo.v
 
-read_verilog   -sv                $path_rtl/pwm.sv
-
-read_verilog   -sv                $path_rtl/red_pitaya_ac97ctrl.sv
-read_verilog                      $path_rtl/red_pitaya_ams.v
-read_verilog                      $path_rtl/red_pitaya_asg.v
-read_verilog                      $path_rtl/red_pitaya_asg_ch.v
-read_verilog                      $path_rtl/red_pitaya_dfilt1.v
 read_verilog                      $path_rtl/red_pitaya_hk.v
-read_verilog                      $path_rtl/red_pitaya_pid.v
-read_verilog                      $path_rtl/red_pitaya_pid_block.v
 read_verilog   -sv                $path_rtl/red_pitaya_pll.sv
 read_verilog                      $path_rtl/red_pitaya_ps.v
-read_verilog   -sv                $path_rtl/red_pitaya_pwm.sv
-read_verilog   -sv                $path_rtl/red_pitaya_radiobox.sv
 read_verilog   -sv                $path_rtl/red_pitaya_rst_clken.sv
-read_verilog                      $path_rtl/red_pitaya_scope.v
-read_verilog                      $path_rtl/red_pitaya_top.v
+read_verilog   -sv                $path_rtl/regs.sv
+read_verilog   -sv                $path_rtl/top.sv
 
-read_ip                           $path_ip/ac97ctrl_16x32_sr_fifo.xcix
-read_ip                           $path_ip/ac97ctrl_16x64_nc_blkmem.xcix
-read_ip                           $path_ip/rb_addsub_48M48.xcix
-read_ip                           $path_ip/rb_cic_125M_to_5M_18T18.xcix
-read_ip                           $path_ip/rb_cic_200k_to_8k_18T18.xcix
-read_ip                           $path_ip/rb_cic_48k_to_8k_18T18.xcix
-read_ip                           $path_ip/rb_cic_5M_to_200k_18T18.xcix
-read_ip                           $path_ip/rb_cic_8k_to_41M664_18T18.xcix
-read_ip                           $path_ip/rb_cic_8k_to_48k_18T18.xcix
-read_ip                           $path_ip/rb_cordic_T_WS_O_SR_18T18_NE_CR_EM_B.xcix
-read_ip                           $path_ip/rb_dds_48_16_125.xcix
-read_ip                           $path_ip/rb_dsp48_AaDmBaC_A18_D18_B18_C36_P37.xcix
-read_ip                           $path_ip/rb_fir_8k_to_8k_25c23_17i16_35o33.xcix
-read_ip                           $path_ip/rb_fir1_8k_to_8k_25c_17i16_35o32.xcix
-read_ip                           $path_ip/rb_fir2_8k_to_8k_25c_17i16_35o32.xcix
-read_ip                           $path_ip/rb_fir3_200k_to_200k_24c_17i16_35o.xcix
-
-read_xdc                          $path_sdc/red_pitaya.xdc
+read_xdc                          $path_sdc/project.xdc
 
 
 ################################################################################
@@ -116,12 +88,10 @@ read_xdc                          $path_sdc/red_pitaya.xdc
 # write checkpoint design
 ################################################################################
 
-synth_ip                          [get_ips ac97ctrl_*]
 synth_ip                          [get_ips clk_adc_pll]
-synth_ip                          [get_ips rb_*]
 
-synth_design -top red_pitaya_top -directive AreaOptimized_high
-#synth_design -top red_pitaya_top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers
+synth_design -top top -directive AreaOptimized_high
+#synth_design -top top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers
 
 write_checkpoint         -force   $path_out/post_synth
 report_timing_summary    -file    $path_out/post_synth_timing_summary.rpt
@@ -140,7 +110,7 @@ place_design
 phys_opt_design
 write_checkpoint         -force   $path_out/post_place
 report_timing_summary    -file    $path_out/post_place_timing_summary.rpt
-#write_hwdef      -force -file    $path_sdk/red_pitaya.hwdef
+#write_hwdef      -force -file    $path_sdk/project.hwdef
 
 
 ################################################################################
@@ -166,15 +136,15 @@ report_drc               -file    $path_out/post_imp_drc.rpt
 # generate a bitstream
 ################################################################################
 
-write_bitstream -force $path_out/red_pitaya.bit
+write_bitstream -force $path_out/project.bit
 
 
 ################################################################################
 # generate system definition
 ################################################################################
 
-write_sysdef -force      -hwdef   $path_sdk/red_pitaya.hwdef \
-                         -bitfile $path_out/red_pitaya.bit \
-                         -file    $path_sdk/red_pitaya.sysdef
+write_sysdef -force      -hwdef   $path_sdk/project.hwdef \
+                         -bitfile $path_out/project.bit \
+                         -file    $path_sdk/project.sysdef
 
 exit

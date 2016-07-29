@@ -29,17 +29,17 @@ all: $(FPGA_BIT) $(FSBL_ELF) $(MEMTEST_ELF) $(DEVICE_TREE)
 clean:
 	rm -rf out .Xil .srcs sdk
 
-project:
-	vivado -source red_pitaya_vivado_project.tcl
+vivado:
+	vivado -source project_vivado.tcl
 
 $(FPGA_BIT):
-	$(VIVADO) -source red_pitaya_vivado.tcl
+	$(VIVADO) -source project_make.tcl
 
 $(FSBL_ELF): $(FPGA_BIT)
-	$(HSI) -source red_pitaya_hsi_fsbl.tcl
+	$(HSI) -source xilinx_hsi_fsbl.tcl
 
 $(MEMTEST_ELF): $(FPGA_BIT)
-	$(HSI) -source red_pitaya_hsi_dram_test.tcl
+	$(HSI) -source xilinx_hsi_dram_test.tcl
 
 $(DEVICE_TREE): $(FPGA_BIT)
-	$(HSI) -source red_pitaya_hsi_dts.tcl
+	$(HSI) -source xilinx_hsi_dts.tcl

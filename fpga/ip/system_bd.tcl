@@ -42,70 +42,45 @@ if { [get_projects -quiet] eq "" } {
 # CHANGE DESIGN NAME HERE
 set design_name system
 
-# If you do not already have an existing IP Integrator design open,
-# you can create a design using the following command:
-#    create_bd_design $design_name
+# This script was generated for a remote BD.
+set str_bd_folder C:/Users/espero/git/RedPitaya_RadioBox/fpga/bd
+set str_bd_filepath ${str_bd_folder}/${design_name}.bd
 
-# Creating design if needed
-set errMsg ""
-set nRet 0
+# Check if remote design exists on disk
+if { [file exists $str_bd_filepath ] == 1 } {
+   puts "ERROR: The remote BD file path <$str_bd_filepath> already exists!\n"
 
-set cur_design [current_bd_design -quiet]
-set list_cells [get_bd_cells -quiet]
+   puts "INFO: Please modify the variable <str_bd_folder> to another path or modify the variable <design_name>."
 
-if { ${design_name} eq "" } {
-   # USE CASES:
-   #    1) Design_name not set
-
-   set errMsg "ERROR: Please set the variable <design_name> to a non-empty value."
-   set nRet 1
-
-} elseif { ${cur_design} ne "" && ${list_cells} eq "" } {
-   # USE CASES:
-   #    2): Current design opened AND is empty AND names same.
-   #    3): Current design opened AND is empty AND names diff; design_name NOT in project.
-   #    4): Current design opened AND is empty AND names diff; design_name exists in project.
-
-   if { $cur_design ne $design_name } {
-      puts "INFO: Changing value of <design_name> from <$design_name> to <$cur_design> since current design is empty."
-      set design_name [get_property NAME $cur_design]
-   }
-   puts "INFO: Constructing design in IPI design <$cur_design>..."
-
-} elseif { ${cur_design} ne "" && $list_cells ne "" && $cur_design eq $design_name } {
-   # USE CASES:
-   #    5) Current design opened AND has components AND same names.
-
-   set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-   set nRet 1
-} elseif { [get_files -quiet ${design_name}.bd] ne "" } {
-   # USE CASES: 
-   #    6) Current opened design, has components, but diff names, design_name exists in project.
-   #    7) No opened design, design_name exists in project.
-
-   set errMsg "ERROR: Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
-   set nRet 2
-
-} else {
-   # USE CASES:
-   #    8) No opened design, design_name not in project.
-   #    9) Current opened design, has components, but diff names, design_name not in project.
-
-   puts "INFO: Currently there is no design <$design_name> in project, so creating one..."
-
-   create_bd_design $design_name
-
-   puts "INFO: Making design <$design_name> as current_bd_design."
-   current_bd_design $design_name
-
+   return 1
 }
 
-puts "INFO: Currently the variable <design_name> is equal to \"$design_name\"."
+# Check if design exists in memory
+set list_existing_designs [get_bd_designs -quiet $design_name]
+if { $list_existing_designs ne "" } {
+   puts "ERROR: The design <$design_name> already exists in this project!"
+   puts "ERROR: Will not create the remote BD <$design_name> at the folder <$str_bd_folder>.\n"
 
-if { $nRet != 0 } {
-   puts $errMsg
-   return $nRet
+   puts "INFO: Please modify the variable <design_name>."
+
+   return 1
 }
+
+# Check if design exists on disk within project
+set list_existing_designs [get_files */${design_name}.bd]
+if { $list_existing_designs ne "" } {
+   puts "ERROR: The design <$design_name> already exists in this project at location:"
+   puts "   $list_existing_designs"
+   puts "ERROR: Will not create the remote BD <$design_name> at the folder <$str_bd_folder>.\n"
+
+   puts "INFO: Please modify the variable <design_name>."
+
+   return 1
+}
+
+# Now can create the remote BD
+create_bd_design -dir $str_bd_folder $design_name
+current_bd_design $design_name
 
 ##################################################################
 # DESIGN PROCs
@@ -147,7 +122,7 @@ proc create_root_design { parentCell } {
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
   set M_AXIS_GP1_xadc [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 M_AXIS_GP1_xadc ]
   set_property -dict [ list \
-CONFIG.FREQ_HZ {125000000} \
+CONFIG.FREQ_HZ {100000000} \
  ] $M_AXIS_GP1_xadc
   set M_AXI_GP0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:aximm_rtl:1.0 M_AXI_GP0 ]
   set_property -dict [ list \
@@ -263,13 +238,14 @@ CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} \
 CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} \
 CONFIG.PCW_ENET0_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_ENET0_PERIPHERAL_ENABLE {1} \
-CONFIG.PCW_EN_CLK1_PORT {1} \
-CONFIG.PCW_EN_CLK2_PORT {1} \
-CONFIG.PCW_EN_CLK3_PORT {1} \
-CONFIG.PCW_EN_RST1_PORT {1} \
-CONFIG.PCW_EN_RST2_PORT {1} \
-CONFIG.PCW_EN_RST3_PORT {1} \
-CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {125} \
+CONFIG.PCW_EN_CLK1_PORT {0} \
+CONFIG.PCW_EN_CLK2_PORT {0} \
+CONFIG.PCW_EN_CLK3_PORT {0} \
+CONFIG.PCW_EN_RST1_PORT {0} \
+CONFIG.PCW_EN_RST2_PORT {0} \
+CONFIG.PCW_EN_RST3_PORT {0} \
+CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
+CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
 CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {250} \
 CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {200} \
 CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} \
@@ -347,6 +323,8 @@ CONFIG.PCW_UIPARAM_DDR_PARTNO {MT41J256M16 RE-125} \
 CONFIG.PCW_USB0_PERIPHERAL_ENABLE {1} \
 CONFIG.PCW_USB0_RESET_ENABLE {1} \
 CONFIG.PCW_USB0_RESET_IO {MIO 48} \
+CONFIG.PCW_USE_DEBUG {0} \
+CONFIG.PCW_USE_DMA0 {0} \
 CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
 CONFIG.PCW_USE_M_AXI_GP1 {1} \
 CONFIG.PCW_USE_S_AXI_HP0 {1} \
@@ -371,7 +349,7 @@ CONFIG.CHANNEL_ENABLE_VAUXP1_VAUXN1 {true} \
 CONFIG.CHANNEL_ENABLE_VAUXP8_VAUXN8 {true} \
 CONFIG.CHANNEL_ENABLE_VAUXP9_VAUXN9 {true} \
 CONFIG.CHANNEL_ENABLE_VP_VN {true} \
-CONFIG.DCLK_FREQUENCY {125} \
+CONFIG.DCLK_FREQUENCY {100} \
 CONFIG.ENABLE_AXI4STREAM {true} \
 CONFIG.EXTERNAL_MUX_CHANNEL {VP_VN} \
 CONFIG.FIFO_DEPTH {8} \
@@ -414,13 +392,7 @@ CONFIG.IN1_WIDTH {15} \
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_protocol_converter_0/aresetn] [get_bd_pins proc_sys_reset/interconnect_aresetn]
   connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins proc_sys_reset/peripheral_aresetn] [get_bd_pins xadc/s_axi_aresetn]
   connect_bd_net -net processing_system7_0_fclk_clk0 [get_bd_ports FCLK_CLK0] [get_bd_ports M_AXIS_GP1_xadc_aclk] [get_bd_pins axi_protocol_converter_0/aclk] [get_bd_pins proc_sys_reset/slowest_sync_clk] [get_bd_pins processing_system7/FCLK_CLK0] [get_bd_pins processing_system7/M_AXI_GP1_ACLK] [get_bd_pins xadc/s_axi_aclk] [get_bd_pins xadc/s_axis_aclk]
-  connect_bd_net -net processing_system7_0_fclk_clk1 [get_bd_ports FCLK_CLK1] [get_bd_pins processing_system7/FCLK_CLK1]
-  connect_bd_net -net processing_system7_0_fclk_clk2 [get_bd_ports FCLK_CLK2] [get_bd_pins processing_system7/FCLK_CLK2]
-  connect_bd_net -net processing_system7_0_fclk_clk3 [get_bd_ports FCLK_CLK3] [get_bd_pins processing_system7/FCLK_CLK3]
   connect_bd_net -net processing_system7_0_fclk_reset0_n [get_bd_ports FCLK_RESET0_N] [get_bd_pins proc_sys_reset/ext_reset_in] [get_bd_pins processing_system7/FCLK_RESET0_N]
-  connect_bd_net -net processing_system7_0_fclk_reset1_n [get_bd_ports FCLK_RESET1_N] [get_bd_pins processing_system7/FCLK_RESET1_N]
-  connect_bd_net -net processing_system7_0_fclk_reset2_n [get_bd_ports FCLK_RESET2_N] [get_bd_pins processing_system7/FCLK_RESET2_N]
-  connect_bd_net -net processing_system7_0_fclk_reset3_n [get_bd_ports FCLK_RESET3_N] [get_bd_pins processing_system7/FCLK_RESET3_N]
   connect_bd_net -net s_axi_hp0_aclk [get_bd_ports S_AXI_HP0_aclk] [get_bd_pins processing_system7/S_AXI_HP0_ACLK]
   connect_bd_net -net s_axi_hp1_aclk [get_bd_ports S_AXI_HP1_aclk] [get_bd_pins processing_system7/S_AXI_HP1_ACLK]
   connect_bd_net -net xadc_ip2intc_irpt [get_bd_pins xadc/ip2intc_irpt] [get_bd_pins xlconcat_0/In0]
@@ -435,71 +407,65 @@ CONFIG.IN1_WIDTH {15} \
 
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
-   guistr: "# # String gsaved with Nlview 6.5.5  2015-06-26 bk=1.3371 VDI=38 GEI=35 GUI=JA:1.8
+   guistr: "# # String gsaved with Nlview 6.5.5  2015-06-26 bk=1.3371 VDI=38 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
-preplace port M_AXIS_GP1_xadc_aclk -pg 1 -y 530 -defaultsOSRD
-preplace port FCLK_CLK3 -pg 1 -y 290 -defaultsOSRD
-preplace port S_AXI_HP1 -pg 1 -y 200 -defaultsOSRD
-preplace port DDR -pg 1 -y 70 -defaultsOSRD
-preplace port Vp_Vn -pg 1 -y 620 -defaultsOSRD
-preplace port Vaux0 -pg 1 -y 640 -defaultsOSRD
-preplace port M_AXI_GP0_ACLK -pg 1 -y 220 -defaultsOSRD
-preplace port FCLK_RESET0_N -pg 1 -y 310 -defaultsOSRD
-preplace port Vaux1 -pg 1 -y 660 -defaultsOSRD
-preplace port S_AXI_HP0_aclk -pg 1 -y 240 -defaultsOSRD
-preplace port M_AXI_GP0 -pg 1 -y 130 -defaultsOSRD
-preplace port FCLK_RESET1_N -pg 1 -y 330 -defaultsOSRD
-preplace port S_AXI_HP1_aclk -pg 1 -y 260 -defaultsOSRD
-preplace port FCLK_RESET3_N -pg 1 -y 370 -defaultsOSRD
-preplace port FIXED_IO -pg 1 -y 90 -defaultsOSRD
-preplace port FCLK_RESET2_N -pg 1 -y 350 -defaultsOSRD
-preplace port dcm_locked -pg 1 -y 470 -defaultsOSRD
-preplace port FCLK_CLK0 -pg 1 -y 150 -defaultsOSRD
-preplace port FCLK_CLK1 -pg 1 -y 250 -defaultsOSRD
-preplace port Vaux8 -pg 1 -y 680 -defaultsOSRD
-preplace port FCLK_CLK2 -pg 1 -y 270 -defaultsOSRD
-preplace port Vaux9 -pg 1 -y 700 -defaultsOSRD
-preplace port S_AXI_HP0 -pg 1 -y 180 -defaultsOSRD
-preplace port M_AXIS_GP1_xadc -pg 1 -y 550 -defaultsOSRD
-preplace portBus IRQ_F2P_xlconcat -pg 1 -y 320 -defaultsOSRD
-preplace inst xlconstant -pg 1 -lvl 1 -y 420 -defaultsOSRD
-preplace inst axi_protocol_converter_0 -pg 1 -lvl 3 -y 420 -defaultsOSRD
-preplace inst xlconcat_0 -pg 1 -lvl 3 -y 300 -defaultsOSRD
-preplace inst processing_system7 -pg 1 -lvl 4 -y 220 -defaultsOSRD
-preplace inst xadc -pg 1 -lvl 4 -y 680 -defaultsOSRD
-preplace inst proc_sys_reset -pg 1 -lvl 2 -y 420 -defaultsOSRD
+preplace port M_AXIS_GP1_xadc_aclk -pg 1 -y 240 -defaultsOSRD
+preplace port FCLK_CLK3 -pg 1 -y 120 -defaultsOSRD
+preplace port S_AXI_HP1 -pg 1 -y 120 -defaultsOSRD
+preplace port DDR -pg 1 -y 40 -defaultsOSRD
+preplace port Vp_Vn -pg 1 -y 310 -defaultsOSRD
+preplace port Vaux0 -pg 1 -y 290 -defaultsOSRD
+preplace port FCLK_RESET0_N -pg 1 -y 260 -defaultsOSRD
+preplace port M_AXI_GP0_ACLK -pg 1 -y 140 -defaultsOSRD
+preplace port Vaux1 -pg 1 -y 480 -defaultsOSRD
+preplace port S_AXI_HP0_aclk -pg 1 -y 250 -defaultsOSRD
+preplace port M_AXI_GP0 -pg 1 -y 20 -defaultsOSRD
+preplace port FCLK_RESET1_N -pg 1 -y 140 -defaultsOSRD
+preplace port S_AXI_HP1_aclk -pg 1 -y 270 -defaultsOSRD
+preplace port FCLK_RESET3_N -pg 1 -y 180 -defaultsOSRD
+preplace port FIXED_IO -pg 1 -y 60 -defaultsOSRD
+preplace port FCLK_RESET2_N -pg 1 -y 160 -defaultsOSRD
+preplace port dcm_locked -pg 1 -y 440 -defaultsOSRD
+preplace port FCLK_CLK0 -pg 1 -y 220 -defaultsOSRD
+preplace port FCLK_CLK1 -pg 1 -y 80 -defaultsOSRD
+preplace port Vaux8 -pg 1 -y 500 -defaultsOSRD
+preplace port FCLK_CLK2 -pg 1 -y 100 -defaultsOSRD
+preplace port M_AXIS_GP1_xadc -pg 1 -y 370 -defaultsOSRD
+preplace port Vaux9 -pg 1 -y 520 -defaultsOSRD
+preplace port S_AXI_HP0 -pg 1 -y 100 -defaultsOSRD
+preplace portBus IRQ_F2P_xlconcat -pg 1 -y 200 -defaultsOSRD
+preplace inst axi_protocol_converter_0 -pg 1 -lvl 3 -y 400 -defaultsOSRD
+preplace inst xlconstant -pg 1 -lvl 1 -y 390 -defaultsOSRD
+preplace inst xlconcat_0 -pg 1 -lvl 3 -y 190 -defaultsOSRD
+preplace inst processing_system7 -pg 1 -lvl 4 -y 140 -defaultsOSRD
+preplace inst xadc -pg 1 -lvl 4 -y 500 -defaultsOSRD
+preplace inst proc_sys_reset -pg 1 -lvl 2 -y 390 -defaultsOSRD
+preplace netloc Vaux0_1 1 0 4 NJ 250 NJ 250 NJ 250 NJ
 preplace netloc processing_system7_0_ddr 1 4 1 NJ
-preplace netloc Vaux0_1 1 0 4 NJ 640 NJ 640 NJ 640 NJ
-preplace netloc processing_system7_0_fclk_reset3_n 1 4 1 NJ
-preplace netloc IRQ_F2P_xlconcat_1 1 0 3 NJ 320 NJ 320 NJ
-preplace netloc s_axi_hp0_1 1 0 4 NJ 180 NJ 180 NJ 180 NJ
-preplace netloc processing_system7_0_fclk_reset2_n 1 4 1 NJ
-preplace netloc processing_system7_0_M_AXI_GP0 1 4 1 NJ
+preplace netloc IRQ_F2P_xlconcat_1 1 0 3 NJ 200 NJ 200 NJ
+preplace netloc s_axi_hp0_1 1 0 4 NJ 90 NJ 90 NJ 90 NJ
+preplace netloc processing_system7_0_M_AXI_GP0 1 4 1 1260
+preplace netloc dcm_locked_proc_sys_reset_1 1 0 2 NJ 440 NJ
+preplace netloc xadc_ip2intc_irpt 1 2 3 500 290 NJ 290 1240
 preplace netloc xlconstant_dout 1 1 1 NJ
-preplace netloc xadc_ip2intc_irpt 1 2 3 550 500 NJ 500 1280
-preplace netloc processing_system7_0_fclk_reset1_n 1 4 1 NJ
-preplace netloc dcm_locked_proc_sys_reset_1 1 0 2 NJ 470 NJ
-preplace netloc processing_system7_0_M_AXI_GP1 1 2 3 540 10 NJ 10 1280
-preplace netloc Vp_Vn_1 1 0 4 NJ 620 NJ 620 NJ 620 NJ
-preplace netloc s_axi_hp0_aclk 1 0 4 NJ 240 NJ 240 NJ 230 NJ
-preplace netloc s_axi_hp1_1 1 0 4 NJ 200 NJ 200 NJ 200 NJ
-preplace netloc proc_sys_reset_0_interconnect_aresetn 1 2 1 N
-preplace netloc axi_protocol_converter_0_M_AXI 1 3 1 820
-preplace netloc Vaux8_1 1 0 4 NJ 680 NJ 680 NJ 680 NJ
-preplace netloc xlconcat_0_dout 1 3 1 N
-preplace netloc s_axi_hp1_aclk 1 0 4 NJ 250 NJ 250 NJ 240 NJ
-preplace netloc processing_system7_0_fclk_reset0_n 1 1 4 150 20 NJ 20 NJ 20 1290
+preplace netloc Vp_Vn_1 1 0 4 NJ 290 NJ 290 NJ 300 NJ
+preplace netloc processing_system7_0_M_AXI_GP1 1 2 3 500 310 NJ 310 1250
+preplace netloc s_axi_hp0_aclk 1 0 4 NJ 260 NJ 260 NJ 260 NJ
+preplace netloc s_axi_hp1_1 1 0 4 NJ 110 NJ 110 NJ 110 NJ
+preplace netloc proc_sys_reset_0_interconnect_aresetn 1 2 1 480
+preplace netloc Vaux8_1 1 0 4 NJ 500 NJ 500 NJ 500 NJ
+preplace netloc axi_protocol_converter_0_M_AXI 1 3 1 760
+preplace netloc xlconcat_0_dout 1 3 1 800
+preplace netloc s_axi_hp1_aclk 1 0 4 NJ 270 NJ 270 NJ 270 NJ
+preplace netloc processing_system7_0_fclk_reset0_n 1 1 4 140 300 NJ 320 NJ 320 1260
+preplace netloc Vaux9_1 1 0 4 NJ 520 NJ 520 NJ 520 NJ
 preplace netloc processing_system7_0_fixed_io 1 4 1 NJ
-preplace netloc Vaux9_1 1 0 4 NJ 700 NJ 700 NJ 700 NJ
-preplace netloc processing_system7_0_fclk_clk0 1 1 4 160 330 520 220 830 420 1300
-preplace netloc proc_sys_reset_0_peripheral_aresetn 1 2 2 520 490 NJ
-preplace netloc Vaux1_1 1 0 4 NJ 660 NJ 660 NJ 660 NJ
-preplace netloc processing_system7_0_fclk_clk1 1 4 1 NJ
-preplace netloc m_axi_gp0_aclk_1 1 0 4 NJ 220 NJ 220 NJ 210 NJ
+preplace netloc processing_system7_0_fclk_clk0 1 1 4 150 490 490 470 810 280 1270
+preplace netloc proc_sys_reset_0_peripheral_aresetn 1 2 2 500 490 NJ
+preplace netloc Vaux1_1 1 0 4 NJ 480 NJ 480 NJ 480 NJ
+preplace netloc m_axi_gp0_aclk_1 1 0 4 NJ 130 NJ 130 NJ 130 NJ
 preplace netloc xadc_M_AXIS 1 4 1 NJ
-preplace netloc processing_system7_0_fclk_clk2 1 4 1 NJ
-preplace netloc processing_system7_0_fclk_clk3 1 4 1 NJ
-levelinfo -pg 1 -10 80 330 680 1060 1320 -top 0 -bot 860
+levelinfo -pg 1 -30 80 320 630 1030 1290 -top 0 -bot 680
 ",
 }
 
