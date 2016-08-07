@@ -25,8 +25,8 @@ module sha256_engine #(
   // parameter none = 0  // hint
 )(
    // clock & reset
-    input                clk_100mhz,
-    input                rstn_i,
+    input                clk,
+    input                rstn,
 
     output reg           ready_o,
 //  input       [ 31:0]  bitlen_i,
@@ -85,8 +85,8 @@ assign temp2 = S0 + maj;
 
 assign hash_o = { ha[0], ha[1], ha[2], ha[3], ha[4], ha[5], ha[6], ha[7] };
 
-always @(posedge clk_100mhz)
-if (!rstn_i) begin
+always @(posedge clk)
+if (!rstn) begin
    ha[0] <= 32'h6a09e667;
    ha[1] <= 32'hbb67ae85;
    ha[2] <= 32'h3c6ef372;
@@ -161,7 +161,7 @@ if (!rstn_i) begin
    k[62] <= 32'hbef9a3f7;
    k[63] <= 32'hc67178f2;
 
-   ready_o <= 1'b1;
+   ready_o <= 1'b0;
    valid_o <= 1'b0;
    loop_i <= 0;
    state <= 'b0;
@@ -170,11 +170,13 @@ if (!rstn_i) begin
 else
    case (state)
 
-   8'h00: if (start_i) begin
-      ready_o <= 1'b0;
-      valid_o <= 1'b0;
-      state <= 8'h01;
-      end
+   8'h00: if (!start_i)
+         ready_o <= 1'b1;
+      else begin
+         ready_o <= 1'b0;
+         valid_o <= 1'b0;
+         state <= 8'h01;
+         end
 
    8'h01: begin
       w[ 0] <= vec_i[15*32+:32];

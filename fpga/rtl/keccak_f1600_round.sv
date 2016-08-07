@@ -22,8 +22,8 @@
 
 module keccak_f1600_round(
   // global signals
-  input                  clk_100mhz      , // clock 100 MHz
-  input                  rstn_i          , // ADC reset - active low
+  input                  clk             , // clock
+  input                  rstn            , // clock reset - active low
 
   output reg             ready_o         , // 1: ready to fill and read out
   input      [63:0]      vec_i[25]       , // 1600 bit data input
@@ -44,8 +44,8 @@ reg           [63:0]     a[25];            // internal work vector 'a'
 reg           [ 3:0]     state;
 
 // processor
-always @(posedge clk_100mhz)
-if (!rstn_i) begin
+always @(posedge clk)
+if (!rstn) begin
   ready_o                                         <= 1'b0;
   vec_o                                           <= '{25{0}};
   state                                           <= 'b0;

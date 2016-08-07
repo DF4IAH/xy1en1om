@@ -127,7 +127,8 @@ wire                  x11_activated;
 // TODO: to be removed when rb_out_ch[x] driver exists
 assign rb_out_ch[0] = 16'b0;
 assign rb_out_ch[1] = 16'b0;
-assign led_o        =  8'b0;
+assign led_o        = { 7'b0, x11_activated };
+// assign led_o        =  8'b0;
 assign dac_pwm_o    =  4'b0;
 
 
@@ -135,8 +136,8 @@ assign dac_pwm_o    =  4'b0;
 //
 //  Connections to PS
 
-wire  [    0: 0] fclk                      ; //[0]-100MHz.
-wire  [    0: 0] frstn                     ;
+wire  [    1: 0] fclk                      ; // [0] = 125 MHz, [1] = 62.5 MHz.
+wire  [    1: 0] frstn                     ;
 
 wire             ps_sys_clk                ;
 wire             ps_sys_rstn               ;
@@ -352,7 +353,7 @@ wire  [  8-1: 0] hk_leds_data        ;
 
 red_pitaya_hk i_hk (
   // system signals
-  .clk_i           (  fclk[0]                    ),  // clock 100 MHz
+  .clk_i           (  fclk[0]                    ),  // clock 125 MHz
   .rstn_i          (  frstn[0]                   ),  // reset - active low
 
   // LED
@@ -394,8 +395,8 @@ assign sys_ack  [1       ] =  1'b1;
 
 regs i_regs (
   // clock & reset
-  .clk_100mhz      ( fclk[0]                     ),  // clock 100 MHz
-  .rstn_i          ( frstn[0]                    ),  // reset - active low
+  .clks            ( fclk                        ),  // clocks
+  .rstsn           ( frstn                       ),  // clock reset lines - active low
 
   // activation
   .x11_activated   ( x11_activated               ),  // x11 crypto engine is enabled
@@ -418,18 +419,15 @@ regs i_regs (
   .sys_ren         ( sys_ren[1]                  ),  // read enable
   .sys_rdata       ( sys_rdata[ 1*32+:32]        ),  // read data
   .sys_err         ( sys_err[1]                  ),  // error indicator
-  .sys_ack         ( sys_ack[1]                  )   // acknowledge signal
+  .sys_ack         ( sys_ack[1]                  ),  // acknowledge signal
 
-/*
   // AXIS MASTER from the XADC
   .xadc_axis_aclk  ( xadc_axis_aclk              ),  // AXI-streaming from the XADC, clock from the AXI-S FIFO
   .xadc_axis_tdata ( xadc_axis_tdata             ),  // AXI-streaming from the XADC, data
   .xadc_axis_tid   ( xadc_axis_tid               ),  // AXI-streaming from the XADC, analog data source channel for this data
   .xadc_axis_tready( xadc_axis_tready            ),  // AXI-streaming from the XADC, slave indicating ready for data
   .xadc_axis_tvalid( xadc_axis_tvalid            ),  // AXI-streaming from the XADC, data transfer valid
-*/
 
-/*
   // AXI0 master                 // AXI1 master
   .axi0_clk_o    (axi0_clk   ),  .axi1_clk_o    (axi1_clk   ),
   .axi0_rstn_o   (axi0_rstn  ),  .axi1_rstn_o   (axi1_rstn  ),
@@ -441,7 +439,6 @@ regs i_regs (
   .axi0_wfixed_o (axi0_wfixed),  .axi1_wfixed_o (axi1_wfixed),
   .axi0_werr_i   (axi0_werr  ),  .axi1_werr_i   (axi1_werr  ),
   .axi0_wrdy_i   (axi0_wrdy  ),  .axi1_wrdy_i   (axi1_wrdy  )
-*/
 );
 
 

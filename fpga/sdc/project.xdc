@@ -321,6 +321,9 @@ set_multicycle_path -hold  3  -from [get_clocks -of_objects [get_pins i_adc_clk_
 set_multicycle_path -setup 4  -from [get_clocks dac_clk_o]                                                        -to [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]
 set_multicycle_path -hold  3  -from [get_clocks dac_clk_o]                                                        -to [get_clocks -of_objects [get_pins i_adc_clk_pll/inst/mmcm_adv_inst/CLKOUT3]]
 
+set_multicycle_path -setup 2  -from [get_clocks clk_fpga_0]                                                       -to [get_ports {exp_p_io[*] exp_n_io[*]}]
+set_multicycle_path -hold  1  -from [get_clocks clk_fpga_0]                                                       -to [get_ports {exp_p_io[*] exp_n_io[*]}]
+
 # Case Analysis
 
 # Disable Timing
