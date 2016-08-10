@@ -183,3 +183,23 @@ int rp_get_params(rp_app_params_t** p)
 #endif
     return count;
 }
+
+/*----------------------------------------------------------------------------*/
+int rp_get_signals(float*** s, int* trc_num, int* trc_len)
+{
+    int ret_val = 0;
+
+    //fprintf(stderr, "rp_get_signals: BEGIN\n");
+
+    if (!*s) {
+        return -1;
+    }
+
+#if 0
+    *trc_num = TRACE_NUM;
+    *trc_len = TRACE_LENGTH;
+#endif
+
+    //fprintf(stderr, "rp_get_signals: END\n");
+    return ret_val;
+}

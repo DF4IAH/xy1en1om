@@ -40,11 +40,13 @@ int fpga_init(void)
         state = ret;
     }
 
+#if 0
     // init the xy1en1om FPGA sub-module
     ret = fpga_xy_init();
     if (ret) {
         state = ret;
     }
+#endif
 
     return state;
 }
@@ -52,8 +54,10 @@ int fpga_init(void)
 /*----------------------------------------------------------------------------*/
 int fpga_exit(void)
 {
+#if 0
     // exit access to the xy1en1om sub-module
     fpga_xy_exit();
+#endif
 
     // exit access to the House-keeping sub-module
     fpga_hk_exit();
