@@ -20,6 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
+(* keep_hierarchy = "yes" *)
 module regs #(
   // parameter RSZ = 14  // RAM size 2^RSZ
 )(
@@ -85,7 +86,7 @@ wire rstn_62mhz5 = rstsn[1];
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16080502;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16081001;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -103,13 +104,15 @@ enum {
 //  REG_RW_SHA256_BIT_LEN,                      // h108: SHA256 submodule number of data bit to be hashed
 //  REG_WR_SHA256_DATA_PUSH,                    // h10C: SHA256 submodule data push in FIFO
     REG_RD_SHA256_HASH_H7,                      // h110: SHA256 submodule hash out H7, LSB
-    REG_RD_SHA256_HASH_H6,                      // h110: SHA256 submodule hash out H6
-    REG_RD_SHA256_HASH_H5,                      // h110: SHA256 submodule hash out H5
-    REG_RD_SHA256_HASH_H4,                      // h110: SHA256 submodule hash out H4
-    REG_RD_SHA256_HASH_H3,                      // h110: SHA256 submodule hash out H3
-    REG_RD_SHA256_HASH_H2,                      // h110: SHA256 submodule hash out H2
-    REG_RD_SHA256_HASH_H1,                      // h110: SHA256 submodule hash out H1
-    REG_RD_SHA256_HASH_H0,                      // h11C: SHA256 submodule hash out H0, LSB
+    REG_RD_SHA256_HASH_H6,                      // h114: SHA256 submodule hash out H6
+    REG_RD_SHA256_HASH_H5,                      // h118: SHA256 submodule hash out H5
+    REG_RD_SHA256_HASH_H4,                      // h11C: SHA256 submodule hash out H4
+    REG_RD_SHA256_HASH_H3,                      // h120: SHA256 submodule hash out H3
+    REG_RD_SHA256_HASH_H2,                      // h124: SHA256 submodule hash out H2
+    REG_RD_SHA256_HASH_H1,                      // h128: SHA256 submodule hash out H1
+    REG_RD_SHA256_HASH_H0,                      // h12C: SHA256 submodule hash out H0, MSB
+//  REG_RD_SHA256_FIFO_WR_COUNT,                // h130: SHA256 FIFO stack count, at most this number of items are in the FIFO
+//  REG_RD_SHA256_FIFO_RD_COUNT,                // h134: SHA256 FIFO stack count, at least this number of items can be pulled from the FIFO
 
     /* KECCAK512 section */
     REG_RW_KECCAK512_CTRL,                      // h200: KECCAK512 submodule control register
@@ -269,14 +272,17 @@ wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_C
 wire         [ 31:0]     sha256_status;
 wire                     sha256_rdy;
 
-reg          [ 63:0]     sha256_64b_fifo     = 'b0;
-reg                      sha256_64b_fifo_msb = 'b0;
-reg                      sha256_64b_fifo_wr  = 'b0;
-reg                      sha256_512b_fifo_rd = 'b0;
-wire         [511:0]     sha256_512b_block;
-wire                     sha256_fifo_full;
+reg                      sha256_32b_fifo_wr_en  = 'b0;
+reg          [ 31:0]     sha256_32b_fifo_wr_in  = 'b0;
 wire                     sha256_fifo_m1full;
+wire                     sha256_fifo_full;
+wire         [  8:0]     sha256_fifo_wr_count;
+
+wire                     sha256_32b_fifo_rd_en;
+wire         [ 31:0]     sha256_32b_fifo_rd_out;
+wire                     sha256_32b_fifo_rd_vld;
 wire                     sha256_fifo_empty;
+wire         [  8:0]     sha256_fifo_rd_count;
 
 reg                      sha256_start = 'b0;
 wire                     sha256_hash_valid;
@@ -293,7 +299,7 @@ wire                     kek512_rdy;                        // keccak engine is 
 
 reg          [ 63:0]     kek512_in[25]  = '{25{0}};         // feeding keccak engine
 reg                      kek512_start   = 'b0;              // start keccak engine
-wire         [ 63:0]     kek512_out[25] = '{25{0}};         // result of keccak engine
+wire         [ 63:0]     kek512_out[25];                    // result of keccak engine
 
 
 // === IMPL: X11 - OMNI section ===
@@ -301,36 +307,38 @@ wire         [ 63:0]     kek512_out[25] = '{25{0}};         // result of keccak 
 //---------------------------------------------------------------------------------
 //  regs sub-module activation
 
-wire          x11_reset_n;
-wire          x11_clk_en;
+wire          enable_125mhz = x11_enable;
+wire          reset_125mhz_n;
+wire          clk_125mhz_en;
 
-red_pitaya_rst_clken i_rst_clken_x11 (
+red_pitaya_rst_clken i_rst_clken_125mhz (
   // global signals
   .clk                     ( clk_125mhz                  ), // clock 125 MHz
   .global_rst_n            ( rstn_125mhz                 ), // clock reset - active low
 
   // input signals
-  .enable_i                ( x11_enable                  ),
+  .enable_i                ( enable_125mhz               ),
 
   // output signals
-  .reset_n_o               ( x11_reset_n                 ),
-  .clk_en_o                ( x11_clk_en                  )
+  .clk_en_o                ( clk_125mhz_en               ),
+  .reset_n_o               ( reset_125mhz_n              )
 );
-assign        x11_activated = x11_reset_n;
+assign        x11_activated = reset_125mhz_n;
 
-wire          sha256_reset_n_o;
-wire          sha256_clk_en;
-red_pitaya_rst_clken i_rst_clken_sha256 (
+wire          enable_62mhz5 = x11_enable;
+wire          reset_62mhz5_n;
+wire          clk_62mhz5_en;
+red_pitaya_rst_clken i_rst_clken_62mhz5 (
   // global signals
   .clk                     ( clk_62mhz5                  ), // clock 62.5 MHz
   .global_rst_n            ( rstn_62mhz5                 ), // clock reset - active low
 
   // input signals
-  .enable_i                ( sha256_enable               ),
+  .enable_i                ( enable_62mhz5               ),
 
   // output signals
-  .reset_n_o               ( sha256_reset_n_o            ),
-  .clk_en_o                ( sha256_clk_en               )
+  .clk_en_o                ( clk_62mhz5_en               ),
+  .reset_n_o               ( reset_62mhz5_n              )
 );
 
 reg           sha256_reset_n   = 1'b0;
@@ -341,27 +349,12 @@ else if (sha256_reset)
    sha256_reset_n <= 1'b0;
 else if (!rstn_62mhz5)
    sha256_reset_n <= 1'b0;
-else if (!sha256_reset_n_o)
+else if (!reset_62mhz5_n)
    sha256_reset_n <= 1'b0;
-else if (sha256_reset_n_o)
+else if (reset_62mhz5_n)
    sha256_reset_n <= 1'b1;
 
 wire          sha256_activated = sha256_reset_n;
-
-wire          kek512_reset_n_o;
-wire          kek512_clk_en;
-red_pitaya_rst_clken i_rst_clken_kek512 (
-  // global signals
-  .clk                     ( clk_125mhz                  ), // clock 125 MHz - TODO
-  .global_rst_n            ( rstn_125mhz                 ), // clock reset - active low
-
-  // input signals
-  .enable_i                ( kek512_enable               ),
-
-  // output signals
-  .reset_n_o               ( kek512_reset_n_o            ),
-  .clk_en_o                ( kek512_clk_en               )
-);
 
 reg           kek512_reset_n   = 1'b0;
 always @(posedge clk_125mhz)
@@ -371,9 +364,9 @@ else if (kek512_reset)
    kek512_reset_n <= 1'b0;
 else if (!rstn_125mhz)
    kek512_reset_n <= 1'b0;
-else if (!kek512_reset_n_o)
+else if (!reset_125mhz_n)
    kek512_reset_n <= 1'b0;
-else if (kek512_reset_n_o)
+else if (reset_125mhz_n)
    kek512_reset_n <= 1'b1;
 
 wire          kek512_activated = kek512_reset_n;
@@ -407,7 +400,7 @@ assign axi1_wfixed_o =  1'b0;
 
 reg    sha256_hash_valid_d;
 
-always @(posedge clk_62mhz5)
+always @(posedge clk_125mhz)
 if (!sha256_reset_n) begin
    regs[REG_RD_SHA256_HASH_H0] <= 32'b0;
    regs[REG_RD_SHA256_HASH_H1] <= 32'b0;
@@ -433,18 +426,22 @@ else if (!sha256_hash_valid_d && sha256_hash_valid) begin
 else
    sha256_hash_valid_d <= sha256_hash_valid;
 
-fifo_64i_512o_128d i_fifo_64i_512o (
-  .clk                     ( clk_125mhz                  ), // clock 125 MHz
-  .srst                    ( !sha256_reset_n             ), // reset active high
+fifo_32i_32o_512d i_fifo_32i_32o (
+  .rst                     ( !sha256_reset_n             ), // reset active high
+  .wr_clk                  ( clk_125mhz                  ), // clock 125.0 MHz
+  .rd_clk                  ( clk_62mhz5                  ), // clock 125.0 MHz
 
-  .din                     ( sha256_64b_fifo             ), // 2x 32 bit word in
-  .wr_en                   ( sha256_64b_fifo_wr          ), // write signal to push into the FIFO
-  .rd_en                   ( sha256_512b_fifo_rd         ), // read  signal to pop  from the FIFO
-  .dout                    ( sha256_512b_block           ), // 512 bit wide vector for the SHA-256 engine to process
-
-  .full                    ( sha256_fifo_full            ), // FIFO would spill over by next write access
+  .wr_en                   ( sha256_32b_fifo_wr_en       ), // write signal to push into the FIFO
+  .din                     ( sha256_32b_fifo_wr_in       ), // 32 bit word in
   .almost_full             ( sha256_fifo_m1full          ), // FIFO does except one more write access
-  .empty                   ( sha256_fifo_empty           )  // FIFO does not contain any data
+  .full                    ( sha256_fifo_full            ), // FIFO would spill over by next write access
+  .wr_data_count           ( sha256_fifo_wr_count        ), // at least this number of entries are pushed on the FIFO
+
+  .rd_en                   ( sha256_32b_fifo_rd_en       ), // enable reading from the FIFO
+  .valid                   ( sha256_32b_fifo_rd_vld      ), // read data is valid
+  .dout                    ( sha256_32b_fifo_rd_out      ), // 32 bit word out for the SHA-256 engine to process
+  .empty                   ( sha256_fifo_empty           ), // FIFO does not contain any data
+  .rd_data_count           ( sha256_fifo_rd_count        )  // at most this number of entries can be pulled from the FIFO
 );
 
 sha256_engine i_sha256_engine (
@@ -456,24 +453,20 @@ sha256_engine i_sha256_engine (
 //.bitlen_i                ( sha256_bit_len              ),  // load this number of bits to calculate the hash
   .start_i                 ( sha256_start                ),  // start engine
   .sha256_fifo_empty       ( sha256_fifo_empty           ),  // indicator for continuation with next block
-  .vec_i                   ( sha256_512b_block           ),  // data block to be fed
+  .fifo_rd_en              ( sha256_32b_fifo_rd_en       ),  // enable reading of the FIFO
+  .fifo_rd_vld             ( sha256_32b_fifo_rd_vld      ),  // read data from the FIFO is valid
+  .fifo_rd_dat             ( sha256_32b_fifo_rd_out      ),  // 32 bit word out of the FIFO for the SHA-256 engine to process
   .valid_o                 ( sha256_hash_valid           ),  // hash output vector is valid
   .hash_o                  ( sha256_hash_data            )   // computated hash value
 );
 
 always @(posedge clk_125mhz)
-if (!sha256_reset_n) begin
-   sha256_512b_fifo_rd <= 1'b0;
+if (!sha256_reset_n)
    sha256_start <= 1'b0;
-   end
-else if (!sha256_fifo_empty && sha256_rdy) begin
-   sha256_512b_fifo_rd <= 1'b1;
+else if (!sha256_fifo_empty && sha256_rdy)
    sha256_start <= 1'b1;
-   end
-else begin
-   sha256_512b_fifo_rd <= 1'b0;
+else
    sha256_start <= 1'b0;
-   end
 
 assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha256_fifo_empty,  2'b0, sha256_hash_valid, sha256_rdy };
 
@@ -506,15 +499,14 @@ if (!rstn_125mhz) begin
   regs[REG_RW_SHA256_CTRL]                        <= 32'h00000000;
   regs[REG_RW_KECCAK512_CTRL]                     <= 32'h00000000;
 
-  sha256_64b_fifo_wr                              <= 'b0;
-  sha256_64b_fifo_msb                             <= 'b0;
+  sha256_32b_fifo_wr_en                           <= 'b0;
   kek512_in                                       <= '{25{0}};
   kek512_start                                    <= 'b0;
   end
 
 else begin
   regs[REG_RW_SHA256_CTRL] <= regs[REG_RW_SHA256_CTRL] & ~(32'h00000002);  // mask out one-shot flags (RESET)
-  sha256_64b_fifo_wr <= 1'b0;
+  sha256_32b_fifo_wr_en <= 1'b0;
   kek512_start <= 1'b0;
 
   if (sys_wen) begin
@@ -534,20 +526,13 @@ else begin
 
     20'h00100: begin
       regs[REG_RW_SHA256_CTRL]                    <= sys_wdata[31:0];
-      if (sys_wdata[SHA256_CTRL_RESET])
-        sha256_64b_fifo_msb <= 1'b0;
       end
 /*  20'h00108: begin
       regs[REG_RW_SHA256_BIT_LEN]                 <= sys_wdata[31:0];
       end */
     20'h0010C: begin
-      if (!sha256_64b_fifo_msb)
-        sha256_64b_fifo[31: 0]                    <= sys_wdata[31:0];
-      else begin
-        sha256_64b_fifo[63:32]                    <= sys_wdata[31:0];
-        sha256_64b_fifo_wr <= 1'b1;
-        end
-      sha256_64b_fifo_msb <= !sha256_64b_fifo_msb;
+      sha256_32b_fifo_wr_in[31:0]                 <= sys_wdata[31:0];
+      sha256_32b_fifo_wr_en <= 1'b1;
       end
 
 
@@ -620,6 +605,10 @@ else begin
       sys_ack   <= sys_en;
       sys_rdata <= regs[REG_RD_SHA256_BIT_LEN];
       end */
+    20'h0010C: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= { 23'b0, sha256_fifo_wr_count[8:0] };
+      end
     20'h00110: begin
       sys_ack   <= sys_en;
       sys_rdata <= regs[REG_RD_SHA256_HASH_H7];
@@ -651,6 +640,15 @@ else begin
     20'h0012C: begin
       sys_ack   <= sys_en;
       sys_rdata <= regs[REG_RD_SHA256_HASH_H0];
+      end
+
+    20'h00130: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= { 23'b0, sha256_fifo_wr_count[8:0] };
+      end
+    20'h00134: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= { 23'b0, sha256_fifo_rd_count[8:0] };
       end
 
 
