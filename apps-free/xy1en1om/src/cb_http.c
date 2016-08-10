@@ -47,31 +47,22 @@ extern unsigned char        g_transport_pktIdx;
 /*----------------------------------------------------------------------------*/
 int rp_app_init(void)
 {
-    fprintf(stderr, "\n<=== Loading RadioBox version %s-%s ===>\n\n", VERSION, REVISION);
+    fprintf(stderr, "\n<=== Loading xy1en1om version %s-%s ===>\n\n", VERSION, REVISION);
 
     fpga_init();
-
-    rp_ac97_module_load();
-
-    //fprintf(stderr, "INFO rp_app_init: sizeof(double)=%d, sizeof(float)=%d, sizeof(long long)=%d, sizeof(long)=%d, sizeof(int)=%d, sizeof(short)=%d\n",
-    //        sizeof(double), sizeof(float), sizeof(long long), sizeof(long), sizeof(int), sizeof(short));
 
     /* Set check pattern @ HK LEDs */
     //fprintf(stderr, "rp_app_init: setting pattern HK LEDs\n");
     fpga_hk_setLeds(0, 0xff, 0xaa);
 
-    //fprintf(stderr, "INFO rp_app_init: osc125mhz = %lf\n", rp_main_calib_params.base_osc125mhz_realhz);
-
-#if 0  // disabled due to new FPGA automatic offset compensation
-    // adjust ADC offset values to current environment
-    rp_measure_calib_params(&g_rp_main_calib_params);
-#endif
-
+#if 0
+    // no worker at this point of development
     /* start-up worker thread */
     if (worker_init(g_rb_default_params, RB_PARAMS_NUM) < 0) {
         fprintf(stderr, "ERROR rp_app_init - failed to start worker_init.\n");
         return -1;
     }
+#endif
 
     //fprintf(stderr, "rp_app_init: END\n");
     return 0;
@@ -81,9 +72,7 @@ int rp_app_init(void)
 int rp_app_exit(void)
 {
     //fprintf(stderr, "rp_app_exit: BEGIN\n");
-    fprintf(stderr, "\n<=== Unloading radiobox version %s-%s. ===>\n\n", VERSION, REVISION);
-
-    rp_ac97_module_unload();
+    fprintf(stderr, "\n<=== Unloading xy1en1om version %s-%s. ===>\n\n", VERSION, REVISION);
 
     /* turn off all LEDs */
     fpga_hk_setLeds(0, 0xff, 0x00);
@@ -91,12 +80,14 @@ int rp_app_exit(void)
     //fprintf(stderr, "rp_app_exit: calling fpga_exit()\n");
     fpga_exit();
 
+#if 0
     //fprintf(stderr, "rp_app_exit: calling worker_exit()\n");
     /* shut-down worker thread */
     worker_exit();
+#endif
 
     //fprintf(stderr, "rp_app_exit: END.\n");
-    //fprintf(stderr, "RadioBox unloaded\n\n");
+    //fprintf(stderr, "xy1en1om unloaded\n\n");
     return 0;
 }
 
@@ -104,7 +95,8 @@ int rp_app_exit(void)
 /*----------------------------------------------------------------------------*/
 int rp_set_params(rp_app_params_t* p, int len)
 {
-    rp_app_params_t* p_copy = NULL;
+#if 0
+	rp_app_params_t* p_copy = NULL;
 
     //fprintf(stderr, "!!! rp_set_params: BEGIN\n");
 
@@ -139,14 +131,16 @@ int rp_set_params(rp_app_params_t* p, int len)
     g_transport_pktIdx = (int) (p[idx].value) | 0x80;                                                   // 0x80 flag: processing changed data
 
     //fprintf(stderr, "!!! rp_set_params: END - pktIdx = %s = %lf\n", p[0].name, p[0].value);
+#endif
     return 0;
 }
 
 /*----------------------------------------------------------------------------*/
 int rp_get_params(rp_app_params_t** p)
 {
-    rp_app_params_t* p_copy = NULL;
     int count = 0;
+#if 0
+    rp_app_params_t* p_copy = NULL;
 
     //fprintf(stderr, "??? rp_get_params: BEGIN\n");
 
@@ -164,45 +158,28 @@ int rp_get_params(rp_app_params_t** p)
     //fprintf(stderr, "?.. rp_get_params: waiting for worker has processed data - done.\n");
 
     //fprintf(stderr, "?.. rp_get_params: waiting for worker has exported the current params data - waiting ...\n");
-    pthread_mutex_lock(&g_rb_info_worker_params_mutex);
+    pthread_mutex_lock(&g_xy_info_worker_params_mutex);
     do {
-        if (g_rb_info_worker_params) {
+        if (g_xy_info_worker_params) {
             /* get the memory - free() is called by the caller */
-            count = rp_copy_params_rb2rp(&p_copy, g_rb_info_worker_params);
+            count = rp_copy_params_rb2rp(&p_copy, g_xy_info_worker_params);
             break;
 
         } else {
-            pthread_mutex_unlock(&g_rb_info_worker_params_mutex);
+            pthread_mutex_unlock(&g_xy_info_worker_params_mutex);
             /* wait for the worker to export its current params data */
             //pthread_yield();
             usleep(1000);
-            pthread_mutex_lock(&g_rb_info_worker_params_mutex);
+            pthread_mutex_lock(&g_xy_info_worker_params_mutex);
         }
     } while (1);
-    pthread_mutex_unlock(&g_rb_info_worker_params_mutex);
+    pthread_mutex_unlock(&g_xy_info_worker_params_mutex);
     //fprintf(stderr, "?.. rp_get_params: waiting for worker has exported the current params data - done.\n");
 
     //fprintf(stderr, "?-> rp_get_params - having list with count = %d\n", count);
     *p = p_copy;
 
     //fprintf(stderr, "??? rp_get_params: END\n\n");
+#endif
     return count;
-}
-
-/*----------------------------------------------------------------------------*/
-int rp_get_signals(float*** s, int* trc_num, int* trc_len)
-{
-    int ret_val = 0;
-
-    //fprintf(stderr, "rp_get_signals: BEGIN\n");
-
-    if (!*s) {
-        return -1;
-    }
-
-    *trc_num = TRACE_NUM;
-    *trc_len = TRACE_LENGTH;
-
-    //fprintf(stderr, "rp_get_signals: END\n");
-    return ret_val;
 }

@@ -74,6 +74,49 @@ int fpga_xy_init(void)
     // enable xy1en1om sub-module
     fpga_xy_enable(1);
 
+    // studying section as quick hack
+    {
+        uint32 h7, h6, h5, h4, h3, h2, h1, h0;
+
+        fprintf(stderr, "INFO study section: BEGIN\n");
+
+        fpga_xy_reset();
+
+        // write data to the FIFO - MSB first
+        // variant 1: have a single letter 'A' - OK
+        g_fpga_xy_reg_mem->sha256_data_push(0x41800000);         // SHA256 FIFO MSB - #0 - one bit after the last data message is set
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO LSB - #0
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO MSB - #1
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO LSB - #1
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO MSB - #2
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO LSB - #2
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO MSB - #3
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO LSB - #3
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO MSB - #4
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO LSB - #4
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO MSB - #5
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO LSB - #5
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO MSB - #6
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO LSB - #6
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000000);         // SHA256 FIFO MSB - #7
+        g_fpga_xy_reg_mem->sha256_data_push(0x00000008);         // SHA256 FIFO LSB - #7
+
+        // result shall be: 559aead08264d5795d3909718cdd05abd49572e84fe55590eef31a88a08fdffd
+        h7 = g_fpga_xy_reg_mem->sha256_data_h7();
+        h6 = g_fpga_xy_reg_mem->sha256_data_h6();
+        h5 = g_fpga_xy_reg_mem->sha256_data_h5();
+        h4 = g_fpga_xy_reg_mem->sha256_data_h4();
+        h3 = g_fpga_xy_reg_mem->sha256_data_h3();
+        h2 = g_fpga_xy_reg_mem->sha256_data_h2();
+        h1 = g_fpga_xy_reg_mem->sha256_data_h1();
+        h0 = g_fpga_xy_reg_mem->sha256_data_h0();
+
+        fprintf(stderr, "INFO HASH = 0x%08x%08x%08x%08x%08x%08x%08x%08x\n", h7, h6, h5, h4, h3, h2, h1, h0);
+
+        fpga_xy_enable(0);
+        fprintf(stderr, "INFO study section: END\n");
+    }
+
     //fprintf(stderr, "DEBUG fpga_xy_init: END\n");
     return 0;
 }
@@ -135,12 +178,9 @@ void fpga_xy_reset(void)
 
     //fprintf(stderr, "INFO - fpga_xy_reset\n");
 
-    /* disable SHA-256 part to reset the state */
-    g_fpga_xy_reg_mem->sha256_ctrl = 0x00000000;
-    g_fpga_xy_reg_mem->sha256_ctrl = 0x00000000;  // delay at least 2 clocks
-
-    /* enable SHA-256 part again */
-    g_fpga_xy_reg_mem->sha256_ctrl = 0x00000001;
+    /* set reset flag of the SHA-256 part which falls back by its own */
+    g_fpga_xy_reg_mem->sha256_ctrl = 0x00000003;
+    usleep(1);
 }
 
 /*----------------------------------------------------------------------------*/
