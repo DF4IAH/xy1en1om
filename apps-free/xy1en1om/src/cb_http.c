@@ -52,8 +52,9 @@ int rp_app_init(void)
     fpga_init();
 
     /* Set check pattern @ HK LEDs */
-    //fprintf(stderr, "rp_app_init: setting pattern HK LEDs\n");
+    fprintf(stderr, "rp_app_init: setting pattern HK LEDs\n");
     fpga_hk_setLeds(0, 0xff, 0xaa);
+    fprintf(stderr, "rp_app_init: setting pattern HK LEDs done.\n");
 
 #if 0
     // no worker at this point of development

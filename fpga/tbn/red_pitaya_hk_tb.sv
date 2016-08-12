@@ -87,9 +87,9 @@ initial begin
   wait (rstn)
   repeat(600) @(posedge clk);
     // LED
-    wdata = 32'h000000_03;
+    wdata = 32'h000000_aa;
     bus.write(32'h30, wdata);
-    if (led != (wdata[DWL-1:0] & 8'h01))  error++;
+    if (led != (wdata[DWL-1:0] & 8'haa))  error++;
 
     // EXPANSION P
     bus.write(32'h10, 32'h000000_33); // direction

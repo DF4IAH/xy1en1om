@@ -25,8 +25,8 @@ module regs #(
   // parameter RSZ = 14  // RAM size 2^RSZ
 )(
    // clock & reset
-   input        [  1: 0] clks            ,  // clocks - [0] = 125 MHz, [1] = 62.5 MHz
-   input        [  1: 0] rstsn           ,  // clock reset lines - active low
+   input        [  3: 0] clks            ,  // clocks
+   input        [  3: 0] rstsn           ,  // clock reset lines - active low
 
    // activation
    output                x11_activated   ,  // x11 sub-module is activated
@@ -77,8 +77,11 @@ module regs #(
 wire clk_125mhz = clks[0];
 wire rstn_125mhz = rstsn[0];
 
-wire clk_62mhz5 = clks[1];
-wire rstn_62mhz5 = rstsn[1];
+//wire clk_62mhz5 = clks[1];
+//wire rstn_62mhz5 = rstsn[1];
+wire clk_62mhz5;
+BUFG i_clk_off_buf  (.O(clk_62mhz5), .I(1'b0));
+wire rstn_62mhz5 = 1'b0;
 
 
 // === CONST: OMNI section ===
@@ -86,7 +89,7 @@ wire rstn_62mhz5 = rstsn[1];
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16081001;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16081101;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------

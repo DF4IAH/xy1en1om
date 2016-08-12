@@ -29,10 +29,12 @@ int fpga_init(void)
     int ret;
 
     // init the system XADC FPGA module
+#if 0
     ret = fpga_sys_xadc_init();
     if (ret) {
         state = ret;
     }
+#endif
 
     // init the House-keeping FPGA sub-module
     ret = fpga_hk_init();
@@ -62,8 +64,10 @@ int fpga_exit(void)
     // exit access to the House-keeping sub-module
     fpga_hk_exit();
 
+#if 0
     // exit access to the system XADC FPGA module
     fpga_sys_xadc_exit();
+#endif
 
     return 0;
 }
