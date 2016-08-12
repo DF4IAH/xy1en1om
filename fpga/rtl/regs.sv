@@ -74,14 +74,11 @@ module regs #(
    input                 axi1_wrdy_i        // system write ready
 );
 
-wire clk_125mhz = clks[0];
+wire clk_125mhz  = clks[0];
 wire rstn_125mhz = rstsn[0];
 
-//wire clk_62mhz5 = clks[1];
-//wire rstn_62mhz5 = rstsn[1];
-wire clk_62mhz5;
-BUFG i_clk_off_buf  (.O(clk_62mhz5), .I(1'b0));
-wire rstn_62mhz5 = 1'b0;
+wire clk_62mhz5  = clks[2];
+wire rstn_62mhz5 = rstsn[2];
 
 
 // === CONST: OMNI section ===
@@ -89,7 +86,7 @@ wire rstn_62mhz5 = 1'b0;
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16081101;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16081201;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -432,7 +429,7 @@ else
 fifo_32i_32o_512d i_fifo_32i_32o (
   .rst                     ( !sha256_reset_n             ), // reset active high
   .wr_clk                  ( clk_125mhz                  ), // clock 125.0 MHz
-  .rd_clk                  ( clk_62mhz5                  ), // clock 125.0 MHz
+  .rd_clk                  ( clk_62mhz5                  ), // clock  62.5 MHz
 
   .wr_en                   ( sha256_32b_fifo_wr_en       ), // write signal to push into the FIFO
   .din                     ( sha256_32b_fifo_wr_in       ), // 32 bit word in

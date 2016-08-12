@@ -55,9 +55,9 @@ typedef struct rp_app_params_s {
 /** @brief High definition parameters description structure
  *
  * This structure has got expanded data types for higher precision
- * in contrast to  struct rb_app_params_s.
+ * in contrast to  struct xy_app_params_s.
  **/
-typedef struct rb_app_params_s {
+typedef struct xy_app_params_s {
     /** @brief name  Name of the parameter */
     char  *name;
 
@@ -75,98 +75,18 @@ typedef struct rb_app_params_s {
 
     /** @brief max_val  The upper limit of the value high precision */
     double max_val;
-} rb_app_params_t;
+} xy_app_params_t;
 
 
 /* Parameters indexes - these defines should be in the same order as
  * rp_app_params_t structure defined in main.c */
 
 /** @brief RadioBox parameters */
-enum rb_params_enum_t {
-    RB_RUN                  =  0,
-    RB_CALIB,
-    RB_TX_MODSRC,
-    RB_TX_MODTYP,
-    RB_RX_MODTYP,
-    RB_LED_CON_SRC_PNT,
-    RB_RFOUT1_CON_SRC_PNT,
-    RB_RFOUT2_CON_SRC_PNT,
-    RB_RX_MUXIN_SRC,
+enum xy_params_enum_t {
+    XY_RUN                  =  0,
 
-    RB_TX_CAR_OSC_QRG,
-    RB_RX_CAR_OSC_QRG,
-
-    RB_TX_MOD_OSC_QRG,
-    RB_TX_MUXIN_GAIN,
-    RB_RX_MUXIN_GAIN,
-    RB_TX_QRG_SEL,
-    RB_RX_QRG_SEL,
-
-    RB_TX_AMP_RF_GAIN,
-    RB_TX_MOD_OSC_MAG,
-    RB_RFOUT1_TERM,
-    RB_RFOUT2_TERM,
-    RB_QRG_INC,
-    RB_OVRDRV,
-    RB_AC97_LOL,
-    RB_AC97_LOR,
-
-    RB_PARAMS_NUM
-} RB_PARAMS_ENUM;
-
-
-/** @brief RadioBox modulation sources */
-enum rb_modsrc_enum_t {
-    RB_MODSRC_NONE          =  0,
-
-    RB_MODSRC_RF_IN1,
-    RB_MODSRC_RF_IN2,
-
-    RB_MODSRC_EXP_AI0       =  4,
-    RB_MODSRC_EXP_AI1,
-    RB_MODSRC_EXP_AI2,
-    RB_MODSRC_EXP_AI3,
-
-    RB_MODSRC_MOD_OSC       = 15,
-
-    RB_MODSRC_AC97_LINEOUT_L= 48,
-    RB_MODSRC_AC97_LINEOUT_R
-
-} RB_MODSRC_ENUM;
-
-
-/** @brief RadioBox TX modulation types */
-enum rb_tx_modtyp_enum_t {
-    RB_TX_MODTYP_ALL_ON     =  0,
-    RB_TX_MODTYP_OFF,
-
-    RB_TX_MODTYP_USB        =  2,
-    RB_TX_MODTYP_LSB,
-    RB_TX_MODTYP_AM,
-    RB_TX_MODTYP_FM         =  7,
-    RB_TX_MODTYP_PM
-} RB_TX_MODTYP_ENUM;
-
-/** @brief RadioBox RX modulation types - using 4 bits */
-enum rb_rx_modtyp_enum_t {
-    RB_RX_MODTYP_ALL_ON     =  0,
-    RB_RX_MODTYP_OFF,
-
-    RB_RX_MODTYP_USB        =  2,
-    RB_RX_MODTYP_LSB,
-    RB_RX_MODTYP_AMENV,
-    RB_RX_MODTYP_AMSYNC_USB,
-    RB_RX_MODTYP_AMSYNC_LSB,
-    RB_RX_MODTYP_FM,
-    RB_RX_MODTYP_PM
-} RB_RX_MODTYP_ENUM;
-
-/** @brief RadioBox RX modulation sub types (filter bandwidth) - using 4 bits */
-enum rb_rx_amenv_filtvar_enum_t {
-    RB_RX_AMENV_FILTVAR_wide = 0,
-    RB_RX_AMENV_FILTVAR_mid,
-    RB_RX_AMENV_FILTVAR_nar
-} RB_RX_AMENV_FILTVAR_ENUM;
+    XY_PARAMS_NUM
+} XY_PARAMS_ENUM;
 
 
 /* Output signals */
@@ -224,25 +144,6 @@ const char* rp_app_desc(void);
 /* Internal helper functions */
 
 /**
- * @brief Loads Linux kernel module for AC97 sound interface
- *
- * The FPGA includes an AC97 controller that is compatible to the Xilinx ML403 board IP block.
- * Instead of connecting a TI LM4450 AC97 CODEC, the FPGA ac9ctrl sub-module emulates the CODEC.
- *
- */
-void rp_ac97_module_load(void);
-
-/**
- * @brief Unloads Linux kernel module for AC97 sound interface
- *
- * The FPGA includes an AC97 controller that is compatible to the Xilinx ML403 board IP block.
- * Instead of connecting a TI LM4450 AC97 CODEC, the FPGA ac9ctrl sub-module emulates the CODEC.
- *
- */
-void rp_ac97_module_unload(void);
-
-
-/**
  * @brief Prepares buffers for signal traces (not used yet)
  *
  * This function allocates memory for TRACE_NUM traces in the memory and prepares
@@ -285,7 +186,7 @@ int rp_find_parms_index(const rp_app_params_t* src, const char* name);
  * @retval      -1       No matching vector entry found.
  * @retval      int      Value 0..(n-1) as index of the vector.
  */
-int rb_find_parms_index(const rb_app_params_t* src, const char* name);
+int xy_find_parms_index(const xy_app_params_t* src, const char* name);
 
 
 /**
@@ -295,7 +196,7 @@ int rb_find_parms_index(const rb_app_params_t* src, const char* name);
  * @param[in]    param_name   Param name to be updated or created.
  * @param[in]    param_value  Value to assign.
  */
-void rb_update_param(rb_app_params_t** dst, const char* param_name, double param_value);
+void xy_update_param(xy_app_params_t** dst, const char* param_name, double param_value);
 
 /**
  * @brief Copies RedPitaya standard parameters vector to RadioBox high definition parameters vector
@@ -306,7 +207,7 @@ void rb_update_param(rb_app_params_t** dst, const char* param_name, double param
  * @param[in]    src_line_mi  RedPitaya standard parameters vector for data interchange, the middle part.
  * @param[in]    src_line_lo  RedPitaya standard parameters vector for data interchange, LSB part.
  */
-void rp2rb_params_value_copy(rb_app_params_t* dst_line, const rp_app_params_t src_line_se, const rp_app_params_t src_line_hi, const rp_app_params_t src_line_mi, const rp_app_params_t src_line_lo);
+void rp2xy_params_value_copy(xy_app_params_t* dst_line, const rp_app_params_t src_line_se, const rp_app_params_t src_line_hi, const rp_app_params_t src_line_mi, const rp_app_params_t src_line_lo);
 
 /**
  * @brief Copies RadioBox high definition parameters vector to RedPitaya standard parameters vector
@@ -317,7 +218,7 @@ void rp2rb_params_value_copy(rb_app_params_t* dst_line, const rp_app_params_t sr
  * @param[inout] dst_line_lo  RedPitaya standard parameters vector for data interchange, LSB part.
  * @param[in]    src_line     RadioBox high definition parameters vector.
  */
-void rb2rp_params_value_copy(rp_app_params_t* dst_line_se, rp_app_params_t* dst_line_hi, rp_app_params_t* dst_line_mi, rp_app_params_t* dst_line_lo, const rb_app_params_t src_line);
+void xy2rp_params_value_copy(rp_app_params_t* dst_line_se, rp_app_params_t* dst_line_hi, rp_app_params_t* dst_line_mi, rp_app_params_t* dst_line_lo, const xy_app_params_t src_line);
 
 
 /**
@@ -366,7 +267,7 @@ int rp_copy_params(rp_app_params_t** dst, const rp_app_params_t src[], int len, 
  * @retval      count             Successful operation: count of entries in the vector.
  * @retval      -1                Failure, error message is output on standard error
  */
-int rb_copy_params(rb_app_params_t** dst, const rb_app_params_t src[], int len, int do_copy_all_attr);
+int xy_copy_params(xy_app_params_t** dst, const xy_app_params_t src[], int len, int do_copy_all_attr);
 
 /**
  * @brief Copies the RadioBox high definition parameters vector to a Red Pitaya parameters vector
@@ -380,7 +281,7 @@ int rb_copy_params(rb_app_params_t** dst, const rb_app_params_t src[], int len, 
  * @retval      -2                Failure, argument src not valid
  * @retval      -3                Failure, out of memory
  */
-int rp_copy_params_rb2rp(rp_app_params_t** dst, const rb_app_params_t src[]);
+int rp_copy_params_xy2rp(rp_app_params_t** dst, const xy_app_params_t src[]);
 
 /**
  * @brief Copies a Red Pitaya parameters vector to the RadioBox high definition parameters vector
@@ -394,7 +295,7 @@ int rp_copy_params_rb2rp(rp_app_params_t** dst, const rb_app_params_t src[]);
  * @retval      -2                Failure, argument src not valid
  * @retval      -3                Failure, out of memory
  */
-int rp_copy_params_rp2rb(rb_app_params_t** dst, const rp_app_params_t src[]);
+int rp_copy_params_rp2xy(xy_app_params_t** dst, const rp_app_params_t src[]);
 
 
 /**
@@ -407,7 +308,7 @@ int rp_copy_params_rp2rb(rb_app_params_t** dst, const rp_app_params_t src[]);
  * @retval      0                 Successful operation
  * @retval      -1                Failure, error message is output on standard error
  */
-int print_rb_params(rb_app_params_t* params);
+int print_xy_params(xy_app_params_t* params);
 
 
 /**
@@ -426,13 +327,13 @@ int rp_free_params(rp_app_params_t** params);
  * @brief Deallocate the specified buffer of Application parameters
  *
  * Function is used to deallocate the specified buffers, which were previously
- * allocated by calling rb_copy_params() function.
+ * allocated by calling xy_copy_params() function.
  *
  * @param[in]   params  Application parameters to be deallocated
  * @retval      0       Success
  * @retval      -1      Failed with non-valid params
  */
-int rb_free_params(rb_app_params_t** params);
+int xy_free_params(xy_app_params_t** params);
 
 /** @} */
 

@@ -5,7 +5,7 @@
 CROSS_COMPILE ?= arm-linux-gnueabihf-
 CC=$(CROSS_COMPILE)gcc
 
-OBJECTS=main.o worker.o cb_http.o cb_ws.o fpga_sys_xadc.o fpga_hk.o fpga.o
+OBJECTS=main.o worker.o cb_http.o cb_ws.o fpga_sys_xadc.o fpga_hk.o fpga_xy.o fpga.o
 CFLAGS+= -Wall -Werror -g -fPIC $(INCLUDE)
 LDFLAGS= -shared -lpthread
 

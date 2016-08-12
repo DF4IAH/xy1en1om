@@ -135,7 +135,7 @@ assign dac_pwm_o    =  4'b0;
 //
 //  Connections to PS
 
-wire  [    3: 0] fclk                      ; // [0] = 125.0 MHz, [1] = 250.0 MHz, [2] = 125.0 MHz, [3] = 125.0 MHz.
+wire  [    3: 0] fclk                      ; // [0] = 125.0 MHz, [1] = 250.0 MHz, [2] = 62.5 MHz, [3] = 200.0 MHz.
 wire  [    3: 0] frstn                     ;
 
 wire             ps_sys_clk                ;

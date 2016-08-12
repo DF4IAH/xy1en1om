@@ -24,7 +24,7 @@
 extern const char TRANSPORT_pktIdx[];
 
 /** @brief Describes app. parameters with some info/limitations */
-extern rb_app_params_t      g_rb_default_params[];
+extern xy_app_params_t      g_xy_default_params[];
 
 /** @brief CallBack copy of params to inform the worker */
 extern rp_app_params_t*     g_rp_cb_in_params;
@@ -32,9 +32,9 @@ extern rp_app_params_t*     g_rp_cb_in_params;
 extern pthread_mutex_t      g_rp_cb_in_params_mutex;
 
 /** @brief Current copy of params of the worker thread */
-extern rb_app_params_t*     g_rb_info_worker_params;
+extern xy_app_params_t*     g_xy_info_worker_params;
 /** @brief Holds mutex to access parameters from the worker thread to any other context */
-extern pthread_mutex_t      g_rb_info_worker_params_mutex;
+extern pthread_mutex_t      g_xy_info_worker_params_mutex;
 
 /** @brief params initialized */
 extern int                  g_params_init_done;
@@ -52,14 +52,14 @@ int rp_app_init(void)
     fpga_init();
 
     /* Set check pattern @ HK LEDs */
-    fprintf(stderr, "rp_app_init: setting pattern HK LEDs\n");
+    //fprintf(stderr, "rp_app_init: setting pattern HK LEDs\n");
     fpga_hk_setLeds(0, 0xff, 0xaa);
-    fprintf(stderr, "rp_app_init: setting pattern HK LEDs done.\n");
+    //fprintf(stderr, "rp_app_init: setting pattern HK LEDs done.\n");
 
 #if 0
     // no worker at this point of development
     /* start-up worker thread */
-    if (worker_init(g_rb_default_params, RB_PARAMS_NUM) < 0) {
+    if (worker_init(g_xy_default_params, RB_PARAMS_NUM) < 0) {
         fprintf(stderr, "ERROR rp_app_init - failed to start worker_init.\n");
         return -1;
     }
@@ -163,7 +163,7 @@ int rp_get_params(rp_app_params_t** p)
     do {
         if (g_xy_info_worker_params) {
             /* get the memory - free() is called by the caller */
-            count = rp_copy_params_rb2rp(&p_copy, g_xy_info_worker_params);
+            count = rp_copy_params_xy2rp(&p_copy, g_xy_info_worker_params);
             break;
 
         } else {

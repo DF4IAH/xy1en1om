@@ -16,7 +16,7 @@
 #include "main.h"
 
 
-/** @defgroup fpga_rb_h FPGA xy1en1om sub-module access
+/** @defgroup fpga_xy_h FPGA xy1en1om sub-module access
  * @{
  */
 
@@ -335,7 +335,7 @@ void fpga_xy_reload_fpga();
  * @retval        -1     Failure, parameter list or RB accessor not valid
  * @retval        -2     Failure, parameter list or RB accessor not valid
  */
-int fpga_xy_update_all_params(rb_app_params_t* pb, rb_app_params_t** p_pn);
+int fpga_xy_update_all_params(xy_app_params_t* pb, xy_app_params_t** p_pn);
 
 /**
  * @brief Read back automatic register values from the xy1en1om FPGA sub-module
@@ -350,15 +350,15 @@ int fpga_xy_update_all_params(rb_app_params_t* pb, rb_app_params_t** p_pn);
  * @retval        -1     Failure, parameter list or RB accessor not valid
  * @retval        -2     Failure, parameter list or RB accessor not valid
  */
-int fpga_xy_get_fpga_params(rb_app_params_t* pb, rb_app_params_t** p_pn);
+int fpga_xy_get_fpga_params(xy_app_params_t* pb, xy_app_params_t** p_pn);
 
 
 /**
  * @brief Calculates and programs the FPGA xy1en1om ctrl and misc registers
  *
- * @param[in]  rb_run           xy1en1om application  0: disabled, else: enabled.
+ * @param[in]  xy_run           xy1en1om application  0: disabled, else: enabled.
  */
-void fpga_xy_set_ctrl(int rb_run);
+void fpga_xy_set_ctrl(int xy_run);
 #endif
 
 #if 0
@@ -375,8 +375,8 @@ void fpga_xy_get_ctrl(int tx_modtyp, int rx_modtyp,
 
 
 #if 0
-uint32_t fpga_xy_read_register(unsigned int rb_reg_ofs);
-int fpga_xy_write_register(unsigned int rb_reg_ofs, uint32_t value);
+uint32_t fpga_xy_read_register(unsigned int xy_reg_ofs);
+int fpga_xy_write_register(unsigned int xy_reg_ofs, uint32_t value);
 #endif
 
 /** @} */
