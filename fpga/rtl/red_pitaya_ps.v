@@ -40,7 +40,6 @@
  * 
  */
 
-(* keep_hierarchy = "yes" *)
 module red_pitaya_ps (
   // System
   input              dcm_locked         ,

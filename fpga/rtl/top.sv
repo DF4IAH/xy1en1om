@@ -19,7 +19,6 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 
-(* keep_hierarchy = "yes" *)
 module top (
    // PS connections
    inout  [  53: 0] FIXED_IO_mio       ,

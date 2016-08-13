@@ -26,7 +26,6 @@
  * 
  */
 
-(* keep_hierarchy = "yes" *)
 module red_pitaya_hk #(
   parameter DWL = 8, // data width for LED
   parameter DWE = 8, // data width for extension
