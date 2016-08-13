@@ -218,12 +218,22 @@ CONFIG.WUSER_WIDTH {0} \
 
   # Create ports
   set FCLK_CLK0 [ create_bd_port -dir O -type clk FCLK_CLK0 ]
+  set_property -dict [ list \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET0_N} \
+ ] $FCLK_CLK0
   set FCLK_CLK1 [ create_bd_port -dir O -type clk FCLK_CLK1 ]
+  set_property -dict [ list \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET1_N} \
+ ] $FCLK_CLK1
   set FCLK_CLK2 [ create_bd_port -dir O -type clk FCLK_CLK2 ]
   set_property -dict [ list \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET2_N} \
 CONFIG.FREQ_HZ {62500000} \
  ] $FCLK_CLK2
   set FCLK_CLK3 [ create_bd_port -dir O -type clk FCLK_CLK3 ]
+  set_property -dict [ list \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET3_N} \
+ ] $FCLK_CLK3
   set FCLK_RESET0_N [ create_bd_port -dir O -type rst FCLK_RESET0_N ]
   set FCLK_RESET1_N [ create_bd_port -dir O -type rst FCLK_RESET1_N ]
   set FCLK_RESET2_N [ create_bd_port -dir O -type rst FCLK_RESET2_N ]
