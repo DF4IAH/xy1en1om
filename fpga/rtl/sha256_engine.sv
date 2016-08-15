@@ -36,9 +36,7 @@ module sha256_engine #(
     input                fifo_rd_vld,
     input       [ 31:0]  fifo_rd_dat,
     output reg           valid_o,
-    output      [255:0]  hash_o,
-
-    output      [ 31:0]  w_mon[63:0]
+    output      [255:0]  hash_o
 );
 
 
@@ -88,8 +86,6 @@ assign maj = (a & b) ^ (a & c) ^ (b & c);
 assign temp2 = S0 + maj;
 
 assign hash_o = { ha[0], ha[1], ha[2], ha[3], ha[4], ha[5], ha[6], ha[7] };
-
-assign w_mon = w;
 
 always @(posedge clk) begin
 

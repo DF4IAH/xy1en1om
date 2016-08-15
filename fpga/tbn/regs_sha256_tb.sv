@@ -25,26 +25,9 @@
 module regs_sha256_tb #(
    // time periods
    realtime  TP125  =   8.0ns,                    // 125.0 MHz
-   realtime  TP62P5 =  16.0ns                     //  62.5 MHz
-/*
-)(
-   output reg              clk_125mhz,
-   output reg              rstn_125mhz,
-
-   output reg              clk_62mhz5,
-   output reg              rstn_62mhz5,
-
-   output                  x11_activated,
-
-   output      [ 32-1: 0]  sys_addr,
-   output      [ 32-1: 0]  sys_wdata,
-   output      [  4-1: 0]  sys_sel,
-   output                  sys_wen,
-   output                  sys_ren,
-   output      [ 32-1: 0]  sys_rdata,
-   output                  sys_err,
-   output                  sys_ack
-*/
+   realtime  TP250  =   4.0ns,                    // 250.0 MHz
+   realtime  TP62P5 =  16.0ns,                    //  62.5 MHz (differs to RedPitaya = 50.0 MHz !)
+   realtime  TP200  =   5.0ns                     // 200.0 MHz
 );
 
 
@@ -53,11 +36,8 @@ module regs_sha256_tb #(
 // Connections
 
 // System signals
-reg                        clk_125mhz  = 1'b0;
-reg                        rstn_125mhz = 1'b0;
-
-reg                        clk_62mhz5  = 1'b0;
-reg                        rstn_62mhz5 = 1'b0;
+reg [3:0]                  clks;
+reg [3:0]                  rstsn;
 
 // System bus
 wire           [ 32-1: 0]  sys_addr;
@@ -70,9 +50,15 @@ wire                       sys_err;
 wire                       sys_ack;
 
 // Local
-int unsigned               clk_cntr   = 999999;
-reg            [ 32-1: 0]  task_check = 'b0;
+int unsigned               clk_cntr    = 999999;
+reg            [ 32-1: 0]  task_check  = 'b0;
 wire                       x11_activated;
+
+wire                       clk_125mhz  = clks[0];
+wire                       rstn_125mhz = rstsn[0];
+
+wire                       clk_62mhz5  = clks[2];
+wire                       rstn_62mhz5 = rstsn[2];
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,8 +83,8 @@ sys_bus_model i_bus (
 
 regs i_regs (
   // clocks & reset
-  .clks           ( {clk_62mhz5,  clk_125mhz } ),  // clocks
-  .rstsn          ( {rstn_62mhz5, rstn_62mhz5} ),  // clock reset lines - active low
+  .clks           ( clks                    ),  // clocks
+  .rstsn          ( rstsn                   ),  // clock reset lines - active low
 
    // activation
   .x11_activated  ( x11_activated           ),
@@ -142,44 +128,79 @@ endtask: read_blk
 // Clock and Reset generation
 always begin
    #(TP125 / 2)
-   clk_125mhz = 1'b1;
+   clks[0] = 1'b1;
 
-   if (rstn_125mhz)
+   if (rstsn[0])
       clk_cntr = clk_cntr + 1;
    else
       clk_cntr = 32'd0;
 
    #(TP125 / 2)
-   clk_125mhz = 1'b0;
+   clks[0] = 1'b0;
 end
 
 initial begin
-   rstn_125mhz = 1'b1;
+   rstsn[0] = 1'b1;
 
    #(10.3 * TP125)
-   rstn_125mhz = 1'b0;
+   rstsn[0] = 1'b0;
 
-   repeat(10) @(posedge clk_125mhz);
-   rstn_125mhz = 1'b1;
+   repeat(12) @(posedge clks[0]);
+   rstsn[0] = 1'b1;
 end
 
+always begin
+   #(TP250 / 2)
+   clks[1] = 1'b1;
+
+   #(TP250 / 2)
+   clks[1] = 1'b0;
+end
+
+initial begin
+   rstsn[1] = 1'b1;
+
+   #(20.3 * TP250)
+   rstsn[1] = 1'b0;
+
+   repeat(20) @(posedge clks[1]);
+   rstsn[1] = 1'b1;
+end
 
 always begin
    #(TP62P5 / 2)
-   clk_62mhz5 = 1'b1;
+   clks[2] = 1'b1;
 
    #(TP62P5 / 2)
-   clk_62mhz5 = 1'b0;
+   clks[2] = 1'b0;
 end
 
 initial begin
-   rstn_62mhz5 = 1'b1;
+   rstsn[2] = 1'b1;
 
    #(5.3 * TP62P5)
-   rstn_62mhz5 = 1'b0;
+   rstsn[2] = 1'b0;
 
-   repeat(5) @(posedge clk_62mhz5);
-   rstn_62mhz5 = 1'b1;
+   repeat(5) @(posedge clks[2]);
+   rstsn[2] = 1'b1;
+end
+
+always begin
+   #(TP200 / 2)
+   clks[3] = 1'b1;
+
+   #(TP200 / 2)
+   clks[3] = 1'b0;
+end
+
+initial begin
+   rstsn[3] = 1'b1;
+
+   #(15.3 * TP200)
+   rstsn[3] = 1'b0;
+
+   repeat(13) @(posedge clks[3]);
+   rstsn[3] = 1'b1;
 end
 
 
@@ -187,7 +208,7 @@ end
 //
 // Main FSM
 initial begin
-  #(10.3 * TP125);
+  #(15.3 * TP125);
 
   // get to initial state
   wait (rstn_125mhz)

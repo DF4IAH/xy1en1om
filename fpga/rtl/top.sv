@@ -124,6 +124,7 @@ wire         [  15:0] rb_out_ch[1:0];
 
 wire                  x11_activated;
 
+
 // TODO: to be removed when rb_out_ch[x] driver exists
 assign rb_out_ch[0] = 16'b0;
 assign rb_out_ch[1] = 16'b0;

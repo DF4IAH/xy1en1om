@@ -377,10 +377,10 @@ assign fclk_rstn_o[1] = fclk_rstn[1];
 assign fclk_rstn_o[2] = fclk_rstn[2];
 assign fclk_rstn_o[3] = fclk_rstn[3];
 
-BUFG i_fclk0_buf  (.O(fclk_clk_o[0]), .I(fclk_clk[0]));
-BUFG i_fclk1_buf  (.O(fclk_clk_o[1]), .I(fclk_clk[1]));
-BUFG i_fclk2_buf  (.O(fclk_clk_o[2]), .I(fclk_clk[2]));
-BUFG i_fclk3_buf  (.O(fclk_clk_o[3]), .I(fclk_clk[3]));
+assign fclk_clk_o[0]  = fclk_clk[0];
+assign fclk_clk_o[1]  = fclk_clk[1];
+assign fclk_clk_o[2]  = fclk_clk[2];
+assign fclk_clk_o[3]  = fclk_clk[3];
 
 system_wrapper system_i (
   // DDR

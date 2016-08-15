@@ -306,6 +306,36 @@ void fpga_xy_reset(void);
  */
 uint32_t fpga_get_version();
 
+/**
+ * @brief Check validity of SHA-256 sub-module with single letter 'A'
+ *
+ */
+void sha256_test_1x_A();
+
+/**
+ * @brief Check validity of SHA-256 sub-module with double letter 'A'
+ *
+ */
+void sha256_test_2x_A();
+
+/**
+ * @brief Check validity of SHA-256 sub-module with 55x letter 'A'
+ *
+ */
+void sha256_test_55x_A();
+
+/**
+ * @brief Check validity of SHA-256 sub-module with 56x letter 'A'
+ *
+ */
+void sha256_test_56x_A();
+
+/**
+ * @brief Check validity of SHA-256 sub-module with 119x letter 'A' that results to 512 bytes full of data
+ *
+ */
+void sha256_test_119x_A();
+
 
 #if 0
 /**

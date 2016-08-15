@@ -73,19 +73,13 @@ module regs #(
    input                 axi1_wrdy_i        // system write ready
 );
 
-wire clk_125mhz  = clks[0];
-wire rstn_125mhz = rstsn[0];
-
-wire clk_62mhz5  = clks[2];
-wire rstn_62mhz5 = rstsn[2];
-
 
 // === CONST: OMNI section ===
 
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16081201;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16081501;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -257,13 +251,17 @@ enum {
 
 reg          [ 31:0]     regs[REG_COUNT];                   // registers to be accessed by the system bus
 
-wire                     x11_enable          = regs[REG_RW_CTRL][CTRL_ENABLE];
+wire                     bus_clk             = clks[0];     // 125.0 MHz;
+wire                     bus_rstn            = rstsn[0];
 
+wire                     x11_enable          = regs[REG_RW_CTRL][CTRL_ENABLE];
 wire         [ 31:0]     status;
 
 
 // === NET: SHA256 section ===
 
+wire                     sha256_clk          = clks[2];     // 62.5 MHz
+wire                     sha256_rstn         = rstsn[2];
 wire                     sha256_enable       = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_ENABLE] &  x11_enable;
 wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET]  | !x11_enable;
 //wire       [ 31:0]     sha256_bit_len      = regs[REG_RW_SHA256_BIT_LEN];
@@ -290,8 +288,10 @@ wire         [255:0]     sha256_hash_data;
 
 // === NET: KECCAK512 section ===
 
-wire                     kek512_enable  = regs[REG_RW_KECCAK512_CTRL][KEK512_CTRL_ENABLE] &  x11_enable;
-wire                     kek512_reset   = regs[REG_RW_KECCAK512_CTRL][KEK512_CTRL_RESET]  | !x11_enable;
+wire                     kek512_clk          = clks[0];     // 125.0 MHz
+wire                     kek512_rstn         = rstsn[0];
+wire                     kek512_enable       = regs[REG_RW_KECCAK512_CTRL][KEK512_CTRL_ENABLE] &  x11_enable;
+wire                     kek512_reset        = regs[REG_RW_KECCAK512_CTRL][KEK512_CTRL_RESET]  | !x11_enable;
 
 wire         [ 31:0]     kek512_status;
 wire                     kek512_rdy;                        // keccak engine is ready to feed and/or to read-out
@@ -303,70 +303,42 @@ wire         [ 63:0]     kek512_out[25];                    // result of keccak 
 
 // === IMPL: X11 - OMNI section ===
 
+assign        x11_activated = x11_enable;
+
+
 //---------------------------------------------------------------------------------
 //  regs sub-module activation
 
-wire          enable_125mhz = x11_enable;
-wire          reset_125mhz_n;
-wire          clk_125mhz_en;
-
-red_pitaya_rst_clken i_rst_clken_125mhz (
+wire          sha256_clk_en;
+red_pitaya_rst_clken i_rst_clken_sha256 (
   // global signals
-  .clk                     ( clk_125mhz                  ), // clock 125 MHz
-  .global_rst_n            ( rstn_125mhz                 ), // clock reset - active low
+  .clk                     ( sha256_clk                  ), // clock 62.5 MHz
+  .rstn                    ( sha256_rstn                 ), // clock reset - active low
 
   // input signals
-  .enable_i                ( enable_125mhz               ),
+  .enable_i                ( sha256_enable               ),
 
   // output signals
-  .clk_en_o                ( clk_125mhz_en               ),
-  .reset_n_o               ( reset_125mhz_n              )
+  .clk_en_o                ( sha256_clk_en               ),
+  .reset_n_o               ( sha256_reset_n              )
 );
-assign        x11_activated = reset_125mhz_n;
-
-wire          enable_62mhz5 = x11_enable;
-wire          reset_62mhz5_n;
-wire          clk_62mhz5_en;
-red_pitaya_rst_clken i_rst_clken_62mhz5 (
-  // global signals
-  .clk                     ( clk_62mhz5                  ), // clock 62.5 MHz
-  .global_rst_n            ( rstn_62mhz5                 ), // clock reset - active low
-
-  // input signals
-  .enable_i                ( enable_62mhz5               ),
-
-  // output signals
-  .clk_en_o                ( clk_62mhz5_en               ),
-  .reset_n_o               ( reset_62mhz5_n              )
-);
-
-reg           sha256_reset_n   = 1'b0;
-always @(posedge clk_62mhz5)
-if (!sha256_enable)
-   sha256_reset_n <= 1'b0;
-else if (sha256_reset)
-   sha256_reset_n <= 1'b0;
-else if (!rstn_62mhz5)
-   sha256_reset_n <= 1'b0;
-else if (!reset_62mhz5_n)
-   sha256_reset_n <= 1'b0;
-else if (reset_62mhz5_n)
-   sha256_reset_n <= 1'b1;
 
 wire          sha256_activated = sha256_reset_n;
 
-reg           kek512_reset_n   = 1'b0;
-always @(posedge clk_125mhz)
-if (!kek512_enable)
-   kek512_reset_n <= 1'b0;
-else if (kek512_reset)
-   kek512_reset_n <= 1'b0;
-else if (!rstn_125mhz)
-   kek512_reset_n <= 1'b0;
-else if (!reset_125mhz_n)
-   kek512_reset_n <= 1'b0;
-else if (reset_125mhz_n)
-   kek512_reset_n <= 1'b1;
+
+wire          kek512_clk_en;
+red_pitaya_rst_clken i_rst_clken_kek512 (
+  // global signals
+  .clk                     ( kek512_clk                  ), // clock 125.0 MHz
+  .rstn                    ( kek512_rstn                 ), // clock reset - active low
+
+  // input signals
+  .enable_i                ( kek512_enable               ),
+
+  // output signals
+  .clk_en_o                ( kek512_clk_en               ),
+  .reset_n_o               ( kek512_reset_n              )
+);
 
 wire          kek512_activated = kek512_reset_n;
 
@@ -377,8 +349,8 @@ assign status = { 20'b0,  3'b0 , kek512_activated,  3'b0, sha256_activated,  3'b
 assign xadc_axis_tready = 1'b0;
 
 // AXI masters
-assign axi0_clk_o    = clk_125mhz;
-assign axi1_clk_o    = clk_125mhz;
+assign axi0_clk_o    = bus_clk;
+assign axi1_clk_o    = bus_clk;
 assign axi0_rstn_o   = 1'b0;
 assign axi1_rstn_o   = 1'b0;
 assign axi0_waddr_o  = 32'b0;
@@ -399,16 +371,16 @@ assign axi1_wfixed_o =  1'b0;
 
 reg    sha256_hash_valid_d;
 
-always @(posedge clk_125mhz)
+always @(posedge sha256_clk)
 if (!sha256_reset_n) begin
-   regs[REG_RD_SHA256_HASH_H0] <= 32'b0;
-   regs[REG_RD_SHA256_HASH_H1] <= 32'b0;
-   regs[REG_RD_SHA256_HASH_H2] <= 32'b0;
-   regs[REG_RD_SHA256_HASH_H3] <= 32'b0;
-   regs[REG_RD_SHA256_HASH_H4] <= 32'b0;
-   regs[REG_RD_SHA256_HASH_H5] <= 32'b0;
-   regs[REG_RD_SHA256_HASH_H6] <= 32'b0;
-   regs[REG_RD_SHA256_HASH_H7] <= 32'b0;
+   regs[REG_RD_SHA256_HASH_H0] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H1] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H2] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H3] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H4] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H5] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H6] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H7] <= 1'b0;
    sha256_hash_valid_d <= 1'b0;
    end
 else if (!sha256_hash_valid_d && sha256_hash_valid) begin
@@ -427,8 +399,8 @@ else
 
 fifo_32i_32o_512d i_fifo_32i_32o (
   .rst                     ( !sha256_reset_n             ), // reset active high
-  .wr_clk                  ( clk_125mhz                  ), // clock 125.0 MHz
-  .rd_clk                  ( clk_62mhz5                  ), // clock  62.5 MHz
+  .wr_clk                  ( bus_clk                     ), // clock 125.0 MHz
+  .rd_clk                  ( sha256_clk                  ), // clock  62.5 MHz
 
   .wr_en                   ( sha256_32b_fifo_wr_en       ), // write signal to push into the FIFO
   .din                     ( sha256_32b_fifo_wr_in       ), // 32 bit word in
@@ -445,7 +417,7 @@ fifo_32i_32o_512d i_fifo_32i_32o (
 
 sha256_engine i_sha256_engine (
   // global signals
-  .clk                     ( clk_62mhz5                  ),  // clock 62.5 MHz
+  .clk                     ( sha256_clk                  ),  // clock 62.5 MHz
   .rstn                    ( sha256_reset_n              ),  // clock reset - active low
 
   .ready_o                 ( sha256_rdy                  ),  // sha256 engine ready to start
@@ -459,7 +431,7 @@ sha256_engine i_sha256_engine (
   .hash_o                  ( sha256_hash_data            )   // computated hash value
 );
 
-always @(posedge clk_125mhz)
+always @(posedge sha256_clk)
 if (!sha256_reset_n)
    sha256_start <= 1'b0;
 else if (!sha256_fifo_empty && sha256_rdy)
@@ -474,7 +446,7 @@ assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha
 
 keccak_f1600_round i_keccak_f1600_round (
   // global signals
-  .clk                     ( clk_125mhz                  ),  // clock 100 MHz
+  .clk                     ( kek512_clk                  ),  // clock 125 MHz
   .rstn                    ( kek512_reset_n              ),  // clock reset - active low
 
   .ready_o                 ( kek512_rdy                  ),  // 1: ready to fill and read out
@@ -492,8 +464,8 @@ assign kek512_status = { 32'b0 };
 //  System bus connection
 
 // WRITE access to the registers
-always @(posedge clk_125mhz)
-if (!rstn_125mhz) begin
+always @(posedge bus_clk)
+if (!bus_rstn) begin
   regs[REG_RW_CTRL]                               <= 32'h00000000;
   regs[REG_RW_SHA256_CTRL]                        <= 32'h00000000;
   regs[REG_RW_KECCAK512_CTRL]                     <= 32'h00000000;
@@ -515,9 +487,6 @@ else begin
 
     20'h00000: begin
       regs[REG_RW_CTRL]                           <= sys_wdata[31:0];
-      end
-    20'h0000C: begin
-      regs[REG_RW_CTRL]                           <= CURRENT_DATE[31:0];
       end
 
 
@@ -562,8 +531,8 @@ wire sys_en;
 assign sys_en = sys_wen | sys_ren;
 
 // READ access to the registers
-always @(posedge clk_125mhz)
-if (!rstn_125mhz) begin
+always @(posedge bus_clk)
+if (!bus_rstn) begin
   sys_err      <= 1'b0;
   sys_ack      <= 1'b0;
   sys_rdata    <= 32'h00000000;
@@ -679,6 +648,7 @@ else begin
         sys_rdata <= 32'h00000000;
     end
 */
+
 
     default:   begin
       sys_ack   <= sys_en;
