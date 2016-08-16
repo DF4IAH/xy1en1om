@@ -175,6 +175,7 @@ CONFIG.ID_WIDTH {0} \
 CONFIG.MAX_BURST_LENGTH {16} \
 CONFIG.NUM_READ_OUTSTANDING {1} \
 CONFIG.NUM_WRITE_OUTSTANDING {1} \
+CONFIG.PHASE {0.000} \
 CONFIG.PROTOCOL {AXI3} \
 CONFIG.READ_WRITE_MODE {READ_WRITE} \
 CONFIG.RUSER_WIDTH {0} \
@@ -202,6 +203,7 @@ CONFIG.ID_WIDTH {0} \
 CONFIG.MAX_BURST_LENGTH {16} \
 CONFIG.NUM_READ_OUTSTANDING {1} \
 CONFIG.NUM_WRITE_OUTSTANDING {1} \
+CONFIG.PHASE {0.000} \
 CONFIG.PROTOCOL {AXI3} \
 CONFIG.READ_WRITE_MODE {READ_WRITE} \
 CONFIG.RUSER_WIDTH {0} \
@@ -217,14 +219,25 @@ CONFIG.WUSER_WIDTH {0} \
   # Create ports
   set FCLK_CLK0 [ create_bd_port -dir O -type clk FCLK_CLK0 ]
   set_property -dict [ list \
-CONFIG.FREQ_HZ {125000000} \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET0_N} \
  ] $FCLK_CLK0
   set FCLK_CLK1 [ create_bd_port -dir O -type clk FCLK_CLK1 ]
   set_property -dict [ list \
-CONFIG.FREQ_HZ {62500000} \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET1_N} \
  ] $FCLK_CLK1
+  set FCLK_CLK2 [ create_bd_port -dir O -type clk FCLK_CLK2 ]
+  set_property -dict [ list \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET2_N} \
+CONFIG.FREQ_HZ {62500000} \
+ ] $FCLK_CLK2
+  set FCLK_CLK3 [ create_bd_port -dir O -type clk FCLK_CLK3 ]
+  set_property -dict [ list \
+CONFIG.ASSOCIATED_RESET {FCLK_RESET3_N} \
+ ] $FCLK_CLK3
   set FCLK_RESET0_N [ create_bd_port -dir O -type rst FCLK_RESET0_N ]
   set FCLK_RESET1_N [ create_bd_port -dir O -type rst FCLK_RESET1_N ]
+  set FCLK_RESET2_N [ create_bd_port -dir O -type rst FCLK_RESET2_N ]
+  set FCLK_RESET3_N [ create_bd_port -dir O -type rst FCLK_RESET3_N ]
   set IRQ_F2P_xlconcat [ create_bd_port -dir I -from 14 -to 0 -type intr IRQ_F2P_xlconcat ]
   set_property -dict [ list \
 CONFIG.PortWidth {15} \
@@ -245,6 +258,9 @@ CONFIG.FREQ_HZ {125000000} \
  ] $S_AXI_HP1_aclk
   set dcm_locked [ create_bd_port -dir I dcm_locked ]
 
+  # Create instance: axi_protocol_converter_0, and set properties
+  set axi_protocol_converter_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_protocol_converter:2.1 axi_protocol_converter_0 ]
+
   # Create instance: proc_sys_reset, and set properties
   set proc_sys_reset [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset ]
   set_property -dict [ list \
@@ -259,9 +275,9 @@ CONFIG.PCW_ACT_DCI_PERIPHERAL_FREQMHZ {10.158730} \
 CONFIG.PCW_ACT_ENET0_PERIPHERAL_FREQMHZ {125.000000} \
 CONFIG.PCW_ACT_ENET1_PERIPHERAL_FREQMHZ {10.000000} \
 CONFIG.PCW_ACT_FPGA0_PERIPHERAL_FREQMHZ {125.000000} \
-CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {62.500000} \
-CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {10.000000} \
-CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {10.000000} \
+CONFIG.PCW_ACT_FPGA1_PERIPHERAL_FREQMHZ {250.000000} \
+CONFIG.PCW_ACT_FPGA2_PERIPHERAL_FREQMHZ {62.500000} \
+CONFIG.PCW_ACT_FPGA3_PERIPHERAL_FREQMHZ {200.000000} \
 CONFIG.PCW_ACT_PCAP_PERIPHERAL_FREQMHZ {200.000000} \
 CONFIG.PCW_ACT_QSPI_PERIPHERAL_FREQMHZ {125.000000} \
 CONFIG.PCW_ACT_SDIO_PERIPHERAL_FREQMHZ {100.000000} \
@@ -286,9 +302,9 @@ CONFIG.PCW_CAN_PERIPHERAL_DIVISOR0 {1} \
 CONFIG.PCW_CAN_PERIPHERAL_DIVISOR1 {1} \
 CONFIG.PCW_CAN_PERIPHERAL_FREQMHZ {100} \
 CONFIG.PCW_CLK0_FREQ {125000000} \
-CONFIG.PCW_CLK1_FREQ {62500000} \
-CONFIG.PCW_CLK2_FREQ {10000000} \
-CONFIG.PCW_CLK3_FREQ {10000000} \
+CONFIG.PCW_CLK1_FREQ {250000000} \
+CONFIG.PCW_CLK2_FREQ {62500000} \
+CONFIG.PCW_CLK3_FREQ {200000000} \
 CONFIG.PCW_CPU_CPU_6X4X_MAX_RANGE {667} \
 CONFIG.PCW_CPU_CPU_PLL_FREQMHZ {1333.333} \
 CONFIG.PCW_CPU_PERIPHERAL_CLKSRC {ARM PLL} \
@@ -344,15 +360,15 @@ CONFIG.PCW_ENET_RESET_POLARITY {Active Low} \
 CONFIG.PCW_ENET_RESET_SELECT {Share reset pin} \
 CONFIG.PCW_EN_4K_TIMER {0} \
 CONFIG.PCW_EN_CLK1_PORT {1} \
-CONFIG.PCW_EN_CLK2_PORT {0} \
-CONFIG.PCW_EN_CLK3_PORT {0} \
+CONFIG.PCW_EN_CLK2_PORT {1} \
+CONFIG.PCW_EN_CLK3_PORT {1} \
 CONFIG.PCW_EN_EMIO_TTC0 {1} \
 CONFIG.PCW_EN_ENET0 {1} \
 CONFIG.PCW_EN_I2C0 {1} \
 CONFIG.PCW_EN_QSPI {1} \
 CONFIG.PCW_EN_RST1_PORT {1} \
-CONFIG.PCW_EN_RST2_PORT {0} \
-CONFIG.PCW_EN_RST3_PORT {0} \
+CONFIG.PCW_EN_RST2_PORT {1} \
+CONFIG.PCW_EN_RST3_PORT {1} \
 CONFIG.PCW_EN_SDIO0 {1} \
 CONFIG.PCW_EN_SPI1 {1} \
 CONFIG.PCW_EN_TTC0 {1} \
@@ -363,22 +379,26 @@ CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0 {4} \
 CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1 {2} \
 CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC {IO PLL} \
-CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {4} \
-CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {4} \
+CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0 {2} \
+CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR1 {2} \
 CONFIG.PCW_FCLK2_PERIPHERAL_CLKSRC {IO PLL} \
-CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {1} \
-CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {1} \
+CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR0 {4} \
+CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {4} \
 CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} \
-CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {1} \
+CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {5} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1 {1} \
 CONFIG.PCW_FCLK_CLK0_BUF {true} \
 CONFIG.PCW_FCLK_CLK1_BUF {true} \
+CONFIG.PCW_FCLK_CLK2_BUF {true} \
+CONFIG.PCW_FCLK_CLK3_BUF {true} \
 CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {125} \
-CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {62.5} \
-CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {50} \
+CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {250} \
+CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {62.5} \
 CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ {200} \
 CONFIG.PCW_FPGA_FCLK0_ENABLE {1} \
 CONFIG.PCW_FPGA_FCLK1_ENABLE {1} \
+CONFIG.PCW_FPGA_FCLK2_ENABLE {1} \
+CONFIG.PCW_FPGA_FCLK3_ENABLE {1} \
 CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {0} \
 CONFIG.PCW_GPIO_EMIO_GPIO_IO {<Select>} \
 CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} \
@@ -890,8 +910,6 @@ CONFIG.PCW_USB_RESET_ENABLE {1} \
 CONFIG.PCW_USB_RESET_POLARITY {Active Low} \
 CONFIG.PCW_USB_RESET_SELECT {Share reset pin} \
 CONFIG.PCW_USE_CROSS_TRIGGER {0} \
-CONFIG.PCW_USE_DEBUG {0} \
-CONFIG.PCW_USE_DMA0 {0} \
 CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
 CONFIG.PCW_USE_M_AXI_GP1 {1} \
 CONFIG.PCW_USE_S_AXI_HP0 {1} \
@@ -1000,6 +1018,7 @@ CONFIG.PCW_EN_TTC0.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_EN_UART0.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_EN_UART1.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_EN_USB0.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR0.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK0_PERIPHERAL_DIVISOR1.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC.VALUE_SRC {DEFAULT} \
@@ -1013,9 +1032,12 @@ CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK_CLK0_BUF.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK_CLK1_BUF.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_FCLK_CLK2_BUF.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_FCLK_CLK3_BUF.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FPGA_FCLK0_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FPGA_FCLK1_ENABLE.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_FPGA_FCLK2_ENABLE.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_FPGA_FCLK3_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_GPIO_EMIO_GPIO_IO.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_GPIO_MIO_GPIO_IO.VALUE_SRC {DEFAULT} \
@@ -1459,12 +1481,6 @@ CONFIG.PCW_WDT_PERIPHERAL_FREQMHZ.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_WDT_WDT_IO.VALUE_SRC {DEFAULT} \
  ] $processing_system7
 
-  # Create instance: processing_system7_axi_periph, and set properties
-  set processing_system7_axi_periph [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 processing_system7_axi_periph ]
-  set_property -dict [ list \
-CONFIG.NUM_MI {1} \
- ] $processing_system7_axi_periph
-
   # Create instance: xadc, and set properties
   set xadc [ create_bd_cell -type ip -vlnv xilinx.com:ip:xadc_wiz:3.3 xadc ]
   set_property -dict [ list \
@@ -1502,9 +1518,11 @@ CONFIG.XADC_STARUP_SELECTION {simultaneous_sampling} \
 
   # Need to retain value_src of defaults
   set_property -dict [ list \
+CONFIG.ENABLE_RESET.VALUE_SRC {DEFAULT} \
 CONFIG.ENABLE_VCCDDRO_ALARM.VALUE_SRC {DEFAULT} \
 CONFIG.ENABLE_VCCPAUX_ALARM.VALUE_SRC {DEFAULT} \
 CONFIG.ENABLE_VCCPINT_ALARM.VALUE_SRC {DEFAULT} \
+CONFIG.INTERFACE_SELECTION.VALUE_SRC {DEFAULT} \
 CONFIG.VCCDDRO_ALARM_LOWER.VALUE_SRC {DEFAULT} \
  ] $xadc
 
@@ -1524,11 +1542,11 @@ CONFIG.IN1_WIDTH {15} \
   connect_bd_intf_net -intf_net Vaux8_1 [get_bd_intf_ports Vaux8] [get_bd_intf_pins xadc/Vaux8]
   connect_bd_intf_net -intf_net Vaux9_1 [get_bd_intf_ports Vaux9] [get_bd_intf_pins xadc/Vaux9]
   connect_bd_intf_net -intf_net Vp_Vn_1 [get_bd_intf_ports Vp_Vn] [get_bd_intf_pins xadc/Vp_Vn]
+  connect_bd_intf_net -intf_net axi_protocol_converter_0_M_AXI [get_bd_intf_pins axi_protocol_converter_0/M_AXI] [get_bd_intf_pins xadc/s_axi_lite]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_ports M_AXI_GP0] [get_bd_intf_pins processing_system7/M_AXI_GP0]
+  connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP1 [get_bd_intf_pins axi_protocol_converter_0/S_AXI] [get_bd_intf_pins processing_system7/M_AXI_GP1]
   connect_bd_intf_net -intf_net processing_system7_0_ddr [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_fixed_io [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7/FIXED_IO]
-  connect_bd_intf_net -intf_net processing_system7_M_AXI_GP1 [get_bd_intf_pins processing_system7/M_AXI_GP1] [get_bd_intf_pins processing_system7_axi_periph/S00_AXI]
-  connect_bd_intf_net -intf_net processing_system7_axi_periph_M00_AXI [get_bd_intf_pins processing_system7_axi_periph/M00_AXI] [get_bd_intf_pins xadc/s_axi_lite]
   connect_bd_intf_net -intf_net s_axi_hp0_1 [get_bd_intf_ports S_AXI_HP0] [get_bd_intf_pins processing_system7/S_AXI_HP0]
   connect_bd_intf_net -intf_net s_axi_hp1_1 [get_bd_intf_ports S_AXI_HP1] [get_bd_intf_pins processing_system7/S_AXI_HP1]
   connect_bd_intf_net -intf_net xadc_M_AXIS [get_bd_intf_ports M_AXIS_GP1_xadc] [get_bd_intf_pins xadc/M_AXIS]
@@ -1537,12 +1555,16 @@ CONFIG.IN1_WIDTH {15} \
   connect_bd_net -net IRQ_F2P_xlconcat_1 [get_bd_ports IRQ_F2P_xlconcat] [get_bd_pins xlconcat_0/In1]
   connect_bd_net -net dcm_locked_proc_sys_reset_1 [get_bd_ports dcm_locked] [get_bd_pins proc_sys_reset/dcm_locked]
   connect_bd_net -net m_axi_gp0_aclk_1 [get_bd_ports M_AXI_GP0_ACLK] [get_bd_pins processing_system7/M_AXI_GP0_ACLK]
-  connect_bd_net -net proc_sys_reset_interconnect_aresetn [get_bd_pins proc_sys_reset/interconnect_aresetn] [get_bd_pins processing_system7_axi_periph/ARESETN]
-  connect_bd_net -net proc_sys_reset_peripheral_aresetn [get_bd_pins proc_sys_reset/peripheral_aresetn] [get_bd_pins processing_system7_axi_periph/M00_ARESETN] [get_bd_pins processing_system7_axi_periph/S00_ARESETN] [get_bd_pins xadc/s_axi_aresetn]
-  connect_bd_net -net processing_system7_0_fclk_clk0 [get_bd_ports FCLK_CLK0] [get_bd_ports M_AXIS_GP1_xadc_aclk] [get_bd_pins proc_sys_reset/slowest_sync_clk] [get_bd_pins processing_system7/FCLK_CLK0] [get_bd_pins processing_system7/M_AXI_GP1_ACLK] [get_bd_pins processing_system7_axi_periph/ACLK] [get_bd_pins processing_system7_axi_periph/M00_ACLK] [get_bd_pins processing_system7_axi_periph/S00_ACLK] [get_bd_pins xadc/s_axi_aclk] [get_bd_pins xadc/s_axis_aclk]
+  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_protocol_converter_0/aresetn] [get_bd_pins proc_sys_reset/interconnect_aresetn]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins proc_sys_reset/peripheral_aresetn] [get_bd_pins xadc/s_axi_aresetn]
+  connect_bd_net -net processing_system7_0_fclk_clk0 [get_bd_ports FCLK_CLK0] [get_bd_ports M_AXIS_GP1_xadc_aclk] [get_bd_pins axi_protocol_converter_0/aclk] [get_bd_pins proc_sys_reset/slowest_sync_clk] [get_bd_pins processing_system7/FCLK_CLK0] [get_bd_pins processing_system7/M_AXI_GP1_ACLK] [get_bd_pins xadc/s_axi_aclk] [get_bd_pins xadc/s_axis_aclk]
+  connect_bd_net -net processing_system7_0_fclk_clk1 [get_bd_ports FCLK_CLK1] [get_bd_pins processing_system7/FCLK_CLK1]
+  connect_bd_net -net processing_system7_0_fclk_clk2 [get_bd_ports FCLK_CLK2] [get_bd_pins processing_system7/FCLK_CLK2]
+  connect_bd_net -net processing_system7_0_fclk_clk3 [get_bd_ports FCLK_CLK3] [get_bd_pins processing_system7/FCLK_CLK3]
   connect_bd_net -net processing_system7_0_fclk_reset0_n [get_bd_ports FCLK_RESET0_N] [get_bd_pins proc_sys_reset/ext_reset_in] [get_bd_pins processing_system7/FCLK_RESET0_N]
-  connect_bd_net -net processing_system7_FCLK_CLK1 [get_bd_ports FCLK_CLK1] [get_bd_pins processing_system7/FCLK_CLK1]
-  connect_bd_net -net processing_system7_FCLK_RESET1_N [get_bd_ports FCLK_RESET1_N] [get_bd_pins processing_system7/FCLK_RESET1_N]
+  connect_bd_net -net processing_system7_0_fclk_reset1_n [get_bd_ports FCLK_RESET1_N] [get_bd_pins processing_system7/FCLK_RESET1_N]
+  connect_bd_net -net processing_system7_0_fclk_reset2_n [get_bd_ports FCLK_RESET2_N] [get_bd_pins processing_system7/FCLK_RESET2_N]
+  connect_bd_net -net processing_system7_0_fclk_reset3_n [get_bd_ports FCLK_RESET3_N] [get_bd_pins processing_system7/FCLK_RESET3_N]
   connect_bd_net -net s_axi_hp0_aclk [get_bd_ports S_AXI_HP0_aclk] [get_bd_pins processing_system7/S_AXI_HP0_ACLK]
   connect_bd_net -net s_axi_hp1_aclk [get_bd_ports S_AXI_HP1_aclk] [get_bd_pins processing_system7/S_AXI_HP1_ACLK]
   connect_bd_net -net xadc_ip2intc_irpt [get_bd_pins xadc/ip2intc_irpt] [get_bd_pins xlconcat_0/In0]
@@ -1551,7 +1573,7 @@ CONFIG.IN1_WIDTH {15} \
 
   # Create address segments
   create_bd_addr_seg -range 0x40000000 -offset 0x40000000 [get_bd_addr_spaces processing_system7/Data] [get_bd_addr_segs M_AXI_GP0/Reg] SEG_system_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x83C00000 [get_bd_addr_spaces processing_system7/Data] [get_bd_addr_segs xadc/s_axi_lite/Reg] SEG_xadc_Reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x83C00000 [get_bd_addr_spaces processing_system7/Data] [get_bd_addr_segs xadc/s_axi_lite/Reg] SEG_xadc_wiz_0_Reg
   create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces S_AXI_HP0] [get_bd_addr_segs processing_system7/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_processing_system7_0_HP0_DDR_LOWOCM
   create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces S_AXI_HP1] [get_bd_addr_segs processing_system7/S_AXI_HP1/HP1_DDR_LOWOCM] SEG_processing_system7_0_HP1_DDR_LOWOCM
 
@@ -1559,61 +1581,69 @@ CONFIG.IN1_WIDTH {15} \
   regenerate_bd_layout -layout_string {
    guistr: "# # String gsaved with Nlview 6.5.12  2016-01-29 bk=1.3547 VDI=39 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
-preplace port M_AXIS_GP1_xadc_aclk -pg 1 -y 580 -defaultsOSRD
-preplace port S_AXI_HP1 -pg 1 -y 130 -defaultsOSRD
+preplace port FCLK_CLK3 -pg 1 -y 260 -defaultsOSRD
+preplace port M_AXIS_GP1_xadc_aclk -pg 1 -y 560 -defaultsOSRD
+preplace port S_AXI_HP1 -pg 1 -y 170 -defaultsOSRD
 preplace port DDR -pg 1 -y 40 -defaultsOSRD
-preplace port Vp_Vn -pg 1 -y 670 -defaultsOSRD
-preplace port Vaux0 -pg 1 -y 690 -defaultsOSRD
-preplace port FCLK_RESET0_N -pg 1 -y 240 -defaultsOSRD
-preplace port M_AXI_GP0_ACLK -pg 1 -y 150 -defaultsOSRD
-preplace port Vaux1 -pg 1 -y 710 -defaultsOSRD
-preplace port S_AXI_HP0_aclk -pg 1 -y 190 -defaultsOSRD
+preplace port Vp_Vn -pg 1 -y 530 -defaultsOSRD
+preplace port Vaux0 -pg 1 -y 510 -defaultsOSRD
+preplace port FCLK_RESET0_N -pg 1 -y 280 -defaultsOSRD
+preplace port M_AXI_GP0_ACLK -pg 1 -y 190 -defaultsOSRD
+preplace port Vaux1 -pg 1 -y 690 -defaultsOSRD
+preplace port S_AXI_HP0_aclk -pg 1 -y 230 -defaultsOSRD
 preplace port M_AXI_GP0 -pg 1 -y 100 -defaultsOSRD
-preplace port FCLK_RESET1_N -pg 1 -y 260 -defaultsOSRD
-preplace port S_AXI_HP1_aclk -pg 1 -y 210 -defaultsOSRD
+preplace port FCLK_RESET1_N -pg 1 -y 300 -defaultsOSRD
+preplace port S_AXI_HP1_aclk -pg 1 -y 250 -defaultsOSRD
+preplace port FCLK_RESET3_N -pg 1 -y 340 -defaultsOSRD
 preplace port FIXED_IO -pg 1 -y 60 -defaultsOSRD
+preplace port FCLK_RESET2_N -pg 1 -y 320 -defaultsOSRD
 preplace port FCLK_CLK0 -pg 1 -y 200 -defaultsOSRD
-preplace port dcm_locked -pg 1 -y 880 -defaultsOSRD
+preplace port dcm_locked -pg 1 -y 660 -defaultsOSRD
 preplace port FCLK_CLK1 -pg 1 -y 220 -defaultsOSRD
-preplace port Vaux8 -pg 1 -y 730 -defaultsOSRD
-preplace port Vaux9 -pg 1 -y 750 -defaultsOSRD
-preplace port S_AXI_HP0 -pg 1 -y 110 -defaultsOSRD
-preplace port M_AXIS_GP1_xadc -pg 1 -y 600 -defaultsOSRD
-preplace portBus IRQ_F2P_xlconcat -pg 1 -y 390 -defaultsOSRD
-preplace inst xlconstant -pg 1 -lvl 1 -y 830 -defaultsOSRD
-preplace inst xlconcat_0 -pg 1 -lvl 3 -y 380 -defaultsOSRD
-preplace inst processing_system7 -pg 1 -lvl 4 -y 150 -defaultsOSRD
-preplace inst processing_system7_axi_periph -pg 1 -lvl 3 -y 540 -defaultsOSRD
-preplace inst xadc -pg 1 -lvl 4 -y 730 -defaultsOSRD
-preplace inst proc_sys_reset -pg 1 -lvl 2 -y 840 -defaultsOSRD
-preplace netloc Vaux0_1 1 0 4 NJ 690 NJ 690 NJ 690 NJ
+preplace port Vaux8 -pg 1 -y 710 -defaultsOSRD
+preplace port FCLK_CLK2 -pg 1 -y 240 -defaultsOSRD
+preplace port Vaux9 -pg 1 -y 730 -defaultsOSRD
+preplace port S_AXI_HP0 -pg 1 -y 150 -defaultsOSRD
+preplace port M_AXIS_GP1_xadc -pg 1 -y 580 -defaultsOSRD
+preplace portBus IRQ_F2P_xlconcat -pg 1 -y 470 -defaultsOSRD
+preplace inst axi_protocol_converter_0 -pg 1 -lvl 3 -y 630 -defaultsOSRD
+preplace inst xlconstant -pg 1 -lvl 1 -y 610 -defaultsOSRD
+preplace inst xlconcat_0 -pg 1 -lvl 3 -y 460 -defaultsOSRD
+preplace inst processing_system7 -pg 1 -lvl 4 -y 190 -defaultsOSRD
+preplace inst xadc -pg 1 -lvl 4 -y 710 -defaultsOSRD
+preplace inst proc_sys_reset -pg 1 -lvl 2 -y 610 -defaultsOSRD
+preplace netloc Vaux0_1 1 0 4 NJ 510 NJ 510 NJ 530 NJ
 preplace netloc processing_system7_0_ddr 1 4 1 NJ
-preplace netloc proc_sys_reset_interconnect_aresetn 1 2 1 470
-preplace netloc IRQ_F2P_xlconcat_1 1 0 3 NJ 390 NJ 390 NJ
-preplace netloc s_axi_hp0_1 1 0 4 NJ 110 NJ 110 NJ 110 NJ
-preplace netloc proc_sys_reset_peripheral_aresetn 1 2 2 490 810 NJ
-preplace netloc processing_system7_FCLK_RESET1_N 1 4 1 NJ
+preplace netloc processing_system7_0_fclk_reset3_n 1 4 1 NJ
+preplace netloc IRQ_F2P_xlconcat_1 1 0 3 NJ 470 NJ 470 NJ
+preplace netloc s_axi_hp0_1 1 0 4 NJ 150 NJ 150 NJ 150 NJ
+preplace netloc processing_system7_0_fclk_reset2_n 1 4 1 NJ
 preplace netloc processing_system7_0_M_AXI_GP0 1 4 1 NJ
 preplace netloc xlconstant_dout 1 1 1 NJ
-preplace netloc xadc_ip2intc_irpt 1 2 3 490 320 NJ 340 1250
-preplace netloc processing_system7_FCLK_CLK1 1 4 1 NJ
-preplace netloc dcm_locked_proc_sys_reset_1 1 0 2 NJ 880 NJ
-preplace netloc Vp_Vn_1 1 0 4 NJ 670 NJ 670 NJ 670 NJ
-preplace netloc s_axi_hp0_aclk 1 0 4 NJ 190 NJ 190 NJ 190 NJ
-preplace netloc s_axi_hp1_1 1 0 4 NJ 130 NJ 130 NJ 130 NJ
-preplace netloc Vaux8_1 1 0 4 NJ 730 NJ 730 NJ 730 NJ
-preplace netloc xlconcat_0_dout 1 3 1 810
-preplace netloc s_axi_hp1_aclk 1 0 4 NJ 210 NJ 210 NJ 210 NJ
-preplace netloc processing_system7_0_fclk_reset0_n 1 1 4 140 290 NJ 290 NJ 320 1260
-preplace netloc processing_system7_axi_periph_M00_AXI 1 3 1 790
-preplace netloc processing_system7_M_AXI_GP1 1 2 3 470 300 NJ 310 1250
-preplace netloc Vaux9_1 1 0 4 NJ 750 NJ 750 NJ 750 NJ
+preplace netloc xadc_ip2intc_irpt 1 2 3 530 520 NJ 520 1240
+preplace netloc processing_system7_0_fclk_reset1_n 1 4 1 NJ
+preplace netloc dcm_locked_proc_sys_reset_1 1 0 2 NJ 660 NJ
+preplace netloc Vp_Vn_1 1 0 4 NJ 520 NJ 520 NJ 560 NJ
+preplace netloc processing_system7_0_M_AXI_GP1 1 2 3 520 390 NJ 390 1240
+preplace netloc s_axi_hp0_aclk 1 0 4 NJ 230 NJ 230 NJ 230 NJ
+preplace netloc s_axi_hp1_1 1 0 4 NJ 170 NJ 170 NJ 170 NJ
+preplace netloc proc_sys_reset_0_interconnect_aresetn 1 2 1 490
+preplace netloc Vaux8_1 1 0 4 NJ 710 NJ 710 NJ 710 NJ
+preplace netloc axi_protocol_converter_0_M_AXI 1 3 1 N
+preplace netloc xlconcat_0_dout 1 3 1 790
+preplace netloc s_axi_hp1_aclk 1 0 4 NJ 250 NJ 250 NJ 250 NJ
+preplace netloc processing_system7_0_fclk_reset0_n 1 1 4 140 400 NJ 400 NJ 400 1250
+preplace netloc Vaux9_1 1 0 4 NJ 730 NJ 730 NJ 730 NJ
 preplace netloc processing_system7_0_fixed_io 1 4 1 NJ
-preplace netloc processing_system7_0_fclk_clk0 1 1 4 150 660 480 660 800 330 1270
-preplace netloc Vaux1_1 1 0 4 NJ 710 NJ 710 NJ 710 NJ
-preplace netloc m_axi_gp0_aclk_1 1 0 4 NJ 150 NJ 150 NJ 150 NJ
+preplace netloc processing_system7_0_fclk_clk0 1 1 4 150 500 500 540 810 410 1260
+preplace netloc proc_sys_reset_0_peripheral_aresetn 1 2 2 480 790 NJ
+preplace netloc Vaux1_1 1 0 4 NJ 690 NJ 700 NJ 700 NJ
+preplace netloc processing_system7_0_fclk_clk1 1 4 1 NJ
+preplace netloc m_axi_gp0_aclk_1 1 0 4 NJ 190 NJ 190 NJ 190 NJ
 preplace netloc xadc_M_AXIS 1 4 1 NJ
-levelinfo -pg 1 0 80 310 640 1040 1290 -top 0 -bot 930
+preplace netloc processing_system7_0_fclk_clk2 1 4 1 NJ
+preplace netloc processing_system7_0_fclk_clk3 1 4 1 NJ
+levelinfo -pg 1 -10 80 320 660 1030 1280 -top 0 -bot 890
 ",
 }
 

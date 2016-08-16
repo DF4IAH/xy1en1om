@@ -45,7 +45,7 @@ typedef enum worker_state_e {
  * @param[in]    params_len    Count of parameters that params holds.
  * @retval       int           The return value of the pthread_create() call.
  */
-int worker_init(rb_app_params_t* params, int params_len);
+int worker_init(xy_app_params_t* params, int params_len);
 
 /** @brief Shuts-down the running worker thread
  *
@@ -74,7 +74,7 @@ void* worker_thread(void* args);
  * @param[in]    do_init  If true all comparisons will indicate a changed state.
  * @retval       int      Number of parameters that changed the value AND their attribute fpga_update is set.
  */
-int mark_changed_fpga_update_entries(const rb_app_params_t* ref, rb_app_params_t* cmp, int do_init);
+int mark_changed_fpga_update_entries(const xy_app_params_t* ref, xy_app_params_t* cmp, int do_init);
 
 
 /** @brief Removes 'dirty' flags */

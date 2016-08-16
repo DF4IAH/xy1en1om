@@ -34,7 +34,7 @@ static worker_state_t           s_worker_ctrl_state;
 static pthread_mutex_t          s_worker_ctrl_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /** @brief Parameter list for the worker thread */
-static rb_app_params_t*         s_worker_params = NULL;
+static xy_app_params_t*         s_worker_params = NULL;
 
 /** @brief CallBack copy of params to inform the worker */
 extern rp_app_params_t*         g_rp_cb_in_params;
@@ -42,9 +42,9 @@ extern rp_app_params_t*         g_rp_cb_in_params;
 extern pthread_mutex_t          g_rp_cb_in_params_mutex;
 
 /** @brief Current copy of params of the worker thread */
-extern rb_app_params_t*         g_rb_info_worker_params;
+extern xy_app_params_t*         g_xy_info_worker_params;
 /** @brief Holds mutex to access parameters from the worker thread to any other context */
-extern pthread_mutex_t          g_rb_info_worker_params_mutex;
+extern pthread_mutex_t          g_xy_info_worker_params_mutex;
 
 /** @brief params initialized */
 extern int                      g_params_init_done;  /* @see main.c */
@@ -54,7 +54,7 @@ extern unsigned char            g_transport_pktIdx;
 
 
 /*----------------------------------------------------------------------------------*/
-int worker_init(rb_app_params_t* params, int params_len)
+int worker_init(xy_app_params_t* params, int params_len)
 {
     int ret_val;
 
@@ -68,8 +68,8 @@ int worker_init(rb_app_params_t* params, int params_len)
     s_worker_ctrl_state = worker_idle_state;
 
     /* create a new parameter list to the worker context */
-    rb_copy_params((rb_app_params_t**) &s_worker_params, params, params_len, 1);
-    //print_rb_params(s_worker_params);
+    xy_copy_params((xy_app_params_t**) &s_worker_params, params, params_len, 1);
+    //print_xy_params(s_worker_params);
 
     s_worker_thread_handler = (pthread_t*) malloc(sizeof(pthread_t));
     if (!s_worker_thread_handler) {
@@ -120,7 +120,7 @@ int worker_exit(void)
 
     //fprintf(stderr, "worker_exit: before freeing worker_params\n");
     //fprintf(stderr, "INFO pthread_join: freeing (1) ...\n");
-    rb_free_params(&s_worker_params);
+    xy_free_params(&s_worker_params);
     //fprintf(stderr, "worker_exit: after freeing worker_params\n");
 
     //fprintf(stderr, "DEBUG worker_exit: END\n");
@@ -130,7 +130,7 @@ int worker_exit(void)
 /*----------------------------------------------------------------------------------*/
 void* worker_thread(void* args)
 {
-    rb_app_params_t* l_cb_in_copy_params  = NULL;
+    xy_app_params_t* l_cb_in_copy_params  = NULL;
     worker_state_t l_state;
     int l_do_normal_state = 0;
 
@@ -150,8 +150,8 @@ void* worker_thread(void* args)
         if (!l_params_init_done) {
             /* the FPGA is going to be configured by these entries */
             //fprintf(stderr, "DEBUG worker_thread: rp_cb_in_params - INITIAL data, copying ...\n");
-            rb_copy_params(&l_cb_in_copy_params, s_worker_params, -1, 1);
-            //print_rb_params(s_worker_params);
+            xy_copy_params(&l_cb_in_copy_params, s_worker_params, -1, 1);
+            //print_xy_params(s_worker_params);
             //fprintf(stderr, "DEBUG worker_thread: rp_cb_in_params - INITIAL data, ... done.\n");
 
             /* take FSM out of idle l_state */
@@ -160,7 +160,7 @@ void* worker_thread(void* args)
         } else if (g_rp_cb_in_params) {
             /* check if new parameters are available */
             //fprintf(stderr, "DEBUG worker_thread: g_rp_cb_in_params - new data, copying ...\n");
-            rp_copy_params_rp2rb(&l_cb_in_copy_params, g_rp_cb_in_params);
+            rp_copy_params_rp2xy(&l_cb_in_copy_params, g_rp_cb_in_params);
 
             //fprintf(stderr, "DEBUG worker_thread: g_rp_cb_in_params - freeing (2) ...\n");
             rp_free_params(&g_rp_cb_in_params);
@@ -168,7 +168,7 @@ void* worker_thread(void* args)
             /* take FSM out of idle */
             l_do_normal_state = 1;
 
-            //print_rb_params(l_cb_in_copy_params);
+            //print_xy_params(l_cb_in_copy_params);
             //fprintf(stderr, "DEBUG worker_thread: rp_cb_in_params - ... done\n");
         }
         pthread_mutex_unlock(&g_rp_cb_in_params_mutex);
@@ -176,12 +176,12 @@ void* worker_thread(void* args)
         /* when new data is seen, purge old revisions at the interfaces */
         if (l_cb_in_copy_params) {
             /* drop outdated output data */
-            pthread_mutex_lock(&g_rb_info_worker_params_mutex);
+            pthread_mutex_lock(&g_xy_info_worker_params_mutex);
             {
-                //fprintf(stderr, "INFO worker_thread: g_rb_info_worker_params - freeing (5) ...\n");
-                rb_free_params(&g_rb_info_worker_params);
+                //fprintf(stderr, "INFO worker_thread: g_xy_info_worker_params - freeing (5) ...\n");
+                xy_free_params(&g_xy_info_worker_params);
             }
-            pthread_mutex_unlock(&g_rb_info_worker_params_mutex);
+            pthread_mutex_unlock(&g_xy_info_worker_params_mutex);
         }
 
         if (l_do_normal_state) {
@@ -205,9 +205,9 @@ void* worker_thread(void* args)
 #endif
 
             //fprintf(stderr, "INFO worker_thread: rp_cb_in_params - freeing (9c) ...\n");
-            rb_free_params(&l_cb_in_copy_params);
+            xy_free_params(&l_cb_in_copy_params);
             //fprintf(stderr, "INFO worker_thread: rp_cb_in_params - freeing (9d) ...\n");
-            rb_free_params(&g_rb_info_worker_params);
+            xy_free_params(&g_xy_info_worker_params);
             //fprintf(stderr, "worker_thread: after freeing curr_params\n");
             break;
 
@@ -221,7 +221,7 @@ void* worker_thread(void* args)
 
                 //fprintf(stderr, "INFO worker_thread: worker_normal_state, processing new data --> update_count = %d\n", fpga_update_count);
                 if (fpga_update_count > 0) {
-                    //fprintf(stderr, "DEBUG worker_thread: fpga_update: -->  delegate to fpga_rb_update_all_params()\n");
+                    //fprintf(stderr, "DEBUG worker_thread: fpga_update: -->  delegate to fpga_xy_update_all_params()\n");
 
                     pthread_mutex_lock(&g_rp_cb_in_params_mutex);
                     g_params_init_done = 1;
@@ -230,18 +230,18 @@ void* worker_thread(void* args)
 
                 /* update worker_params */
                 //fprintf(stderr, "DEBUG worker_thread: updating worker_params\n");
-                rb_copy_params(&s_worker_params, l_cb_in_copy_params, -1, 0);  // copy back changed values
+                xy_copy_params(&s_worker_params, l_cb_in_copy_params, -1, 0);  // copy back changed values
 
                 // new position of returning values
-                pthread_mutex_lock(&g_rb_info_worker_params_mutex);
-                rb_free_params(&g_rb_info_worker_params);  // invalidate old data
-                //fprintf(stderr, "DEBUG worker_thread: UPDATE RETURNED DATA  g_rb_info_worker_params\n");
-                rb_copy_params(&g_rb_info_worker_params, s_worker_params, -1, 1);
-                //print_rb_params(g_rb_info_worker_params);
-                pthread_mutex_unlock(&g_rb_info_worker_params_mutex);
+                pthread_mutex_lock(&g_xy_info_worker_params_mutex);
+                xy_free_params(&g_xy_info_worker_params);  // invalidate old data
+                //fprintf(stderr, "DEBUG worker_thread: UPDATE RETURNED DATA  g_xy_info_worker_params\n");
+                xy_copy_params(&g_xy_info_worker_params, s_worker_params, -1, 1);
+                //print_xy_params(g_xy_info_worker_params);
+                pthread_mutex_unlock(&g_xy_info_worker_params_mutex);
 
                 //fprintf(stderr, "INFO worker_thread: rp_cb_in_params - freeing (1) ...\n");
-                rb_free_params(&l_cb_in_copy_params);
+                xy_free_params(&l_cb_in_copy_params);
             }
             /* drop working flag */
             g_transport_pktIdx &= 0x7f;
@@ -265,7 +265,7 @@ void* worker_thread(void* args)
 
 
 /*----------------------------------------------------------------------------------*/
-int mark_changed_fpga_update_entries(const rb_app_params_t* ref, rb_app_params_t* cmp, int do_init)
+int mark_changed_fpga_update_entries(const xy_app_params_t* ref, xy_app_params_t* cmp, int do_init)
 {
     //fprintf(stderr, "mark_changed_fpga_update_entries: BEGIN\n");
     if (!ref || !cmp) {

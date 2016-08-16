@@ -23,7 +23,7 @@
 module red_pitaya_rst_clken(
    // clock & reset
    input clk,
-   input global_rst_n,
+   input rstn,
 
    // sub-module enable
    input enable_i,
@@ -37,9 +37,8 @@ module red_pitaya_rst_clken(
 reg           enable_last                 = 1'b0;
 reg  [  1: 0] enable_ctr                  = 2'b0;
 
-
 always @(posedge clk) begin
-if (!global_rst_n) begin
+if (!rstn) begin
    clk_en_o    <= 1'b0;
    reset_n_o   <= 1'b0;
    enable_last <= 1'b0;

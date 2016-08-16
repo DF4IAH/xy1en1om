@@ -35,9 +35,9 @@ module red_pitaya_hk #(
   input                clk_i      ,  // clock
   input                rstn_i     ,  // reset - active low
   // LED
-  output reg [DWL-1:0] led_o      ,  // LED output
+  output reg [DWL-1:0] led_o         = {DWL{1'b0}}, // LED output
   // global configuration
-  output reg           digital_loop,
+  output reg           digital_loop  = 1'b0,
   // Expansion connector
   input      [DWE-1:0] exp_p_dat_i,  // exp. con. input data
   output reg [DWE-1:0] exp_p_dat_o,  // exp. con. output data
@@ -121,6 +121,7 @@ assign id_value[ 3: 0] =  4'h1; // board type   1 - release 1
 
 always @(posedge clk_i)
 if (rstn_i == 1'b0) begin
+  digital_loop <= 1'b0;
   led_o        <= {DWL{1'b0}};
   exp_p_dat_o  <= {DWE{1'b0}};
   exp_p_dir_o  <= {DWE{1'b0}};

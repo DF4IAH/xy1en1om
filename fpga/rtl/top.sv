@@ -124,11 +124,10 @@ wire         [  15:0] rb_out_ch[1:0];
 
 wire                  x11_activated;
 
+
 // TODO: to be removed when rb_out_ch[x] driver exists
 assign rb_out_ch[0] = 16'b0;
 assign rb_out_ch[1] = 16'b0;
-assign led_o        = { 7'b0, x11_activated };
-// assign led_o        =  8'b0;
 assign dac_pwm_o    =  4'b0;
 
 
@@ -136,8 +135,8 @@ assign dac_pwm_o    =  4'b0;
 //
 //  Connections to PS
 
-wire  [    1: 0] fclk                      ; // [0] = 125 MHz, [1] = 62.5 MHz.
-wire  [    1: 0] frstn                     ;
+wire  [    3: 0] fclk                      ; // [0] = 125.0 MHz, [1] = 250.0 MHz, [2] = 62.5 MHz, [3] = 200.0 MHz.
+wire  [    3: 0] frstn                     ;
 
 wire             ps_sys_clk                ;
 wire             ps_sys_rstn               ;
@@ -349,15 +348,14 @@ ODDR oddr_dac_dat [  13:0] ( .Q(dac_dat_o), .D1(dac_dat_b), .D2(dac_dat_a), .C(d
 wire  [  8-1: 0] exp_p_in , exp_n_in ;
 wire  [  8-1: 0] exp_p_out, exp_n_out;
 wire  [  8-1: 0] exp_p_dir, exp_n_dir;
-wire  [  8-1: 0] hk_leds_data        ;
 
 red_pitaya_hk i_hk (
   // system signals
-  .clk_i           (  fclk[0]                    ),  // clock 125 MHz
-  .rstn_i          (  frstn[0]                   ),  // reset - active low
+  .clk_i           (  fclk[0]                    ),  // clock 125.0 MHz
+  .rstn_i          (  frstn[0]                   ),  // clock reset - active low
 
   // LED
-  .led_o           (  hk_leds_data               ),  // LED output
+  .led_o           (  led_o                      ),  // LED output
 
   // global configuration
   .digital_loop    (  digital_loop               ),
@@ -384,8 +382,9 @@ red_pitaya_hk i_hk (
 IOBUF i_iobufp [7:0] (.O(exp_p_in), .IO(exp_p_io), .I(exp_p_out), .T(~exp_p_dir) );
 IOBUF i_iobufn [7:0] (.O(exp_n_in), .IO(exp_n_io), .I(exp_n_out), .T(~exp_n_dir) );
 
+
 //---------------------------------------------------------------------------------
-// 1: unused system bus slave ports
+// 1: xy1en1om Sub-Module
 
 /*
 assign sys_rdata[1*32+:32] = 32'h0;

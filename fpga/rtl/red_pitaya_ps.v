@@ -72,8 +72,8 @@ module red_pitaya_ps (
   inout              DDR_reset_n        ,
   inout              DDR_we_n           ,
 
-  output  [    1: 0] fclk_clk_o         ,
-  output  [    1: 0] fclk_rstn_o        ,
+  output  [    3: 0] fclk_clk_o         ,
+  output  [    3: 0] fclk_rstn_o        ,
 
   // XADC
   input    [   4: 0] vinp_i             ,  // voltages p
@@ -250,8 +250,8 @@ assign hp1_saxi_aclk   = hp1_saxi_clk_i ;
 //------------------------------------------------------------------------------
 // AXI SLAVE
 
-wire [    1: 0] fclk_clk             ;
-wire [    1: 0] fclk_rstn            ;
+wire [    3: 0] fclk_clk             ;
+wire [    3: 0] fclk_rstn            ;
 
 wire            gp0_maxi_arvalid     ;
 wire            gp0_maxi_awvalid     ;
@@ -374,11 +374,13 @@ gp0_maxi_arstn <= fclk_rstn[0];
 
 assign fclk_rstn_o[0] = fclk_rstn[0];
 assign fclk_rstn_o[1] = fclk_rstn[1];
+assign fclk_rstn_o[2] = fclk_rstn[2];
+assign fclk_rstn_o[3] = fclk_rstn[3];
 
-BUFG i_fclk0_buf  (.O(fclk_clk_o[0]), .I(fclk_clk[0]));
-BUFG i_fclk1_buf  (.O(fclk_clk_o[1]), .I(fclk_clk[1]));
-//BUFG i_fclk2_buf  (.O(fclk_clk_o[2]), .I(fclk_clk[2]));
-//BUFG i_fclk3_buf  (.O(fclk_clk_o[3]), .I(fclk_clk[3]));
+assign fclk_clk_o[0]  = fclk_clk[0];
+assign fclk_clk_o[1]  = fclk_clk[1];
+assign fclk_clk_o[2]  = fclk_clk[2];
+assign fclk_clk_o[3]  = fclk_clk[3];
 
 system_wrapper system_i (
   // DDR
@@ -401,12 +403,12 @@ system_wrapper system_i (
   // FCLKs
   .FCLK_CLK0         (fclk_clk[0]      ),
   .FCLK_CLK1         (fclk_clk[1]      ),
-//.FCLK_CLK2         (fclk_clk[2]      ),
-//.FCLK_CLK3         (fclk_clk[3]      ),
+  .FCLK_CLK2         (fclk_clk[2]      ),
+  .FCLK_CLK3         (fclk_clk[3]      ),
   .FCLK_RESET0_N     (fclk_rstn[0]     ),
   .FCLK_RESET1_N     (fclk_rstn[1]     ),
-//.FCLK_RESET2_N     (fclk_rstn[2]     ),
-//.FCLK_RESET3_N     (fclk_rstn[3]     ),
+  .FCLK_RESET2_N     (fclk_rstn[2]     ),
+  .FCLK_RESET3_N     (fclk_rstn[3]     ),
 
   // MIO
   .FIXED_IO_mio      (FIXED_IO_mio     ),

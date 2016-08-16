@@ -15,7 +15,7 @@
 
 /* v0.95 WebSocket call-back functions */
 
-#if 0  // disable new WebSocket interface until documentation as available
+#if 0  // disable new WebSocket interface until documentation is available
 
 void ws_set_params_interval(int interval) {
 
