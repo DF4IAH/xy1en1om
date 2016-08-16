@@ -24,11 +24,11 @@ module regs #(
   // parameter RSZ = 14  // RAM size 2^RSZ
 )(
    // clock & reset
-   input                 clk_100mhz      , // clock 100 MHz
-   input                 rstn_i          , // ADC reset - active low
+   input        [  3: 0] clks            ,  // clocks
+   input        [  3: 0] rstsn           ,  // clock reset lines - active low
 
    // activation
-   output                x11_activated   , // RB sub-module is activated
+   output                x11_activated   ,  // x11 sub-module is activated
 
    // System bus - slave
    input        [ 31: 0] sys_addr        ,  // bus saddress
@@ -38,19 +38,16 @@ module regs #(
    input                 sys_ren         ,  // bus read enable
    output reg   [ 31: 0] sys_rdata       ,  // bus read data
    output reg            sys_err         ,  // bus error indicator
-   output reg            sys_ack            // bus acknowledge signal
+   output reg            sys_ack         ,  // bus acknowledge signal
 
-/*
    // AXI streaming master from XADC
    input              xadc_axis_aclk     ,  // AXI-streaming from the XADC, clock from the AXI-S FIFO
-   input   [  151: 0] xadc_axis_tdata    ,  // AXI-streaming from the XADC, data
+   input   [   15: 0] xadc_axis_tdata    ,  // AXI-streaming from the XADC, data
    input   [    4: 0] xadc_axis_tid      ,  // AXI-streaming from the XADC, analog data source channel for this data
                                             // TID=0x10:VAUXp0_VAUXn0 & TID=0x18:VAUXp8_VAUXn8, TID=0x11:VAUXp1_VAUXn1 & TID=0x19:VAUXp9_VAUXn9, TID=0x03:Vp_Vn
    output reg         xadc_axis_tready   ,  // AXI-streaming from the XADC, slave indicating ready for data
    input              xadc_axis_tvalid   ,  // AXI-streaming from the XADC, data transfer valid
-*/
 
-/*
    // AXI0 master
    output                axi0_clk_o      ,  // global clock
    output                axi0_rstn_o     ,  // global reset
@@ -74,7 +71,6 @@ module regs #(
    output                axi1_wfixed_o   ,  // system write burst type (fixed / incremental)
    input                 axi1_werr_i     ,  // system write error
    input                 axi1_wrdy_i        // system write ready
-*/
 );
 
 
@@ -83,7 +79,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16072801;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16081501;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -101,13 +97,15 @@ enum {
 //  REG_RW_SHA256_BIT_LEN,                      // h108: SHA256 submodule number of data bit to be hashed
 //  REG_WR_SHA256_DATA_PUSH,                    // h10C: SHA256 submodule data push in FIFO
     REG_RD_SHA256_HASH_H7,                      // h110: SHA256 submodule hash out H7, LSB
-    REG_RD_SHA256_HASH_H6,                      // h110: SHA256 submodule hash out H6
-    REG_RD_SHA256_HASH_H5,                      // h110: SHA256 submodule hash out H5
-    REG_RD_SHA256_HASH_H4,                      // h110: SHA256 submodule hash out H4
-    REG_RD_SHA256_HASH_H3,                      // h110: SHA256 submodule hash out H3
-    REG_RD_SHA256_HASH_H2,                      // h110: SHA256 submodule hash out H2
-    REG_RD_SHA256_HASH_H1,                      // h110: SHA256 submodule hash out H1
-    REG_RD_SHA256_HASH_H0,                      // h11C: SHA256 submodule hash out H0, LSB
+    REG_RD_SHA256_HASH_H6,                      // h114: SHA256 submodule hash out H6
+    REG_RD_SHA256_HASH_H5,                      // h118: SHA256 submodule hash out H5
+    REG_RD_SHA256_HASH_H4,                      // h11C: SHA256 submodule hash out H4
+    REG_RD_SHA256_HASH_H3,                      // h120: SHA256 submodule hash out H3
+    REG_RD_SHA256_HASH_H2,                      // h124: SHA256 submodule hash out H2
+    REG_RD_SHA256_HASH_H1,                      // h128: SHA256 submodule hash out H1
+    REG_RD_SHA256_HASH_H0,                      // h12C: SHA256 submodule hash out H0, MSB
+//  REG_RD_SHA256_FIFO_WR_COUNT,                // h130: SHA256 FIFO stack count, at most this number of items are in the FIFO
+//  REG_RD_SHA256_FIFO_RD_COUNT,                // h134: SHA256 FIFO stack count, at least this number of items can be pulled from the FIFO
 
     /* KECCAK512 section */
     REG_RW_KECCAK512_CTRL,                      // h200: KECCAK512 submodule control register
@@ -162,8 +160,8 @@ enum {
 // === CONST: SHA256 section ===
 
 enum {
-    SHA256_CTRL_RESET                     =  0, // SHA256: reset engine
-    SHA256_CTRL_RSVD_D01,
+    SHA256_CTRL_ENABLE                    =  0, // SHA256: reset engine
+    SHA256_CTRL_RESET,
     SHA256_CTRL_RSVD_D02,
     SHA256_CTRL_RSVD_D03,
 
@@ -204,33 +202,84 @@ enum {
 } SHA256_CTRL_BITS_ENUM;
 
 
-// === NET: OMNI section ===
+// === CONST: KEK512 section ===
 
-wire                     omni_enable         = regs[REG_RW_CTRL][CTRL_ENABLE];
+enum {
+    KEK512_CTRL_ENABLE                    =  0, // KEK512: reset engine
+    KEK512_CTRL_RESET,
+    KEK512_CTRL_RSVD_D02,
+    KEK512_CTRL_RSVD_D03,
 
+    KEK512_CTRL_RSVD_D04,
+    KEK512_CTRL_RSVD_D05,
+    KEK512_CTRL_RSVD_D06,
+    KEK512_CTRL_RSVD_D07,
+
+    KEK512_CTRL_RSVD_D08,
+    KEK512_CTRL_RSVD_D09,
+    KEK512_CTRL_RSVD_D10,
+    KEK512_CTRL_RSVD_D11,
+
+    KEK512_CTRL_RSVD_D12,
+    KEK512_CTRL_RSVD_D13,
+    KEK512_CTRL_RSVD_D14,
+    KEK512_CTRL_RSVD_D15,
+
+    KEK512_CTRL_RSVD_D16,
+    KEK512_CTRL_RSVD_D17,
+    KEK512_CTRL_RSVD_D18,
+    KEK512_CTRL_RSVD_D19,
+
+    KEK512_CTRL_RSVD_D20,
+    KEK512_CTRL_RSVD_D21,
+    KEK512_CTRL_RSVD_D22,
+    KEK512_CTRL_RSVD_D23,
+
+    KEK512_CTRL_RSVD_D24,
+    KEK512_CTRL_RSVD_D25,
+    KEK512_CTRL_RSVD_D26,
+    KEK512_CTRL_RSVD_D27,
+
+    KEK512_CTRL_RSVD_D28,
+    KEK512_CTRL_RSVD_D29,
+    KEK512_CTRL_RSVD_D30,
+    KEK512_CTRL_RSVD_D31
+} KEK512_CTRL_BITS_ENUM;
+
+
+// === NET: X11 - OMNI section ===
+
+reg          [ 31:0]     regs[REG_COUNT];                   // registers to be accessed by the system bus
+
+wire                     bus_clk             = clks[0];     // 125.0 MHz;
+wire                     bus_rstn            = rstsn[0];
+
+wire                     x11_enable          = regs[REG_RW_CTRL][CTRL_ENABLE];
 wire         [ 31:0]     status;
-
-reg          [ 31:0]     regs[REG_COUNT];                    // registers to be accessed by the system bus
 
 
 // === NET: SHA256 section ===
 
-wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET];
+wire                     sha256_clk          = clks[2];     // 62.5 MHz
+wire                     sha256_rstn         = rstsn[2];
+wire                     sha256_enable       = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_ENABLE] &  x11_enable;
+wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET]  | !x11_enable;
 //wire       [ 31:0]     sha256_bit_len      = regs[REG_RW_SHA256_BIT_LEN];
 
 wire         [ 31:0]     sha256_status;
-
-wire                     sha256_en;
 wire                     sha256_rdy;
 
-reg          [ 63:0]     sha256_64b_fifo     = 'b0;
-reg                      sha256_64b_fifo_msb = 'b0;
-reg                      sha256_64b_fifo_wr  = 'b0;
-reg                      sha256_512b_fifo_rd = 'b0;
-wire         [511:0]     sha256_512b_block;
-wire                     sha256_fifo_full;
+reg                      sha256_32b_fifo_wr_en  = 'b0;
+reg          [ 31:0]     sha256_32b_fifo_wr_in  = 'b0;
 wire                     sha256_fifo_m1full;
+wire                     sha256_fifo_full;
+wire         [  8:0]     sha256_fifo_wr_count;
+
+wire                     sha256_32b_fifo_rd_en;
+wire         [ 31:0]     sha256_32b_fifo_rd_out;
+wire                     sha256_32b_fifo_rd_vld;
 wire                     sha256_fifo_empty;
+wire         [  8:0]     sha256_fifo_rd_count;
 
 reg                      sha256_start = 'b0;
 wire                     sha256_hash_valid;
@@ -239,49 +288,101 @@ wire         [255:0]     sha256_hash_data;
 
 // === NET: KECCAK512 section ===
 
-wire                     kek_en      = 1'b0;                 // keccak engine is disabled
+wire                     kek512_clk          = clks[0];     // 125.0 MHz
+wire                     kek512_rstn         = rstsn[0];
+wire                     kek512_enable       = regs[REG_RW_KECCAK512_CTRL][KEK512_CTRL_ENABLE] &  x11_enable;
+wire                     kek512_reset        = regs[REG_RW_KECCAK512_CTRL][KEK512_CTRL_RESET]  | !x11_enable;
 
-wire         [ 31:0]     keccak512_status;
+wire         [ 31:0]     kek512_status;
+wire                     kek512_rdy;                        // keccak engine is ready to feed and/or to read-out
 
-wire                     kek_rdy;                            // keccak engine is ready to feed and/or to read-out
-reg          [ 63:0]     kek_in[25]  = '{25{0}};             // feeding keccak engine
-reg                      kek_start   = 'b0;                  // start keccak engine
-wire         [ 63:0]     kek_out[25] = '{25{0}};             // result of keccak engine
+reg          [ 63:0]     kek512_in[25]  = '{25{0}};         // feeding keccak engine
+reg                      kek512_start   = 'b0;              // start keccak engine
+wire         [ 63:0]     kek512_out[25];                    // result of keccak engine
 
 
-// === IMPL: OMNI section ===
+// === IMPL: X11 - OMNI section ===
+
+assign        x11_activated = x11_enable;
+
 
 //---------------------------------------------------------------------------------
 //  regs sub-module activation
 
-wire          omni_clk_en;
-wire          omni_reset_n;
-
-red_pitaya_rst_clken i_rst_clken_master (
+wire          sha256_clk_en;
+red_pitaya_rst_clken i_rst_clken_sha256 (
   // global signals
-  .clk                     ( clk_100mhz                  ),  // clock 100 MHz
-  .global_rst_n            ( rstn_i                      ),  // global reset
+  .clk                     ( sha256_clk                  ), // clock 62.5 MHz
+  .rstn                    ( sha256_rstn                 ), // clock reset - active low
 
   // input signals
-  .enable_i                ( omni_enable                 ),
+  .enable_i                ( sha256_enable               ),
 
   // output signals
-  .reset_n_o               ( omni_reset_n                ),
-  .clk_en_o                ( omni_clk_en                 )
+  .clk_en_o                ( sha256_clk_en               ),
+  .reset_n_o               ( sha256_reset_n              )
 );
 
-assign omni_activated = omni_reset_n;
-assign status = { 20'b0,  3'b0 , kek_en,  3'b0, sha256_en,  3'b0, omni_activated };
+wire          sha256_activated = sha256_reset_n;
+
+
+wire          kek512_clk_en;
+red_pitaya_rst_clken i_rst_clken_kek512 (
+  // global signals
+  .clk                     ( kek512_clk                  ), // clock 125.0 MHz
+  .rstn                    ( kek512_rstn                 ), // clock reset - active low
+
+  // input signals
+  .enable_i                ( kek512_enable               ),
+
+  // output signals
+  .clk_en_o                ( kek512_clk_en               ),
+  .reset_n_o               ( kek512_reset_n              )
+);
+
+wire          kek512_activated = kek512_reset_n;
+
+assign status = { 20'b0,  3'b0 , kek512_activated,  3'b0, sha256_activated,  3'b0, x11_activated };
+
+
+// AXIS
+assign xadc_axis_tready = 1'b0;
+
+// AXI masters
+assign axi0_clk_o    = bus_clk;
+assign axi1_clk_o    = bus_clk;
+assign axi0_rstn_o   = 1'b0;
+assign axi1_rstn_o   = 1'b0;
+assign axi0_waddr_o  = 32'b0;
+assign axi1_waddr_o  = 32'b0;
+assign axi0_wdata_o  = 32'b0;
+assign axi1_wdata_o  = 32'b0;
+assign axi0_wsel_o   =  8'b0;
+assign axi1_wsel_o   =  8'b0;
+assign axi0_wvalid_o =  1'b0;
+assign axi1_wvalid_o =  1'b0;
+assign axi0_wlen_o   =  4'b0;
+assign axi1_wlen_o   =  4'b0;
+assign axi0_wfixed_o =  1'b0;
+assign axi1_wfixed_o =  1'b0;
 
 
 // === IMPL: SHA256 section ===
 
 reg    sha256_hash_valid_d;
-assign sha256_en = omni_reset_n & !sha256_reset;
 
-always @(posedge clk_100mhz)
-if (!sha256_en)
+always @(posedge sha256_clk)
+if (!sha256_reset_n) begin
+   regs[REG_RD_SHA256_HASH_H0] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H1] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H2] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H3] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H4] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H5] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H6] <= 1'b0;
+   regs[REG_RD_SHA256_HASH_H7] <= 1'b0;
    sha256_hash_valid_d <= 1'b0;
+   end
 else if (!sha256_hash_valid_d && sha256_hash_valid) begin
    regs[REG_RD_SHA256_HASH_H0] <= sha256_hash_data[7*32+:32];
    regs[REG_RD_SHA256_HASH_H1] <= sha256_hash_data[6*32+:32];
@@ -296,47 +397,47 @@ else if (!sha256_hash_valid_d && sha256_hash_valid) begin
 else
    sha256_hash_valid_d <= sha256_hash_valid;
 
-fifo_64i_512o_128d i_fifo_64i_512o (
-  .clk                     ( clk_100mhz                  ), // clock 100 MHz
-  .srst                    ( !sha256_en                  ), // reset active high
+fifo_32i_32o_512d i_fifo_32i_32o (
+  .rst                     ( !sha256_reset_n             ), // reset active high
+  .wr_clk                  ( bus_clk                     ), // clock 125.0 MHz
+  .rd_clk                  ( sha256_clk                  ), // clock  62.5 MHz
 
-  .din                     ( sha256_64b_fifo             ), // 2x 32 bit word in
-  .wr_en                   ( sha256_64b_fifo_wr          ), // write signal to push into the FIFO
-  .rd_en                   ( sha256_512b_fifo_rd         ), // read  signal to pop  from the FIFO
-  .dout                    ( sha256_512b_block           ), // 512 bit wide vector for the SHA-256 engine to process
-
-  .full                    ( sha256_fifo_full            ), // FIFO would spill over by next write access
+  .wr_en                   ( sha256_32b_fifo_wr_en       ), // write signal to push into the FIFO
+  .din                     ( sha256_32b_fifo_wr_in       ), // 32 bit word in
   .almost_full             ( sha256_fifo_m1full          ), // FIFO does except one more write access
-  .empty                   ( sha256_fifo_empty           )  // FIFO does not contain any data
+  .full                    ( sha256_fifo_full            ), // FIFO would spill over by next write access
+  .wr_data_count           ( sha256_fifo_wr_count        ), // at least this number of entries are pushed on the FIFO
+
+  .rd_en                   ( sha256_32b_fifo_rd_en       ), // enable reading from the FIFO
+  .valid                   ( sha256_32b_fifo_rd_vld      ), // read data is valid
+  .dout                    ( sha256_32b_fifo_rd_out      ), // 32 bit word out for the SHA-256 engine to process
+  .empty                   ( sha256_fifo_empty           ), // FIFO does not contain any data
+  .rd_data_count           ( sha256_fifo_rd_count        )  // at most this number of entries can be pulled from the FIFO
 );
 
 sha256_engine i_sha256_engine (
   // global signals
-  .clk_100mhz              ( clk_100mhz                  ),  // clock 100 MHz
-  .rstn_i                  ( sha256_en                   ),  // reset active low
+  .clk                     ( sha256_clk                  ),  // clock 62.5 MHz
+  .rstn                    ( sha256_reset_n              ),  // clock reset - active low
 
   .ready_o                 ( sha256_rdy                  ),  // sha256 engine ready to start
 //.bitlen_i                ( sha256_bit_len              ),  // load this number of bits to calculate the hash
   .start_i                 ( sha256_start                ),  // start engine
   .sha256_fifo_empty       ( sha256_fifo_empty           ),  // indicator for continuation with next block
-  .vec_i                   ( sha256_512b_block           ),  // data block to be fed
+  .fifo_rd_en              ( sha256_32b_fifo_rd_en       ),  // enable reading of the FIFO
+  .fifo_rd_vld             ( sha256_32b_fifo_rd_vld      ),  // read data from the FIFO is valid
+  .fifo_rd_dat             ( sha256_32b_fifo_rd_out      ),  // 32 bit word out of the FIFO for the SHA-256 engine to process
   .valid_o                 ( sha256_hash_valid           ),  // hash output vector is valid
   .hash_o                  ( sha256_hash_data            )   // computated hash value
 );
 
-always @(posedge clk_100mhz)
-if (!sha256_en) begin
-   sha256_512b_fifo_rd <= 1'b0;
+always @(posedge sha256_clk)
+if (!sha256_reset_n)
    sha256_start <= 1'b0;
-   end
-else if (!sha256_fifo_empty && sha256_rdy) begin
-   sha256_512b_fifo_rd <= 1'b1;
+else if (!sha256_fifo_empty && sha256_rdy)
    sha256_start <= 1'b1;
-   end
-else begin
-   sha256_512b_fifo_rd <= 1'b0;
+else
    sha256_start <= 1'b0;
-   end
 
 assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha256_fifo_empty,  2'b0, sha256_hash_valid, sha256_rdy };
 
@@ -345,16 +446,16 @@ assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha
 
 keccak_f1600_round i_keccak_f1600_round (
   // global signals
-  .clk_100mhz              ( clk_100mhz                  ),  // clock 100 MHz
-  .rstn_i                  ( x11_reset_n                 ),  // ADC reset - active low
+  .clk                     ( kek512_clk                  ),  // clock 125 MHz
+  .rstn                    ( kek512_reset_n              ),  // clock reset - active low
 
-  .ready_o                 ( kek_rdy                     ),  // 1: ready to fill and read out
-  .vec_i                   ( kek_in                      ),  // 1600 bit data input
-  .start                   ( kek_start                   ),  // 1: starting the function
-  .vec_o                   ( kek_out                     )   // 1600 bit data output
+  .ready_o                 ( kek512_rdy                  ),  // 1: ready to fill and read out
+  .vec_i                   ( kek512_in                   ),  // 1600 bit data input
+  .start                   ( kek512_start                ),  // 1: starting the function
+  .vec_o                   ( kek512_out                  )   // 1600 bit data output
 );
 
-assign keccak512_status = { 32'b0 };
+assign kek512_status = { 32'b0 };
 
 
 // === BUS: OMNI section ===
@@ -363,22 +464,21 @@ assign keccak512_status = { 32'b0 };
 //  System bus connection
 
 // WRITE access to the registers
-always @(posedge clk_100mhz)
-if (!rstn_i) begin
+always @(posedge bus_clk)
+if (!bus_rstn) begin
   regs[REG_RW_CTRL]                               <= 32'h00000000;
   regs[REG_RW_SHA256_CTRL]                        <= 32'h00000000;
   regs[REG_RW_KECCAK512_CTRL]                     <= 32'h00000000;
 
-  sha256_64b_fifo_wr                              <= 'b0;
-  sha256_64b_fifo_msb                             <= 'b0;
-  kek_in                                          <= '{25{0}};
-  kek_start                                       <= 'b0;
+  sha256_32b_fifo_wr_en                           <= 'b0;
+  kek512_in                                       <= '{25{0}};
+  kek512_start                                    <= 'b0;
   end
 
 else begin
-  regs[REG_RW_SHA256_CTRL] <= regs[REG_RW_SHA256_CTRL] & 32'hfff0;  // mask out one-shot flags
-  sha256_64b_fifo_wr <= 1'b0;
-  kek_start <= 1'b0;
+  regs[REG_RW_SHA256_CTRL] <= regs[REG_RW_SHA256_CTRL] & ~(32'h00000002);  // mask out one-shot flags (RESET)
+  sha256_32b_fifo_wr_en <= 1'b0;
+  kek512_start <= 1'b0;
 
   if (sys_wen) begin
     casez (sys_addr[19:0])
@@ -388,29 +488,19 @@ else begin
     20'h00000: begin
       regs[REG_RW_CTRL]                           <= sys_wdata[31:0];
       end
-    20'h0000C: begin
-      regs[REG_RW_CTRL]                           <= CURRENT_DATE[31:0];
-      end
 
 
     /* SHA256 section */
 
     20'h00100: begin
       regs[REG_RW_SHA256_CTRL]                    <= sys_wdata[31:0];
-      if (sys_wdata[SHA256_CTRL_RESET])
-        sha256_64b_fifo_msb <= 1'b0;
       end
 /*  20'h00108: begin
       regs[REG_RW_SHA256_BIT_LEN]                 <= sys_wdata[31:0];
       end */
     20'h0010C: begin
-      if (!sha256_64b_fifo_msb)
-        sha256_64b_fifo[31: 0]                    <= sys_wdata[31:0];
-      else begin
-        sha256_64b_fifo[63:32]                    <= sys_wdata[31:0];
-        sha256_64b_fifo_wr <= 1'b1;
-        end
-      sha256_64b_fifo_msb <= !sha256_64b_fifo_msb;
+      sha256_32b_fifo_wr_in[31:0]                 <= sys_wdata[31:0];
+      sha256_32b_fifo_wr_en <= 1'b1;
       end
 
 
@@ -423,8 +513,8 @@ else begin
 /*
     20'h100zz: begin
       if ((sys_addr & 20'hFF) < 8'd26) begin
-        kek_in[sys_addr & 8'hF]                   <= sys_wdata;
-        kek_start <= 1'b1;
+        kek512_in[sys_addr & 8'hF]                <= sys_wdata;
+        kek512_start <= 1'b1;
         end
     end
 */
@@ -441,8 +531,8 @@ wire sys_en;
 assign sys_en = sys_wen | sys_ren;
 
 // READ access to the registers
-always @(posedge clk_100mhz)
-if (!rstn_i) begin
+always @(posedge bus_clk)
+if (!bus_rstn) begin
   sys_err      <= 1'b0;
   sys_ack      <= 1'b0;
   sys_rdata    <= 32'h00000000;
@@ -483,6 +573,10 @@ else begin
       sys_ack   <= sys_en;
       sys_rdata <= regs[REG_RD_SHA256_BIT_LEN];
       end */
+    20'h0010C: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= { 23'b0, sha256_fifo_wr_count[8:0] };
+      end
     20'h00110: begin
       sys_ack   <= sys_en;
       sys_rdata <= regs[REG_RD_SHA256_HASH_H7];
@@ -516,6 +610,15 @@ else begin
       sys_rdata <= regs[REG_RD_SHA256_HASH_H0];
       end
 
+    20'h00130: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= { 23'b0, sha256_fifo_wr_count[8:0] };
+      end
+    20'h00134: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= { 23'b0, sha256_fifo_rd_count[8:0] };
+      end
+
 
     /* KECCAK512 section */
 
@@ -525,14 +628,14 @@ else begin
       end
     20'h00204: begin
           sys_ack   <= sys_en;
-          sys_rdata <= keccak512_status;
+          sys_rdata <= kek512_status;
           end
 
 /*
     20'h100zz: begin
       sys_ack <= sys_en;
       if ((sys_addr & 20'hFF) < 8'd26)
-        sys_rdata <= kek_in[sys_addr & 8'hFF];
+        sys_rdata <= kek512_in[sys_addr & 8'hFF];
       else
         sys_rdata <= 32'h00000000;
     end
@@ -540,11 +643,12 @@ else begin
     20'h020zz: begin
       sys_ack <= sys_en;
       if ((sys_addr & 20'hFF) < 8'd26)
-        sys_rdata <= kek_out[sys_addr & 8'hFF];
+        sys_rdata <= kek512_out[sys_addr & 8'hFF];
       else
         sys_rdata <= 32'h00000000;
     end
 */
+
 
     default:   begin
       sys_ack   <= sys_en;

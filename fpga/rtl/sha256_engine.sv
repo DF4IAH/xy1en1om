@@ -25,14 +25,16 @@ module sha256_engine #(
   // parameter none = 0  // hint
 )(
    // clock & reset
-    input                clk_100mhz,
-    input                rstn_i,
+    input                clk,
+    input                rstn,
 
     output reg           ready_o,
 //  input       [ 31:0]  bitlen_i,
     input                start_i,
     input                sha256_fifo_empty,
-    input       [511:0]  vec_i,
+    output reg           fifo_rd_en,
+    input                fifo_rd_vld,
+    input       [ 31:0]  fifo_rd_dat,
     output reg           valid_o,
     output      [255:0]  hash_o
 );
@@ -85,8 +87,9 @@ assign temp2 = S0 + maj;
 
 assign hash_o = { ha[0], ha[1], ha[2], ha[3], ha[4], ha[5], ha[6], ha[7] };
 
-always @(posedge clk_100mhz)
-if (!rstn_i) begin
+always @(posedge clk) begin
+
+if (!rstn) begin
    ha[0] <= 32'h6a09e667;
    ha[1] <= 32'hbb67ae85;
    ha[2] <= 32'h3c6ef372;
@@ -161,7 +164,8 @@ if (!rstn_i) begin
    k[62] <= 32'hbef9a3f7;
    k[63] <= 32'hc67178f2;
 
-   ready_o <= 1'b1;
+   fifo_rd_en <= 1'b0;
+   ready_o <= 1'b0;
    valid_o <= 1'b0;
    loop_i <= 0;
    state <= 'b0;
@@ -170,35 +174,31 @@ if (!rstn_i) begin
 else
    case (state)
 
-   8'h00: if (start_i) begin
-      ready_o <= 1'b0;
-      valid_o <= 1'b0;
-      state <= 8'h01;
-      end
+   8'h00: if (!start_i) begin
+         ready_o <= 1'b1;
+         end
+      else begin
+         fifo_rd_en <= 1'b1;
+         if (fifo_rd_vld) begin
+            ready_o <= 1'b0;
+            w[0] <= fifo_rd_dat;
+            loop_i <= 1;
+            state <= 8'h01;
+            end
+         end
 
    8'h01: begin
-      w[ 0] <= vec_i[15*32+:32];
-      w[ 1] <= vec_i[14*32+:32];
-      w[ 2] <= vec_i[13*32+:32];
-      w[ 3] <= vec_i[12*32+:32];
-      w[ 4] <= vec_i[11*32+:32];
-      w[ 5] <= vec_i[10*32+:32];
-      w[ 6] <= vec_i[ 9*32+:32];
-      w[ 7] <= vec_i[ 8*32+:32];
-      w[ 8] <= vec_i[ 7*32+:32];
-      w[ 9] <= vec_i[ 6*32+:32];
-      w[10] <= vec_i[ 5*32+:32];
-      w[11] <= vec_i[ 4*32+:32];
-      w[12] <= vec_i[ 3*32+:32];
-      w[13] <= vec_i[ 2*32+:32];
-      w[14] <= vec_i[ 1*32+:32];
-      w[15] <= vec_i[ 0*32+:32];
-
-      loop_i <= 16;
-      state <= 8'h02;
+      if (fifo_rd_vld) begin
+         w[loop_i] <= fifo_rd_dat;
+         if (loop_i == 15) begin
+            fifo_rd_en <= 1'b0;
+            state <= 8'h02;
+            end
+         loop_i <= loop_i + 1;
+         end
       end
 
-   8'h02: if (loop_i < 64) begin
+   8'h02: if (loop_i < 63) begin
          // assign s0 = rightrotate(w[loop_i - 15], 5'd7 ) ^ rightrotate(w[loop_i - 15], 5'd18) ^ rightshift(w[loop_i - 15], 5'd3 );
          // assign s1 = rightrotate(w[loop_i -  2], 5'd17) ^ rightrotate(w[loop_i -  2], 5'd19) ^ rightshift(w[loop_i -  2], 5'd10);
 
@@ -207,6 +207,8 @@ else
          loop_i <= loop_i + 1;
          end
       else begin
+         w[loop_i] <= w[loop_i - 16] + s0 + w[loop_i - 7] + s1;
+
          a <= ha[0];
          b <= ha[1];
          c <= ha[2];
@@ -215,6 +217,7 @@ else
          f <= ha[5];
          g <= ha[6];
          h <= ha[7];
+
          loop_i <= 0;
          state <= 8'h03;
          end
@@ -249,16 +252,16 @@ else
          ha[7] <= ha[7] + h;
 
          ready_o <= 1'b1;
-
          if (sha256_fifo_empty)
             valid_o <= 1'b1;
 
          state <= 8'h00;
          end
 
-   default: state <= 8'h03;
+   default: state <= 8'hFF;
 
    endcase
+   end
 
 
 endmodule

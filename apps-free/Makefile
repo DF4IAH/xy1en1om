@@ -3,7 +3,7 @@
 #
 
 #List of applications to build
-APPS = scope scope+gen scope+pid spectrum freqanalyzer bode_plotter radiobox impedance_analyzer teslameter lti scope+istsensor
+APPS = xy1en1om scope scope+gen scope+pid spectrum freqanalyzer bode_plotter radiobox impedance_analyzer teslameter lti scope+istsensor
 
 all: zips
 

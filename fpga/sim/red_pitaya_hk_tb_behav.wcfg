@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="red_pitaya_hk_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="red_pitaya_hk_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="831499993fs"></ZoomStartTime>
+      <ZoomEndTime time="1033700002fs"></ZoomEndTime>
+      <Cursor1Time time="1000000000fs"></Cursor1Time>
+   </zoom_setting>
+   <WVObjectSize size="2" />
+   <wvobject fp_name="group17" type="group">
+      <obj_property name="label">Bus</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+         <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/rstn" type="logic">
+         <obj_property name="ElementShortName">rstn</obj_property>
+         <obj_property name="ObjectShortName">rstn</obj_property>
+         <obj_property name="CustomSignalColor">#E0FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_addr" type="array">
+         <obj_property name="ElementShortName">sys_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_addr[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_sel" type="array">
+         <obj_property name="ElementShortName">sys_sel[3:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_sel[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_wen" type="logic">
+         <obj_property name="ElementShortName">sys_wen</obj_property>
+         <obj_property name="ObjectShortName">sys_wen</obj_property>
+         <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_wdata" type="array">
+         <obj_property name="ElementShortName">sys_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_wdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_ren" type="logic">
+         <obj_property name="ElementShortName">sys_ren</obj_property>
+         <obj_property name="ObjectShortName">sys_ren</obj_property>
+         <obj_property name="CustomSignalColor">#0000A0</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_rdata" type="array">
+         <obj_property name="ElementShortName">sys_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_rdata[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_ack" type="logic">
+         <obj_property name="ElementShortName">sys_ack</obj_property>
+         <obj_property name="ObjectShortName">sys_ack</obj_property>
+         <obj_property name="CustomSignalColor">#008080</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/bus/sys_err" type="logic">
+         <obj_property name="ElementShortName">sys_err</obj_property>
+         <obj_property name="ObjectShortName">sys_err</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group253" type="group">
+      <obj_property name="label">HK</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/red_pitaya_hk_tb/hk/clk_i" type="logic">
+         <obj_property name="ElementShortName">clk_i</obj_property>
+         <obj_property name="ObjectShortName">clk_i</obj_property>
+         <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/hk/rstn_i" type="logic">
+         <obj_property name="ElementShortName">rstn_i</obj_property>
+         <obj_property name="ObjectShortName">rstn_i</obj_property>
+         <obj_property name="CustomSignalColor">#E0FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/led" type="array">
+         <obj_property name="ElementShortName">led[7:0]</obj_property>
+         <obj_property name="ObjectShortName">led[7:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
+         <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/hk/led_o" type="array">
+         <obj_property name="ElementShortName">led_o[7:0]</obj_property>
+         <obj_property name="ObjectShortName">led_o[7:0]</obj_property>
+         <obj_property name="Radix">BINARYRADIX</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/hk/digital_loop" type="logic">
+         <obj_property name="ElementShortName">digital_loop</obj_property>
+         <obj_property name="ObjectShortName">digital_loop</obj_property>
+      </wvobject>
+      <wvobject fp_name="group282" type="group">
+         <obj_property name="label">EXP</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/exp_p_dat_i" type="array">
+            <obj_property name="ElementShortName">exp_p_dat_i[7:0]</obj_property>
+            <obj_property name="ObjectShortName">exp_p_dat_i[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+            <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/exp_p_dat_o" type="array">
+            <obj_property name="ElementShortName">exp_p_dat_o[7:0]</obj_property>
+            <obj_property name="ObjectShortName">exp_p_dat_o[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/exp_p_dir_o" type="array">
+            <obj_property name="ElementShortName">exp_p_dir_o[7:0]</obj_property>
+            <obj_property name="ObjectShortName">exp_p_dir_o[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+            <obj_property name="CustomSignalColor">#800080</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/exp_n_dat_i" type="array">
+            <obj_property name="ElementShortName">exp_n_dat_i[7:0]</obj_property>
+            <obj_property name="ObjectShortName">exp_n_dat_i[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+            <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/exp_n_dat_o" type="array">
+            <obj_property name="ElementShortName">exp_n_dat_o[7:0]</obj_property>
+            <obj_property name="ObjectShortName">exp_n_dat_o[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/exp_n_dir_o" type="array">
+            <obj_property name="ElementShortName">exp_n_dir_o[7:0]</obj_property>
+            <obj_property name="ObjectShortName">exp_n_dir_o[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+            <obj_property name="CustomSignalColor">#800080</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group284" type="group">
+         <obj_property name="label">SYS</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_addr" type="array">
+            <obj_property name="ElementShortName">sys_addr[31:0]</obj_property>
+            <obj_property name="ObjectShortName">sys_addr[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_sel" type="array">
+            <obj_property name="ElementShortName">sys_sel[3:0]</obj_property>
+            <obj_property name="ObjectShortName">sys_sel[3:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_wen" type="logic">
+            <obj_property name="ElementShortName">sys_wen</obj_property>
+            <obj_property name="ObjectShortName">sys_wen</obj_property>
+            <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_wdata" type="array">
+            <obj_property name="ElementShortName">sys_wdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">sys_wdata[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_ren" type="logic">
+            <obj_property name="ElementShortName">sys_ren</obj_property>
+            <obj_property name="ObjectShortName">sys_ren</obj_property>
+            <obj_property name="CustomSignalColor">#0000A0</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_rdata" type="array">
+            <obj_property name="ElementShortName">sys_rdata[31:0]</obj_property>
+            <obj_property name="ObjectShortName">sys_rdata[31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_en" type="logic">
+            <obj_property name="ElementShortName">sys_en</obj_property>
+            <obj_property name="ObjectShortName">sys_en</obj_property>
+            <obj_property name="CustomSignalColor">#008080</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_ack" type="logic">
+            <obj_property name="ElementShortName">sys_ack</obj_property>
+            <obj_property name="ObjectShortName">sys_ack</obj_property>
+            <obj_property name="CustomSignalColor">#008080</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/sys_err" type="logic">
+            <obj_property name="ElementShortName">sys_err</obj_property>
+            <obj_property name="ObjectShortName">sys_err</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="group283" type="group">
+         <obj_property name="label">DNA</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_dout" type="logic">
+            <obj_property name="ElementShortName">dna_dout</obj_property>
+            <obj_property name="ObjectShortName">dna_dout</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_clk" type="logic">
+            <obj_property name="ElementShortName">dna_clk</obj_property>
+            <obj_property name="ObjectShortName">dna_clk</obj_property>
+            <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_clk_h" type="logic">
+            <obj_property name="ElementShortName">dna_clk_h</obj_property>
+            <obj_property name="ObjectShortName">dna_clk_h</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_read" type="logic">
+            <obj_property name="ElementShortName">dna_read</obj_property>
+            <obj_property name="ObjectShortName">dna_read</obj_property>
+            <obj_property name="CustomSignalColor">#0000A0</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_shift" type="logic">
+            <obj_property name="ElementShortName">dna_shift</obj_property>
+            <obj_property name="ObjectShortName">dna_shift</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_cnt" type="array">
+            <obj_property name="ElementShortName">dna_cnt[8:0]</obj_property>
+            <obj_property name="ObjectShortName">dna_cnt[8:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+            <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_value" type="array">
+            <obj_property name="ElementShortName">dna_value[56:0]</obj_property>
+            <obj_property name="ObjectShortName">dna_value[56:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/red_pitaya_hk_tb/hk/dna_done" type="logic">
+            <obj_property name="ElementShortName">dna_done</obj_property>
+            <obj_property name="ObjectShortName">dna_done</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/red_pitaya_hk_tb/hk/id_value" type="array">
+         <obj_property name="ElementShortName">id_value[31:0]</obj_property>
+         <obj_property name="ObjectShortName">id_value[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="CustomSignalColor">#808080</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

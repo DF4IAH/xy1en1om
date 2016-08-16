@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="regs_sha256_tb_time_synth.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="regs_sha256_tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="2831499993fs"></ZoomStartTime>
+      <ZoomEndTime time="3033700002fs"></ZoomEndTime>
+      <Cursor1Time time="3000000000fs"></Cursor1Time>
+   </zoom_setting>
+   <WVObjectSize size="21" />
+   <wvobject type="divider" fp_name="divider2039">
+      <obj_property name="label">Clocks</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/rstsn" type="array">
+      <obj_property name="ElementShortName">rstsn[3:0]</obj_property>
+      <obj_property name="ObjectShortName">rstsn[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/clks" type="array">
+      <obj_property name="ElementShortName">clks[3:0]</obj_property>
+      <obj_property name="ObjectShortName">clks[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/clk_125mhz" type="logic">
+      <obj_property name="ElementShortName">clk_125mhz</obj_property>
+      <obj_property name="ObjectShortName">clk_125mhz</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/rstn_125mhz" type="logic">
+      <obj_property name="ElementShortName">rstn_125mhz</obj_property>
+      <obj_property name="ObjectShortName">rstn_125mhz</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/clk_62mhz5" type="logic">
+      <obj_property name="ElementShortName">clk_62mhz5</obj_property>
+      <obj_property name="ObjectShortName">clk_62mhz5</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/rstn_62mhz5" type="logic">
+      <obj_property name="ElementShortName">rstn_62mhz5</obj_property>
+      <obj_property name="ObjectShortName">rstn_62mhz5</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="group2022" type="group">
+      <obj_property name="label">rst_clken_sha256</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+         <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/rstn" type="logic">
+         <obj_property name="ElementShortName">rstn</obj_property>
+         <obj_property name="ObjectShortName">rstn</obj_property>
+         <obj_property name="CustomSignalColor">#0000FF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/enable_i" type="logic">
+         <obj_property name="ElementShortName">enable_i</obj_property>
+         <obj_property name="ObjectShortName">enable_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/enable_last" type="logic">
+         <obj_property name="ElementShortName">enable_last</obj_property>
+         <obj_property name="ObjectShortName">enable_last</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/reset_n_o" type="logic">
+         <obj_property name="ElementShortName">reset_n_o</obj_property>
+         <obj_property name="ObjectShortName">reset_n_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/clk_en_o" type="logic">
+         <obj_property name="ElementShortName">clk_en_o</obj_property>
+         <obj_property name="ObjectShortName">clk_en_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/enable_ctr" type="array">
+         <obj_property name="ElementShortName">enable_ctr[1:0]</obj_property>
+         <obj_property name="ObjectShortName">enable_ctr[1:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/rstn" type="logic">
+      <obj_property name="ElementShortName">rstn</obj_property>
+      <obj_property name="ObjectShortName">rstn</obj_property>
+      <obj_property name="CustomSignalColor">#0000FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/enable_i" type="logic">
+      <obj_property name="ElementShortName">enable_i</obj_property>
+      <obj_property name="ObjectShortName">enable_i</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/enable_last" type="logic">
+      <obj_property name="ElementShortName">enable_last</obj_property>
+      <obj_property name="ObjectShortName">enable_last</obj_property>
+      <obj_property name="CustomSignalColor">#008000</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/reset_n_o" type="logic">
+      <obj_property name="ElementShortName">reset_n_o</obj_property>
+      <obj_property name="ObjectShortName">reset_n_o</obj_property>
+      <obj_property name="CustomSignalColor">#008080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/clk_en_o" type="logic">
+      <obj_property name="ElementShortName">clk_en_o</obj_property>
+      <obj_property name="ObjectShortName">clk_en_o</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/i_regs/i_rst_clken_sha256/enable_ctr" type="array">
+      <obj_property name="ElementShortName">enable_ctr[1:0]</obj_property>
+      <obj_property name="ObjectShortName">enable_ctr[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/clk_cntr" type="array">
+      <obj_property name="ElementShortName">clk_cntr[31:0]</obj_property>
+      <obj_property name="ObjectShortName">clk_cntr[31:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="CustomSignalColor">#DCDCDC</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="group17" type="group">
+      <obj_property name="label">Bus</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/regs_sha256_tb/sys_addr" type="array">
+         <obj_property name="ElementShortName">sys_addr[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_addr[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#D2691E</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/sys_wdata" type="array">
+         <obj_property name="ElementShortName">sys_wdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_wdata[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#D2691E</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/sys_sel" type="array">
+         <obj_property name="ElementShortName">sys_sel[3:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_sel[3:0]</obj_property>
+         <obj_property name="CustomSignalColor">#0000A0</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/sys_wen" type="logic">
+         <obj_property name="ElementShortName">sys_wen</obj_property>
+         <obj_property name="ObjectShortName">sys_wen</obj_property>
+         <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/sys_ren" type="logic">
+         <obj_property name="ElementShortName">sys_ren</obj_property>
+         <obj_property name="ObjectShortName">sys_ren</obj_property>
+         <obj_property name="CustomSignalColor">#008080</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/sys_rdata" type="array">
+         <obj_property name="ElementShortName">sys_rdata[31:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_rdata[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/sys_err" type="logic">
+         <obj_property name="ElementShortName">sys_err</obj_property>
+         <obj_property name="ObjectShortName">sys_err</obj_property>
+         <obj_property name="CustomSignalColor">#FFA500</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/sys_ack" type="logic">
+         <obj_property name="ElementShortName">sys_ack</obj_property>
+         <obj_property name="ObjectShortName">sys_ack</obj_property>
+         <obj_property name="CustomSignalColor">#808000</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/task_check" type="array">
+      <obj_property name="ElementShortName">task_check[31:0]</obj_property>
+      <obj_property name="ObjectShortName">task_check[31:0]</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/regs_sha256_tb/x11_activated" type="logic">
+      <obj_property name="ElementShortName">x11_activated</obj_property>
+      <obj_property name="ObjectShortName">x11_activated</obj_property>
+      <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="group26" type="group">
+      <obj_property name="label">FIFO_FSM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="divider" fp_name="divider43">
+         <obj_property name="label">X11</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/x11_activated" type="logic">
+         <obj_property name="ElementShortName">x11_activated</obj_property>
+         <obj_property name="ObjectShortName">x11_activated</obj_property>
+         <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="divider" fp_name="divider44">
+         <obj_property name="label">SHA256</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/sha256_rdy" type="logic">
+         <obj_property name="ElementShortName">sha256_rdy</obj_property>
+         <obj_property name="ObjectShortName">sha256_rdy</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/wr_data_count" type="array">
+         <obj_property name="ElementShortName">wr_data_count[8:0]</obj_property>
+         <obj_property name="ObjectShortName">wr_data_count[8:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/rd_data_count" type="array">
+         <obj_property name="ElementShortName">rd_data_count[8:0]</obj_property>
+         <obj_property name="ObjectShortName">rd_data_count[8:0]</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/sha256_fifo_full" type="logic">
+         <obj_property name="ElementShortName">sha256_fifo_full</obj_property>
+         <obj_property name="ObjectShortName">sha256_fifo_full</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/sha256_fifo_empty" type="logic">
+         <obj_property name="ElementShortName">sha256_fifo_empty</obj_property>
+         <obj_property name="ObjectShortName">sha256_fifo_empty</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/sha256_start" type="logic">
+         <obj_property name="ElementShortName">sha256_start</obj_property>
+         <obj_property name="ObjectShortName">sha256_start</obj_property>
+         <obj_property name="CustomSignalColor">#FFA500</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="group18" type="group">
+         <obj_property name="label">FIFO</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/din" type="array">
+            <obj_property name="ElementShortName">din[31:0]</obj_property>
+            <obj_property name="ObjectShortName">din[31:0]</obj_property>
+            <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/wr_en" type="logic">
+            <obj_property name="ElementShortName">wr_en</obj_property>
+            <obj_property name="ObjectShortName">wr_en</obj_property>
+            <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/rd_en" type="logic">
+            <obj_property name="ElementShortName">rd_en</obj_property>
+            <obj_property name="ObjectShortName">rd_en</obj_property>
+            <obj_property name="CustomSignalColor">#E0FFFF</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/valid" type="logic">
+            <obj_property name="ElementShortName">valid</obj_property>
+            <obj_property name="ObjectShortName">valid</obj_property>
+            <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/dout" type="array">
+            <obj_property name="ElementShortName">dout[31:0]</obj_property>
+            <obj_property name="ObjectShortName">dout[31:0]</obj_property>
+            <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+            <obj_property name="UseCustomSignalColor">true</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/full" type="logic">
+            <obj_property name="ElementShortName">full</obj_property>
+            <obj_property name="ObjectShortName">full</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/almost_full" type="logic">
+            <obj_property name="ElementShortName">almost_full</obj_property>
+            <obj_property name="ObjectShortName">almost_full</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_fifo_32i_32o/empty" type="logic">
+            <obj_property name="ElementShortName">empty</obj_property>
+            <obj_property name="ObjectShortName">empty</obj_property>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group49" type="group">
+      <obj_property name="label">SHA256_engine</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/clk" type="logic">
+         <obj_property name="ElementShortName">clk</obj_property>
+         <obj_property name="ObjectShortName">clk</obj_property>
+         <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/rstn" type="logic">
+         <obj_property name="ElementShortName">rstn</obj_property>
+         <obj_property name="ObjectShortName">rstn</obj_property>
+         <obj_property name="CustomSignalColor">#0000FF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/ready_o" type="logic">
+         <obj_property name="ElementShortName">ready_o</obj_property>
+         <obj_property name="ObjectShortName">ready_o</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/valid_o" type="logic">
+         <obj_property name="ElementShortName">valid_o</obj_property>
+         <obj_property name="ObjectShortName">valid_o</obj_property>
+         <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/hash_o" type="array">
+         <obj_property name="ElementShortName">hash_o[255:0]</obj_property>
+         <obj_property name="ObjectShortName">hash_o[255:0]</obj_property>
+         <obj_property name="CustomSignalColor">#FFFFFF</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/start_i" type="logic">
+         <obj_property name="ElementShortName">start_i</obj_property>
+         <obj_property name="ObjectShortName">start_i</obj_property>
+         <obj_property name="CustomSignalColor">#FFD700</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/state" type="array">
+         <obj_property name="ElementShortName">state[3:0]</obj_property>
+         <obj_property name="ObjectShortName">state[3:0]</obj_property>
+         <obj_property name="CustomSignalColor">#800080</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/loop_i" type="array">
+         <obj_property name="ElementShortName">loop_i[31:0]</obj_property>
+         <obj_property name="ObjectShortName">loop_i[31:0]</obj_property>
+         <obj_property name="CustomSignalColor">#008080</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="group1221" type="group">
+         <obj_property name="label">Monitoring</obj_property>
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="isExpanded"></obj_property>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/mon_state" type="array">
+            <obj_property name="ElementShortName">mon_state[7:0]</obj_property>
+            <obj_property name="ObjectShortName">mon_state[7:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/mon_loop" type="array">
+            <obj_property name="ElementShortName">mon_loop[31:0]</obj_property>
+            <obj_property name="ObjectShortName">mon_loop[31:0]</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[0] " type="array">
+            <obj_property name="ElementShortName">\mon_w[0] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[0] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[16] " type="array">
+            <obj_property name="ElementShortName">\mon_w[16] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[16] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[1] " type="array">
+            <obj_property name="ElementShortName">\mon_w[1] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[1] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[2] " type="array">
+            <obj_property name="ElementShortName">\mon_w[2] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[2] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[3] " type="array">
+            <obj_property name="ElementShortName">\mon_w[3] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[3] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[4] " type="array">
+            <obj_property name="ElementShortName">\mon_w[4] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[4] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[5] " type="array">
+            <obj_property name="ElementShortName">\mon_w[5] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[5] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[6] " type="array">
+            <obj_property name="ElementShortName">\mon_w[6] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[6] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[7] " type="array">
+            <obj_property name="ElementShortName">\mon_w[7] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[7] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[8] " type="array">
+            <obj_property name="ElementShortName">\mon_w[8] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[8] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[9] " type="array">
+            <obj_property name="ElementShortName">\mon_w[9] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[9] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[10] " type="array">
+            <obj_property name="ElementShortName">\mon_w[10] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[10] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[11] " type="array">
+            <obj_property name="ElementShortName">\mon_w[11] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[11] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[12] " type="array">
+            <obj_property name="ElementShortName">\mon_w[12] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[12] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[13] " type="array">
+            <obj_property name="ElementShortName">\mon_w[13] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[13] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[14] " type="array">
+            <obj_property name="ElementShortName">\mon_w[14] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[14] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/regs_sha256_tb/i_regs/i_sha256_engine/\mon_w[15] " type="array">
+            <obj_property name="ElementShortName">\mon_w[15] [31:0]</obj_property>
+            <obj_property name="ObjectShortName">\mon_w[15] [31:0]</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+   </wvobject>
+</wave_config>
