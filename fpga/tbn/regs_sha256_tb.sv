@@ -220,11 +220,16 @@ initial begin
   i_bus.write(20'h00200, 32'h00000000);         // KECCAK512 control: no ENABLE
   repeat(2) @(posedge clk_125mhz);
 
+
+// --- SINGLE HASH TEST
+
+/*
   i_bus.write(20'h00100, 32'h00000003);         // SHA256 control: RESET trigger | ENABLE
   repeat(2) @(posedge clk_125mhz);
+*/
 
-  // write data to the FIFO - test FIFO
 /*
+  // write data to the FIFO - test FIFO
   i_bus.write(20'h0010C, 32'h12345678);         // SHA256 FIFO MSB - #0
   i_bus.write(20'h0010C, 32'h23456789);         // SHA256 FIFO LSB - #0 - one bit after the last data message is set
   i_bus.write(20'h0010C, 32'h3456789A);         // SHA256 FIFO MSB - #1
@@ -243,9 +248,8 @@ initial begin
   i_bus.write(20'h0010C, 32'h01234567);         // SHA256 FIFO LSB - #7
 */
 
-  // write data to the FIFO - MSB first
-  // variant 1: have a single letter 'A' - OK
 /*
+  // variant 1: have a single letter 'A' - OK
   i_bus.write(20'h0010C, 32'h41800000);         // SHA256 FIFO MSB - #0 - one bit after the last data message is set
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO LSB - #0
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO MSB - #1
@@ -265,9 +269,8 @@ initial begin
   // result shall be: 559aead08264d5795d3909718cdd05abd49572e84fe55590eef31a88a08fdffd
 */
 
-
-  // variant 2: have two letters 'A' - OK
 /*
+  // variant 2: have two letters 'A' - OK
   i_bus.write(20'h0010C, 32'h41418000);         // SHA256 FIFO MSB - #0 - one bit after the last data message is set
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO LSB - #0
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO MSB - #1
@@ -287,9 +290,8 @@ initial begin
   // result shall be: 58bb119c35513a451d24dc20ef0e9031ec85b35bfc919d263e7e5d9868909cb5
 */
 
-
-  // variant 3: have 55x the letter 'A' - OK
 /*
+  // variant 3: have 55x the letter 'A' - OK
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #0
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO LSB - #0
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #1
@@ -303,12 +305,11 @@ initial begin
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #5
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO LSB - #5
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #6
-  i_bus.write(20'h0010C, 32'h41414180);         // SHA256 FIFO LSB - #6
+  i_bus.write(20'h0010C, 32'h41414180);         // SHA256 FIFO LSB - #6 - one bit after the last data message is set
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO MSB - #7
   i_bus.write(20'h0010C, 32'h000001B8);         // SHA256 FIFO LSB - #7   55x8 bit = 440d = 0x1B8
   // result shall be: 8963cc0afd622cc7574ac2011f93a3059b3d65548a77542a1559e3d202e6ab00
 */
-
 
 /*
   // variant 4: have 56x the letter 'A' (2x 512 bytes for the hash to be built) - OK
@@ -326,7 +327,7 @@ initial begin
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO LSB - #5
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #6
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO LSB - #6
-  i_bus.write(20'h0010C, 32'h80000000);         // SHA256 FIFO MSB - #7
+  i_bus.write(20'h0010C, 32'h80000000);         // SHA256 FIFO MSB - #7 - one bit after the last data message is set
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO LSB - #7
   // second block follows
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO MSB - #8
@@ -348,7 +349,6 @@ initial begin
   // result shall be: 6ea719cefa4b31862035a7fa606b7cc3602f46231117d135cc7119b3c1412314
 */
 
-
 /*
   // variant 5: have 64x the letter 'A' (2x 512 bytes for the hash to be built) - OK
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #0
@@ -368,7 +368,7 @@ initial begin
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #7
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO LSB - #7
   // second block follows
-  i_bus.write(20'h0010C, 32'h80000000);         // SHA256 FIFO MSB - #8
+  i_bus.write(20'h0010C, 32'h80000000);         // SHA256 FIFO MSB - #8 - one bit after the last data message is set
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO LSB - #8
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO MSB - #9
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO LSB - #9
@@ -387,7 +387,7 @@ initial begin
   // result shall be: d53eda7a637c99cc7fb566d96e9fa109bf15c478410a3f5eb4d4c4e26cd081f6
 */
 
-
+/*
   // variant 6: have 119x the letter 'A' (2x 512 bytes for the hash to be built) - OK
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #0
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO LSB - #0
@@ -419,16 +419,70 @@ initial begin
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #13
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO LSB - #13
   i_bus.write(20'h0010C, 32'h41414141);         // SHA256 FIFO MSB - #14
-  i_bus.write(20'h0010C, 32'h41414180);         // SHA256 FIFO LSB - #14
+  i_bus.write(20'h0010C, 32'h41414180);         // SHA256 FIFO LSB - #14 - one bit after the last data message is set
   i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO MSB - #15
   i_bus.write(20'h0010C, 32'h000003B8);         // SHA256 FIFO LSB - #15  119x8 bit = 952d = 0x3B8
   // result shall be: 17d2f0f7197a6612e311d141781f2b9539c4aef7affd729246c401890e000dde
+*/
 
+
+// --- DOUBLE HASH TEST
+
+//i_bus.write(20'h00100, 32'h00000003);         // SHA256 control: RESET trigger | ENABLE
+  i_bus.write(20'h00100, 32'h00000013);         // SHA256 control: RESET trigger | ENABLE | DBL_HASH
+  repeat(2) @(posedge clk_125mhz);
+
+  // INFO: all data is entered as Little Endian
+
+  // variant 7: do a sha256(sha256(x)) operation on Bitcoin blockchain height 125552
+  i_bus.write(20'h0010C, 32'h01000000);         // SHA256 FIFO - #00 Version
+
+  i_bus.write(20'h0010C, 32'h81cd02ab);         // SHA256 FIFO - #01 hashPrevBlock: 0x00000000000008a3a41b85b8b29ad444def299fee21793cd8b9e567eab02cd81
+  i_bus.write(20'h0010C, 32'h7e569e8b);         // SHA256 FIFO - #02
+  i_bus.write(20'h0010C, 32'hcd9317e2);         // SHA256 FIFO - #03
+  i_bus.write(20'h0010C, 32'hfe99f2de);         // SHA256 FIFO - #04
+  i_bus.write(20'h0010C, 32'h44d49ab2);         // SHA256 FIFO - #05
+  i_bus.write(20'h0010C, 32'hb8851ba4);         // SHA256 FIFO - #06
+  i_bus.write(20'h0010C, 32'ha3080000);         // SHA256 FIFO - #07
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #08
+
+  i_bus.write(20'h0010C, 32'he320b6c2);         // SHA256 FIFO - #09 hashMerkleRoot: 0x2b12fcf1b09288fcaff797d71e950e71ae42b91e8bdb2304758dfcffc2b620e3
+  i_bus.write(20'h0010C, 32'hfffc8d75);         // SHA256 FIFO - #10
+  i_bus.write(20'h0010C, 32'h0423db8b);         // SHA256 FIFO - #11
+  i_bus.write(20'h0010C, 32'h1eb942ae);         // SHA256 FIFO - #12
+  i_bus.write(20'h0010C, 32'h710e951e);         // SHA256 FIFO - #13
+  i_bus.write(20'h0010C, 32'hd797f7af);         // SHA256 FIFO - #14
+  i_bus.write(20'h0010C, 32'hfc8892b0);         // SHA256 FIFO - #15
+  // second block follows
+  i_bus.write(20'h0010C, 32'hf1fc122b);         // SHA256 FIFO - #16
+
+  i_bus.write(20'h0010C, 32'hc7f5d74d);         // SHA256 FIFO - #17 Time:  2011-05-21 17:26:31
+
+  i_bus.write(20'h0010C, 32'hf2b9441a);         // SHA256 FIFO - #18 Bits:  dec  440711666
+
+  i_bus.write(20'h0010C, 32'h42a14695);         // SHA256 FIFO - #19 Nonce: dec 2504433986
+
+  i_bus.write(20'h0010C, 32'h80000000);         // SHA256 FIFO - #20 - one bit after the last data message is set
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #21
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #22
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #23
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #24
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #25
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #26
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #27
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #28
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #29
+  i_bus.write(20'h0010C, 32'h00000000);         // SHA256 FIFO - #30
+  i_bus.write(20'h0010C, 32'h00000280);         // SHA256 FIFO - #31  20x32 bit = 640 = 0x280
+
+// ----
 
   i_bus.read (20'h00104, task_check);           // read result register
   while (!(task_check & 32'h00000002)) begin    // wait until sha256_hash_valid is set
      i_bus.read (20'h00104, task_check);
      end
+
+  // INFO: result to be interpreted as Litte Endian
 
 /*
   i_bus.read(20'h00104, task_check);            // read result register

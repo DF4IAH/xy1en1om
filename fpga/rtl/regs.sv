@@ -165,7 +165,7 @@ enum {
     SHA256_CTRL_RSVD_D02,
     SHA256_CTRL_RSVD_D03,
 
-    SHA256_CTRL_RSVD_D04,
+    SHA256_CTRL_DBL_HASH,
     SHA256_CTRL_RSVD_D05,
     SHA256_CTRL_RSVD_D06,
     SHA256_CTRL_RSVD_D07,
@@ -264,6 +264,7 @@ wire                     sha256_clk          = clks[2];     // 62.5 MHz
 wire                     sha256_rstn         = rstsn[2];
 wire                     sha256_enable       = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_ENABLE] &  x11_enable;
 wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET]  | !x11_enable;
+wire                     sha256_dbl_hash     = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DBL_HASH];
 //wire       [ 31:0]     sha256_bit_len      = regs[REG_RW_SHA256_BIT_LEN];
 
 wire         [ 31:0]     sha256_status;
@@ -417,18 +418,19 @@ fifo_32i_32o_512d i_fifo_32i_32o (
 
 sha256_engine i_sha256_engine (
   // global signals
-  .clk                     ( sha256_clk                  ),  // clock 62.5 MHz
-  .rstn                    ( sha256_reset_n              ),  // clock reset - active low
+  .clk                     ( sha256_clk                  ), // clock 62.5 MHz
+  .rstn                    ( sha256_reset_n              ), // clock reset - active low
 
-  .ready_o                 ( sha256_rdy                  ),  // sha256 engine ready to start
-//.bitlen_i                ( sha256_bit_len              ),  // load this number of bits to calculate the hash
-  .start_i                 ( sha256_start                ),  // start engine
-  .sha256_fifo_empty       ( sha256_fifo_empty           ),  // indicator for continuation with next block
-  .fifo_rd_en              ( sha256_32b_fifo_rd_en       ),  // enable reading of the FIFO
-  .fifo_rd_vld             ( sha256_32b_fifo_rd_vld      ),  // read data from the FIFO is valid
-  .fifo_rd_dat             ( sha256_32b_fifo_rd_out      ),  // 32 bit word out of the FIFO for the SHA-256 engine to process
-  .valid_o                 ( sha256_hash_valid           ),  // hash output vector is valid
-  .hash_o                  ( sha256_hash_data            )   // computated hash value
+  .ready_o                 ( sha256_rdy                  ), // sha256 engine ready to start
+//.bitlen_i                ( sha256_bit_len              ), // load this number of bits to calculate the hash
+  .start_i                 ( sha256_start                ), // start engine
+  .dbl_hash                ( sha256_dbl_hash             ), // do a sha256(sha256(x)) operation
+  .sha256_fifo_empty       ( sha256_fifo_empty           ), // indicator for continuation with next block
+  .fifo_rd_en              ( sha256_32b_fifo_rd_en       ), // enable reading of the FIFO
+  .fifo_rd_vld             ( sha256_32b_fifo_rd_vld      ), // read data from the FIFO is valid
+  .fifo_rd_dat             ( sha256_32b_fifo_rd_out      ), // 32 bit word out of the FIFO for the SHA-256 engine to process
+  .valid_o                 ( sha256_hash_valid           ), // hash output vector is valid
+  .hash_o                  ( sha256_hash_data            )  // computated hash value
 );
 
 always @(posedge sha256_clk)
