@@ -9,6 +9,7 @@ SHARED_OBJS =
 
 FPGA=fpga.bit
 FPGACFG=fpga.conf
+PDF=doc/RedPitaya_xy1en1om_Development_Manual.pdf
 
 # Versioning system
 BUILD_NUMBER ?= 0
@@ -23,9 +24,9 @@ CFLAGS += -DVERSION=\"$(VER)-$(BUILD_NUMBER)\" -DREVISION=\"$(REVISION)\"
 export CFLAGS
 
 
-all:  $(CONTROLLERHF)
+all:  lib doc
 
-libs:  $(CONTROLLERHF)
+lib:  $(CONTROLLERHF)
 
 $(CONTROLLERHF):
 	$(MAKE) -C src clean
@@ -35,6 +36,11 @@ shared_ctrl: $(CONTROLLERHF)
 	for obj in $(SHARED_OBJS); do \
 		cp $(CONTROLLERHF) ../$$obj; \
 	done
+
+doc: $(PDF)
+
+$(PDF):
+	$(MAKE) -C doc all
 
 zip: $(CONTROLLERHF)
 	mkdir -p target/$(APP)/bin
@@ -46,5 +52,6 @@ zip: $(CONTROLLERHF)
 
 clean:
 	-$(MAKE) -C src clean
+	-$(MAKE) -C doc clean
 	-$(RM) -r target
 	-$(RM) $(CONTROLLERHF)

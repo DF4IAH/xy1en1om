@@ -1,5 +1,5 @@
 /**
- * @brief Red Pitaya RadioBox main module.
+ * @brief Red Pitaya xy1en1om main module.
  *
  * @author Ulrich Habel (DF4IAH) <espero7757@gmx.net>
  *
@@ -24,7 +24,7 @@
 #endif
 
 
-/** @defgroup main_h RadioBox main module
+/** @defgroup main_h xy1en1om main module
  * @{
  */
 
