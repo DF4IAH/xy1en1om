@@ -31,6 +31,7 @@ module sha256_engine #(
     output reg           ready_o,
 //  input       [ 31:0]  bitlen_i,
     input                start_i,
+    input                dbl_hash,
     input                sha256_fifo_empty,
     output reg           fifo_rd_en,
     input                fifo_rd_vld,
@@ -69,6 +70,7 @@ reg  unsigned [31:0]     ha[7:0];
 reg  unsigned [31:0]     k[63:0];
 reg  unsigned [31:0]     w[63:0];
 reg  unsigned [31:0]     a, b, c, d, e, f, g, h;
+reg                      dbl_hash_op = 1'b0;
 reg  unsigned [ 7:0]     state;
 
 integer                  loop_i;
@@ -88,9 +90,8 @@ assign temp2 = S0 + maj;
 assign hash_o = { ha[0], ha[1], ha[2], ha[3], ha[4], ha[5], ha[6], ha[7] };
 
 always @(posedge clk) begin
-
 if (!rstn) begin
-   ha[0] <= 32'h6a09e667;
+   ha[0] <= 32'h6a09e667;                                   // preset hash table
    ha[1] <= 32'hbb67ae85;
    ha[2] <= 32'h3c6ef372;
    ha[3] <= 32'ha54ff53a;
@@ -99,7 +100,7 @@ if (!rstn) begin
    ha[6] <= 32'h1f83d9ab;
    ha[7] <= 32'h5be0cd19;
 
-   k[ 0] <= 32'h428a2f98;
+   k[ 0] <= 32'h428a2f98;                                   // set look-up constants
    k[ 1] <= 32'h71374491;
    k[ 2] <= 32'hb5c0fbcf;
    k[ 3] <= 32'he9b5dba5;
@@ -167,6 +168,7 @@ if (!rstn) begin
    fifo_rd_en <= 1'b0;
    ready_o <= 1'b0;
    valid_o <= 1'b0;
+   dbl_hash_op <= 1'b0;
    loop_i <= 0;
    state <= 'b0;
    end
@@ -175,13 +177,14 @@ else
    case (state)
 
    8'h00: if (!start_i) begin
+         dbl_hash_op <= dbl_hash;
          ready_o <= 1'b1;
          end
       else begin
          fifo_rd_en <= 1'b1;
          if (fifo_rd_vld) begin
             ready_o <= 1'b0;
-            w[0] <= fifo_rd_dat;
+            w[0] <= fifo_rd_dat;                            // fill input array
             loop_i <= 1;
             state <= 8'h01;
             end
@@ -189,7 +192,7 @@ else
 
    8'h01: begin
       if (fifo_rd_vld) begin
-         w[loop_i] <= fifo_rd_dat;
+         w[loop_i] <= fifo_rd_dat;                          // fill input array (contd.)
          if (loop_i == 15) begin
             fifo_rd_en <= 1'b0;
             state <= 8'h02;
@@ -198,7 +201,7 @@ else
          end
       end
 
-   8'h02: if (loop_i < 63) begin
+   8'h02: if (loop_i < 63) begin                            // expand input array
          // assign s0 = rightrotate(w[loop_i - 15], 5'd7 ) ^ rightrotate(w[loop_i - 15], 5'd18) ^ rightshift(w[loop_i - 15], 5'd3 );
          // assign s1 = rightrotate(w[loop_i -  2], 5'd17) ^ rightrotate(w[loop_i -  2], 5'd19) ^ rightshift(w[loop_i -  2], 5'd10);
 
@@ -222,7 +225,7 @@ else
          state <= 8'h03;
          end
 
-   8'h03: if (loop_i < 64) begin
+   8'h03: if (loop_i < 64) begin                            // hashing operation
          // assign S1 = rightrotate(e, 5'd6) ^ rightrotate(e, 5'd11) ^ rightrotate(e, 5'd25);
          // assign ch = (e & f) ^ ((~e) & g);
          // assign temp1 = h + S1 + ch + k[loop_i] + w[loop_i];
@@ -241,24 +244,75 @@ else
 
          loop_i <= loop_i + 1;
          end
+
       else begin
-         ha[0] <= ha[0] + a;
-         ha[1] <= ha[1] + b;
-         ha[2] <= ha[2] + c;
-         ha[3] <= ha[3] + d;
-         ha[4] <= ha[4] + e;
-         ha[5] <= ha[5] + f;
-         ha[6] <= ha[6] + g;
-         ha[7] <= ha[7] + h;
+         if (!sha256_fifo_empty) begin                      // continue with next frame
+            ha[0] <= ha[0] + a;
+            ha[1] <= ha[1] + b;
+            ha[2] <= ha[2] + c;
+            ha[3] <= ha[3] + d;
+            ha[4] <= ha[4] + e;
+            ha[5] <= ha[5] + f;
+            ha[6] <= ha[6] + g;
+            ha[7] <= ha[7] + h;
 
-         ready_o <= 1'b1;
-         if (sha256_fifo_empty)
-            valid_o <= 1'b1;
+            ready_o <= 1'b1;
+            state <= 8'h00;
+            end
+         else begin
+            if (dbl_hash_op) begin
+               dbl_hash_op <= 1'b0;
 
-         state <= 8'h00;
+               w[ 0] <= ha[0] + a;
+               w[ 1] <= ha[1] + b;
+               w[ 2] <= ha[2] + c;
+               w[ 3] <= ha[3] + d;
+               w[ 4] <= ha[4] + e;
+               w[ 5] <= ha[5] + f;
+               w[ 6] <= ha[6] + g;
+               w[ 7] <= ha[7] + h;
+               w[ 8] <= 32'h80000000;                       // final additional '1' bit
+               w[ 9] <= 32'h00000000;
+               w[10] <= 32'h00000000;
+               w[11] <= 32'h00000000;
+               w[12] <= 32'h00000000;
+               w[13] <= 32'h00000000;
+               w[14] <= 32'h00000000;
+               w[15] <= 32'h00000100;                       // length of message
+
+               ha[0] <= 32'h6a09e667;                       // preset hash table for a new run
+               ha[1] <= 32'hbb67ae85;
+               ha[2] <= 32'h3c6ef372;
+               ha[3] <= 32'ha54ff53a;
+               ha[4] <= 32'h510e527f;
+               ha[5] <= 32'h9b05688c;
+               ha[6] <= 32'h1f83d9ab;
+               ha[7] <= 32'h5be0cd19;
+
+               loop_i <= 16;
+               state <= 8'h02;
+               end
+            else begin
+               ha[0] <= ha[0] + a;
+               ha[1] <= ha[1] + b;
+               ha[2] <= ha[2] + c;
+               ha[3] <= ha[3] + d;
+               ha[4] <= ha[4] + e;
+               ha[5] <= ha[5] + f;
+               ha[6] <= ha[6] + g;
+               ha[7] <= ha[7] + h;
+
+               valid_o <= 1'b1;                             // job execution finished
+               state <= 8'h04;
+               end
+            end
          end
 
-   default: state <= 8'hFF;
+   8'h04: begin
+         // regulary end state - trapped until reset line is pulled
+         end
+
+   default: state <= 8'hFF;                                 // being trapped in case of an error
 
    endcase
    end
