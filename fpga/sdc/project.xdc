@@ -309,6 +309,8 @@ set_output_delay -clock [get_clocks adc_clk_p_i]                    -clock_fall 
 # False Paths
 set_false_path  -from [get_pins dac_rst_reg/C]  -to [get_pins  oddr_dac_sel/R]
 set_false_path  -from [get_pins dac_rst_reg/C]  -to [get_pins {oddr_dac_dat[*]/R}]
+set_false_path  -from [get_clocks clk_fpga_0]   -to [get_clocks clk_fpga_2]
+set_false_path  -from [get_clocks clk_fpga_2]   -to [get_clocks clk_fpga_0]
 
 # Max Delay / Min Delay
 #set_min_delay -rise_from [get_pins {i_ps/axi_slave_gp0/wr_wdata_reg[*]/C}] -rise_to [get_pins {i_regs/*_reg[*][0]/D}]  0.000

@@ -102,6 +102,14 @@ module red_pitaya_ps (
   input              axi1_wfixed_i, axi0_wfixed_i,  // system write burst type (fixed / incremental)
   output             axi1_werr_o  , axi0_werr_o  ,  // system write error
   output             axi1_wrdy_o  , axi0_wrdy_o  ,  // system write ready
+  input   [   31: 0] axi1_raddr_i , axi0_raddr_i ,  // system read address
+  input              axi1_rvalid_i, axi0_rvalid_i,  // system read data valid
+  input   [    7: 0] axi1_rsel_i  , axi0_rsel_i  ,  // system read byte select
+  input   [    3: 0] axi1_rlen_i  , axi0_rlen_i  ,  // system read burst length
+  input              axi1_rfixed_i, axi0_rfixed_i,  // system read burst type (fixed / incremental)
+  output  [   63: 0] axi1_rdata_o , axi0_rdata_o ,  // system read data
+  output             axi1_rrdy_o  , axi0_rrdy_o  ,  // system read data is ready
+  output             axi1_rerr_o  , axi0_rerr_o  ,  // system read error
 
   // XADC_AXIS
   output             xadc_axis_aclk     ,  // XADC AXI-S clock
@@ -225,14 +233,14 @@ axi_master #(
   .sys_wrdy_o     ({axi1_wrdy_o     , axi0_wrdy_o     }), // system write ready
 
    // system read channel
-  .sys_raddr_i    ({32'h0           , 32'h0           }), // system read address
-  .sys_rvalid_i   ({ 1'b0           ,  1'b0           }), // system read address valid
-  .sys_rsel_i     ({ 8'h0           ,  8'h0           }), // system read byte select
-  .sys_rlen_i     ({ 4'h0           ,  4'h0           }), // system read burst length
-  .sys_rfixed_i   ({ 1'b0           ,  1'b0           }), // system read burst type (fixed / incremental)
-  .sys_rdata_o    (                                    ), // system read data
-  .sys_rrdy_o     (                                    ), // system read data is ready
-  .sys_rerr_o     (                                    )  // system read error
+  .sys_raddr_i    ({axi1_raddr_i    , axi0_raddr_i    }), // system read address
+  .sys_rvalid_i   ({axi1_rvalid_i   , axi0_rvalid_i   }), // system read address valid
+  .sys_rsel_i     ({axi1_rsel_i     , axi0_rsel_i     }), // system read byte select
+  .sys_rlen_i     ({axi1_rlen_i     , axi0_rlen_i     }), // system read burst length
+  .sys_rfixed_i   ({axi1_rfixed_i   , axi0_rfixed_i   }), // system read burst type (fixed / incremental)
+  .sys_rdata_o    ({axi1_rdata_o    , axi0_rdata_o    }), // system read data
+  .sys_rrdy_o     ({axi1_rrdy_o     , axi0_rrdy_o     }), // system read data is ready
+  .sys_rerr_o     ({axi1_rerr_o     , axi0_rerr_o     })  // system read error
 );
 
 assign hp0_saxi_arqos  = 4'h0 ;
@@ -521,4 +529,5 @@ system_wrapper system_i (
   .dcm_locked        (dcm_locked       )
 );
 
-endmodule
+
+endmodule: red_pitaya_ps

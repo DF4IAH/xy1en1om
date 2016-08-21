@@ -167,4 +167,5 @@ end else begin
   endcase
 end
 
-endmodule
+
+endmodule: red_pitaya_hk

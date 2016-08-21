@@ -160,6 +160,14 @@ wire  [    3: 0] axi1_wlen   , axi0_wlen   ;
 wire             axi1_wfixed , axi0_wfixed ;
 wire             axi1_werr   , axi0_werr   ;
 wire             axi1_wrdy   , axi0_wrdy   ;
+wire  [   31: 0] axi1_raddr  , axi0_raddr  ;
+wire             axi1_rvalid , axi0_rvalid ;
+wire  [    7: 0] axi1_rsel   , axi0_rsel   ;
+wire  [    3: 0] axi1_rlen   , axi0_rlen   ;
+wire             axi1_rfixed , axi0_rfixed ;
+wire  [   63: 0] axi1_rdata  , axi0_rdata  ;
+wire             axi1_rrdy   , axi0_rrdy   ;
+wire             axi1_rerr   , axi0_rerr   ;
 
 // AXIS MASTER from the XADC
 wire             xadc_axis_aclk            ;
@@ -227,6 +235,14 @@ red_pitaya_ps i_ps (
   .axi1_wfixed_i (axi1_wfixed ),  .axi0_wfixed_i (axi0_wfixed ),  // system write burst type (fixed / incremental)
   .axi1_werr_o   (axi1_werr   ),  .axi0_werr_o   (axi0_werr   ),  // system write error
   .axi1_wrdy_o   (axi1_wrdy   ),  .axi0_wrdy_o   (axi0_wrdy   ),  // system write ready
+  .axi1_raddr_i  (axi1_raddr  ),  .axi0_raddr_i  (axi0_raddr  ),  // system read address
+  .axi1_rvalid_i (axi1_rvalid ),  .axi0_rvalid_i (axi0_rvalid ),  // system read data valid
+  .axi1_rsel_i   (axi1_rsel   ),  .axi0_rsel_i   (axi0_rsel   ),  // system read byte select
+  .axi1_rlen_i   (axi1_rlen   ),  .axi0_rlen_i   (axi0_rlen   ),  // system read burst length
+  .axi1_rfixed_i (axi1_rfixed ),  .axi0_rfixed_i (axi0_rfixed ),  // system read burst type (fixed / incremental)
+  .axi1_rdata_o  (axi1_rdata  ),  .axi0_rdata_o  (axi0_rdata  ),  // system read data
+  .axi1_rrdy_o   (axi1_rrdy   ),  .axi0_rrdy_o   (axi0_rrdy   ),  // system read data is ready
+  .axi1_rerr_o   (axi1_rerr   ),  .axi0_rerr_o   (axi0_rerr   ),  // system read error
 
   // AXIS MASTER from the XADC
   .xadc_axis_aclk     (xadc_axis_aclk             ),  // AXI-streaming from the XADC, clock to the AXI-S FIFO
@@ -437,7 +453,15 @@ regs i_regs (
   .axi0_wlen_o   (axi0_wlen  ),  .axi1_wlen_o   (axi1_wlen  ),
   .axi0_wfixed_o (axi0_wfixed),  .axi1_wfixed_o (axi1_wfixed),
   .axi0_werr_i   (axi0_werr  ),  .axi1_werr_i   (axi1_werr  ),
-  .axi0_wrdy_i   (axi0_wrdy  ),  .axi1_wrdy_i   (axi1_wrdy  )
+  .axi0_wrdy_i   (axi0_wrdy  ),  .axi1_wrdy_i   (axi1_wrdy  ),
+  .axi0_raddr_o  (axi0_raddr ),  .axi1_raddr_o  (axi1_raddr ),
+  .axi0_rvalid_o (axi0_rvalid),  .axi1_rvalid_o (axi1_rvalid),
+  .axi0_rsel_o   (axi0_rsel  ),  .axi1_rsel_o   (axi1_rsel  ),
+  .axi0_rlen_o   (axi0_rlen  ),  .axi1_rlen_o   (axi1_rlen  ),
+  .axi0_rfixed_o (axi0_rfixed),  .axi1_rfixed_o (axi1_rfixed),
+  .axi0_rdata_i  (axi0_rdata ),  .axi1_rdata_i  (axi1_rdata ),
+  .axi0_rrdy_i   (axi0_rrdy  ),  .axi1_rrdy_i   (axi1_rrdy  ),
+  .axi0_rerr_i   (axi0_rerr  ),  .axi1_rerr_i   (axi1_rerr  )
 );
 
 
@@ -492,4 +516,4 @@ assign daisy_p_o = 2'bzz;
 assign daisy_n_o = 2'bzz;
 
 
-endmodule
+endmodule: top

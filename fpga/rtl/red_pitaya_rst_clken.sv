@@ -67,4 +67,4 @@ else begin
 end
 
 
-endmodule
+endmodule: red_pitaya_rst_clken
