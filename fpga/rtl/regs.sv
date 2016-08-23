@@ -23,70 +23,71 @@
 module regs #(
   // parameter RSZ = 14  // RAM size 2^RSZ
 )(
-   // clock & reset
-   input        [  3: 0] clks            ,  // clocks
-   input        [  3: 0] rstsn           ,  // clock reset lines - active low
+  // clock & reset
+  input        [  3: 0] clks            ,  // clocks
+  input        [  3: 0] rstsn           ,  // clock reset lines - active low
 
-   // activation
-   output                x11_activated   ,  // x11 sub-module is activated
+  // activation
+  output                x11_activated   ,  // x11 sub-module is activated
 
-   // System bus - slave
-   input        [ 31: 0] sys_addr        ,  // bus saddress
-   input        [ 31: 0] sys_wdata       ,  // bus write data
-   input        [  3: 0] sys_sel         ,  // bus write byte select
-   input                 sys_wen         ,  // bus write enable
-   input                 sys_ren         ,  // bus read enable
-   output reg   [ 31: 0] sys_rdata       ,  // bus read data
-   output reg            sys_err         ,  // bus error indicator
-   output reg            sys_ack         ,  // bus acknowledge signal
+  // System bus - slave
+  input        [ 31: 0] sys_addr        ,  // bus saddress
+  input        [ 31: 0] sys_wdata       ,  // bus write data
+  input        [  3: 0] sys_sel         ,  // bus write byte select
+  input                 sys_wen         ,  // bus write enable
+  input                 sys_ren         ,  // bus read enable
+  output reg   [ 31: 0] sys_rdata       ,  // bus read data
+  output reg            sys_err         ,  // bus error indicator
+  output reg            sys_ack         ,  // bus acknowledge signal
 
-   // AXI streaming master from XADC
-   input              xadc_axis_aclk     ,  // AXI-streaming from the XADC, clock from the AXI-S FIFO
-   input   [   15: 0] xadc_axis_tdata    ,  // AXI-streaming from the XADC, data
-   input   [    4: 0] xadc_axis_tid      ,  // AXI-streaming from the XADC, analog data source channel for this data
-                                            // TID=0x10:VAUXp0_VAUXn0 & TID=0x18:VAUXp8_VAUXn8, TID=0x11:VAUXp1_VAUXn1 & TID=0x19:VAUXp9_VAUXn9, TID=0x03:Vp_Vn
-   output reg         xadc_axis_tready   ,  // AXI-streaming from the XADC, slave indicating ready for data
-   input              xadc_axis_tvalid   ,  // AXI-streaming from the XADC, data transfer valid
+  // AXI_HP0 master
+  output             S_AXI_HP0_aclk     ,
+  output  [   31: 0] S_AXI_HP0_araddr   ,
+  output  [    1: 0] S_AXI_HP0_arburst  ,
+  output  [    3: 0] S_AXI_HP0_arcache  ,
+  output  [    5: 0] S_AXI_HP0_arid     ,
+  output  [    3: 0] S_AXI_HP0_arlen    ,
+  output  [    1: 0] S_AXI_HP0_arlock   ,
+  output  [    2: 0] S_AXI_HP0_arprot   ,
+  output  [    3: 0] S_AXI_HP0_arqos    ,
+  input              S_AXI_HP0_arready  ,
+  output  [    2: 0] S_AXI_HP0_arsize   ,
+  output             S_AXI_HP0_arvalid  ,
+  output  [   31: 0] S_AXI_HP0_awaddr   ,
+  output  [    1: 0] S_AXI_HP0_awburst  ,
+  output  [    3: 0] S_AXI_HP0_awcache  ,
+  output  [    5: 0] S_AXI_HP0_awid     ,
+  output  [    3: 0] S_AXI_HP0_awlen    ,
+  output  [    1: 0] S_AXI_HP0_awlock   ,
+  output  [    2: 0] S_AXI_HP0_awprot   ,
+  output  [    3: 0] S_AXI_HP0_awqos    ,
+  input              S_AXI_HP0_awready  ,
+  output  [    2: 0] S_AXI_HP0_awsize   ,
+  output             S_AXI_HP0_awvalid  ,
+  input   [    5: 0] S_AXI_HP0_bid      ,
+  output             S_AXI_HP0_bready   ,
+  input   [    1: 0] S_AXI_HP0_bresp    ,
+  input              S_AXI_HP0_bvalid   ,
+  input   [   63: 0] S_AXI_HP0_rdata    ,
+  input   [    5: 0] S_AXI_HP0_rid      ,
+  input              S_AXI_HP0_rlast    ,
+  output             S_AXI_HP0_rready   ,
+  input   [    1: 0] S_AXI_HP0_rresp    ,
+  input              S_AXI_HP0_rvalid   ,
+  output  [   63: 0] S_AXI_HP0_wdata    ,
+  output  [    5: 0] S_AXI_HP0_wid      ,
+  output             S_AXI_HP0_wlast    ,
+  input              S_AXI_HP0_wready   ,
+  output  [    7: 0] S_AXI_HP0_wstrb    ,
+  output             S_AXI_HP0_wvalid   ,
 
-   // AXI0 master
-   output                axi0_clk_o      ,  // global clock
-   output                axi0_rstn_o     ,  // global reset
-   output     [   31: 0] axi0_waddr_o    ,  // system write address
-   output     [   63: 0] axi0_wdata_o    ,  // system write data
-   output     [    7: 0] axi0_wsel_o     ,  // system write byte select
-   output                axi0_wvalid_o   ,  // system write data valid
-   output     [    3: 0] axi0_wlen_o     ,  // system write burst length
-   output                axi0_wfixed_o   ,  // system write burst type (fixed / incremental)
-   input                 axi0_werr_i     ,  // system write error
-   input                 axi0_wrdy_i     ,  // system write ready
-   output     [   31: 0] axi0_raddr_o    ,  // system read address
-   output                axi0_rvalid_o   ,  // system read data valid
-   output     [    7: 0] axi0_rsel_o     ,  // system read byte select
-   output     [    3: 0] axi0_rlen_o     ,  // system read burst length
-   output                axi0_rfixed_o   ,  // system read burst type (fixed / incremental)
-   input      [   63: 0] axi0_rdata_i    ,  // system read data
-   input                 axi0_rrdy_i     ,  // system read data is ready
-   input                 axi0_rerr_i     ,  // system read error
-
-   // AXI1 master
-   output                axi1_clk_o      ,  // global clock
-   output                axi1_rstn_o     ,  // global reset
-   output     [   31: 0] axi1_waddr_o    ,  // system write address
-   output     [   63: 0] axi1_wdata_o    ,  // system write data
-   output     [    7: 0] axi1_wsel_o     ,  // system write byte select
-   output                axi1_wvalid_o   ,  // system write data valid
-   output     [    3: 0] axi1_wlen_o     ,  // system write burst length
-   output                axi1_wfixed_o   ,  // system write burst type (fixed / incremental)
-   input                 axi1_werr_i     ,  // system write error
-   input                 axi1_wrdy_i     ,  // system write ready
-   output     [   31: 0] axi1_raddr_o    ,  // system read address
-   output                axi1_rvalid_o   ,  // system read data valid
-   output     [    7: 0] axi1_rsel_o     ,  // system read byte select
-   output     [    3: 0] axi1_rlen_o     ,  // system read burst length
-   output                axi1_rfixed_o   ,  // system read burst type (fixed / incremental)
-   input      [   63: 0] axi1_rdata_i    ,  // system read data
-   input                 axi1_rrdy_i     ,  // system read data is ready
-   input                 axi1_rerr_i        // system read error
+  // AXI streaming master from XADC
+  input              xadc_axis_aclk     ,  // AXI-streaming from the XADC, clock from the AXI-S FIFO
+  input   [   15: 0] xadc_axis_tdata    ,  // AXI-streaming from the XADC, data
+  input   [    4: 0] xadc_axis_tid      ,  // AXI-streaming from the XADC, analog data source channel for this data
+                                           // TID=0x10:VAUXp0_VAUXn0 & TID=0x18:VAUXp8_VAUXn8, TID=0x11:VAUXp1_VAUXn1 & TID=0x19:VAUXp9_VAUXn9, TID=0x03:Vp_Vn
+  output reg         xadc_axis_tready   ,  // AXI-streaming from the XADC, slave indicating ready for data
+  input              xadc_axis_tvalid      // AXI-streaming from the XADC, data transfer valid
 );
 
 
@@ -95,7 +96,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082310;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082311;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -447,43 +448,65 @@ else
 
 dma_engine i_dma_engine (
   // global signals
-  .clk_i                   ( bus_clk                     ), // clock 125.0 MHz
-  .rstn_i                  ( bus_sha256_reset_n          ), // SHA256 enabled clock reset - active low
+  .clk_i              (bus_clk                    ),  // clock 125.0 MHz
+  .rstn_i             (bus_sha256_reset_n         ),  // SHA256 enabled clock reset - active low
 
-  .dma_enable_i            ( sha256_dma_mode             ), // 1 = DMA mode, 0 = FIFO mode
-  .dma_base_addr_i         ( sha256_dma_base_addr        ), // DMA byte base address, bits [1:0] always 0 (32 bit alignment)
-  .dma_bit_len_i           ( sha256_dma_bit_len          ), // submodule number of data bits to be hashed, bits [4:0] always 0 (32 bit alignment)
-  .dma_start_i             ( sha256_start                ),
+  .dma_enable_i       (sha256_dma_mode            ),  // 1 = DMA mode, 0 = FIFO mode
+  .dma_base_addr_i    (sha256_dma_base_addr       ),  // DMA byte base address, bits [1:0] always 0 (32 bit alignment)
+  .dma_bit_len_i      (sha256_dma_bit_len         ),  // submodule number of data bits to be hashed, bits [4:0] always 0 (32 bit alignment)
+  .dma_start_i        (sha256_start               ),
 
-  .sha256_rdy_i            ( sha256_rdy                  ),
+  .sha256_rdy_i       (sha256_rdy                 ),
 
-  .axi_clk_o               ( axi0_clk_o                  ),
-  .axi_rstn_o              ( axi0_rstn_o                 ),
-  .axi_waddr_o             ( axi0_waddr_o                ),
-  .axi_wdata_o             ( axi0_wdata_o                ),
-  .axi_wsel_o              ( axi0_wsel_o                 ),
-  .axi_wvalid_o            ( axi0_wvalid_o               ),
-  .axi_wlen_o              ( axi0_wlen_o                 ),
-  .axi_wfixed_o            ( axi0_wfixed_o               ),
-  .axi_werr_i              ( axi0_werr_i                 ),
-  .axi_wrdy_i              ( axi0_wrdy_i                 ),
-  .axi_raddr_o             ( axi0_raddr_o                ),
-  .axi_rvalid_o            ( axi0_rvalid_o               ),
-  .axi_rsel_o              ( axi0_rsel_o                 ),
-  .axi_rlen_o              ( axi0_rlen_o                 ),
-  .axi_rfixed_o            ( axi0_rfixed_o               ),
-  .axi_rdata_i             ( axi0_rdata_i                ),
-  .axi_rrdy_i              ( axi0_rrdy_i                 ),
-  .axi_rerr_i              ( axi0_rerr_i                 ),
+  // AXI_HP0 master
+  .S_AXI_HP0_aclk     (S_AXI_HP0_aclk             ),
+  .S_AXI_HP0_araddr   (S_AXI_HP0_araddr           ),
+  .S_AXI_HP0_arburst  (S_AXI_HP0_arburst          ),
+  .S_AXI_HP0_arcache  (S_AXI_HP0_arcache          ),
+  .S_AXI_HP0_arid     (S_AXI_HP0_arid             ),
+  .S_AXI_HP0_arlen    (S_AXI_HP0_arlen            ),
+  .S_AXI_HP0_arlock   (S_AXI_HP0_arlock           ),
+  .S_AXI_HP0_arprot   (S_AXI_HP0_arprot           ),
+  .S_AXI_HP0_arqos    (S_AXI_HP0_arqos            ),
+  .S_AXI_HP0_arready  (S_AXI_HP0_arready          ),
+  .S_AXI_HP0_arsize   (S_AXI_HP0_arsize           ),
+  .S_AXI_HP0_arvalid  (S_AXI_HP0_arvalid          ),
+  .S_AXI_HP0_awaddr   (S_AXI_HP0_awaddr           ),
+  .S_AXI_HP0_awburst  (S_AXI_HP0_awburst          ),
+  .S_AXI_HP0_awcache  (S_AXI_HP0_awcache          ),
+  .S_AXI_HP0_awid     (S_AXI_HP0_awid             ),
+  .S_AXI_HP0_awlen    (S_AXI_HP0_awlen            ),
+  .S_AXI_HP0_awlock   (S_AXI_HP0_awlock           ),
+  .S_AXI_HP0_awprot   (S_AXI_HP0_awprot           ),
+  .S_AXI_HP0_awqos    (S_AXI_HP0_awqos            ),
+  .S_AXI_HP0_awready  (S_AXI_HP0_awready          ),
+  .S_AXI_HP0_awsize   (S_AXI_HP0_awsize           ),
+  .S_AXI_HP0_awvalid  (S_AXI_HP0_awvalid          ),
+  .S_AXI_HP0_bid      (S_AXI_HP0_bid              ),
+  .S_AXI_HP0_bready   (S_AXI_HP0_bready           ),
+  .S_AXI_HP0_bresp    (S_AXI_HP0_bresp            ),
+  .S_AXI_HP0_bvalid   (S_AXI_HP0_bvalid           ),
+  .S_AXI_HP0_rdata    (S_AXI_HP0_rdata            ),
+  .S_AXI_HP0_rid      (S_AXI_HP0_rid              ),
+  .S_AXI_HP0_rlast    (S_AXI_HP0_rlast            ),
+  .S_AXI_HP0_rready   (S_AXI_HP0_rready           ),
+  .S_AXI_HP0_rresp    (S_AXI_HP0_rresp            ),
+  .S_AXI_HP0_rvalid   (S_AXI_HP0_rvalid           ),
+  .S_AXI_HP0_wdata    (S_AXI_HP0_wdata            ),
+  .S_AXI_HP0_wid      (S_AXI_HP0_wid              ),
+  .S_AXI_HP0_wlast    (S_AXI_HP0_wlast            ),
+  .S_AXI_HP0_wready   (S_AXI_HP0_wready           ),
+  .S_AXI_HP0_wstrb    (S_AXI_HP0_wstrb            ),
+  .S_AXI_HP0_wvalid   (S_AXI_HP0_wvalid           ),
 
-  .fifo_wr_en_o            ( sha256_dma_fifo_wr_en       ),
-  .fifo_wr_in_o            ( sha256_dma_fifo_wr_in       ),
-  .fifo_wr_count_i         ( sha256_fifo_rd_count        ),
+  .fifo_wr_en_o       (sha256_dma_fifo_wr_en      ),
+  .fifo_wr_in_o       (sha256_dma_fifo_wr_in      ),
+  .fifo_wr_count_i    (sha256_fifo_rd_count       ),
 
-  .dbg_state_o             ( sha256_dma_state            ),
-  .dbg_axi_r_state_o       ( sha256_dma_axi_r_state      ),
-  .dbg_axi_w_state_o       ( sha256_dma_axi_w_state      ),
-  .dbg_axi_last_data       ( sha256_dma_last_data        )
+  .dbg_state_o        (sha256_dma_state           ),
+  .dbg_axi_r_state_o  (sha256_dma_axi_r_state     ),
+  .dbg_axi_w_state_o  (sha256_dma_axi_w_state     ),
+  .dbg_axi_last_data  (sha256_dma_last_data       )
 );
 
 
