@@ -95,7 +95,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082101;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082310;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -314,6 +314,12 @@ reg                      sha256_start = 'b0;
 wire                     sha256_hash_valid;
 wire         [255:0]     sha256_hash_data;
 
+// debugging DMA engine
+wire         [  3:0]     sha256_dma_state;
+wire         [ 31:0]     sha256_dma_axi_r_state;
+wire         [ 31:0]     sha256_dma_axi_w_state;
+wire         [ 31:0]     sha256_dma_last_data;
+
 
 // === NET: KECCAK512 section ===
 
@@ -472,7 +478,12 @@ dma_engine i_dma_engine (
 
   .fifo_wr_en_o            ( sha256_dma_fifo_wr_en       ),
   .fifo_wr_in_o            ( sha256_dma_fifo_wr_in       ),
-  .fifo_wr_count_i         ( sha256_fifo_rd_count        )
+  .fifo_wr_count_i         ( sha256_fifo_rd_count        ),
+
+  .dbg_state_o             ( sha256_dma_state            ),
+  .dbg_axi_r_state_o       ( sha256_dma_axi_r_state      ),
+  .dbg_axi_w_state_o       ( sha256_dma_axi_w_state      ),
+  .dbg_axi_last_data       ( sha256_dma_last_data        )
 );
 
 
@@ -723,15 +734,32 @@ else begin
 
     20'h00140: begin
       sys_ack   <= sys_en;
-      sys_rdata <= REG_RW_SHA256_DMA_BASE_ADDR;
+      sys_rdata <= regs[REG_RW_SHA256_DMA_BASE_ADDR];
       end
     20'h00144: begin
       sys_ack   <= sys_en;
-      sys_rdata <= REG_RW_SHA256_DMA_BIT_LEN;
+      sys_rdata <= regs[REG_RW_SHA256_DMA_BIT_LEN];
       end
     20'h00148: begin
       sys_ack   <= sys_en;
-      sys_rdata <= REG_RW_SHA256_DMA_NONCE_OFS;
+      sys_rdata <= regs[REG_RW_SHA256_DMA_NONCE_OFS];
+      end
+
+    20'h00150: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= { 24'b0, sha256_dma_state[3:0] };
+      end
+    20'h00154: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= sha256_dma_axi_r_state;
+      end
+    20'h00158: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= sha256_dma_axi_w_state;
+      end
+    20'h0015C: begin
+      sys_ack   <= sys_en;
+      sys_rdata <= sha256_dma_last_data;
       end
 
 
