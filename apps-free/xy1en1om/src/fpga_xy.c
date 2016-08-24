@@ -67,6 +67,7 @@ int fpga_xy_init(void)
     }
 
     // enable xy1en1om sub-module
+    fpga_xy_enable(0);
     fpga_xy_enable(1);
 
     // studying section as quick hack

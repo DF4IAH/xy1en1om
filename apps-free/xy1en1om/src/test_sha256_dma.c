@@ -67,6 +67,7 @@ void test_sha256_dma_INIT()
             0x1525354555657585,
             0x1626364656667686,
             0x1727374757677787,
+
             0x1828384858687888,
             0x1929394959697989,
             0x1a2a3a4a5a6a7a8a,
@@ -79,7 +80,8 @@ void test_sha256_dma_INIT()
     };
 
     // get DMA memory on an 64bit-alignment (at least)
-    g_dma_buf = valloc(sizeof(testmsg_rom));
+//  g_dma_buf = valloc(sizeof(testmsg_rom));
+    posix_memalign(&g_dma_buf, sizeof(uint64_t), sizeof(testmsg_rom));
 
     {
         // https://www.kernel.org/doc/Documentation/vm/pagemap.txt
@@ -94,10 +96,10 @@ void test_sha256_dma_INIT()
             if (lseek(fileno(pagemap), offset, SEEK_SET) == offset) {
                 if (fread(&e, sizeof(uint64_t), 1, pagemap)) {
                     if (e & (1ULL << 63)) { // page present ?
-                        paddr = e & ((1ULL << 54) - 1); // pfn mask
-                        paddr = paddr * sysconf(_SC_PAGESIZE);
+                        paddr  = e & ((1ULL << 55) - 1); // pfn mask
+                        paddr *= sysconf(_SC_PAGESIZE);
                         // add offset within page
-                        paddr = paddr | (((uint32_t) g_dma_buf) & (sysconf(_SC_PAGESIZE) - 1));
+                        paddr |= (((uint32_t) g_dma_buf) & (sysconf(_SC_PAGESIZE) - 1));
                         g_dma_paddr = paddr;
                     }
                 }
@@ -140,10 +142,10 @@ void test_sha256_dma_blockchain_example()
     fpga_xy_reset();
 
     (void) gettimeofday(&t0, NULL);
-    g_fpga_xy_reg_mem->sha256_dma_base_addr        = g_dma_paddr;       // SHA256 DMA - base address
-    g_fpga_xy_reg_mem->sha256_dma_bit_len        = 0x00000400;        // SHA256 DMA - bit len
-    g_fpga_xy_reg_mem->sha256_dma_nonce_ofs        = 0x00000260;        // SHA256 DMA - nonce entry offset in bits
-    g_fpga_xy_reg_mem->sha256_ctrl                = 0x00000033;        // SHA256 control: RESET trigger | ENABLE | DBL_HASH | DMA_MODE
+    g_fpga_xy_reg_mem->sha256_dma_base_addr = g_dma_paddr; // SHA256 DMA - base address
+    g_fpga_xy_reg_mem->sha256_dma_bit_len   = 0x00000400;  // SHA256 DMA - bit len
+    g_fpga_xy_reg_mem->sha256_dma_nonce_ofs = 0x00000260;  // SHA256 DMA - nonce entry offset in bits
+    g_fpga_xy_reg_mem->sha256_ctrl          = 0x00000033;  // SHA256 control: RESET trigger | ENABLE | DBL_HASH | DMA_MODE
     (void) gettimeofday(&t1, NULL);  // t1-t0 = x.xµs
 
     // wait until ready
