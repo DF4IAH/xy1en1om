@@ -15,6 +15,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <sys/time.h>
+//#include <asm/cachectl.h>
 
 #include "test_sha256_dma.h"
 #include "main.h"
@@ -120,6 +121,19 @@ void test_sha256_dma_blockchain_example()
 #endif
         };
 
+        // prepare the DMA data
+        (void) memcpy(g_dma_buf, testmsg_rom, sizeof(testmsg_rom));
+
+        // flush the D-cache
+        {
+            FILE *dropcaches;
+            if ((dropcaches = fopen("/proc/sys/vm/drop_caches", "w"))) {
+                fprintf(stderr, "dropping caches. Got filehandle = %p, filehandle ID = %d\n", dropcaches, fileno(dropcaches));
+                fprintf(dropcaches, "1\n");
+                fclose(dropcaches);
+            }
+        }
+
         {
             // https://www.kernel.org/doc/Documentation/vm/pagemap.txt
             FILE *pagemap;
@@ -146,9 +160,6 @@ void test_sha256_dma_blockchain_example()
 
             fprintf(stderr, "INFO g_dma_buf = %p\tg_dma_paddr = 0x%08x\n", g_dma_buf, g_dma_paddr);
         }
-
-        // prepare the DMA data
-        (void) memcpy(g_dma_buf, testmsg_rom, sizeof(testmsg_rom));
     }
 
     // ---

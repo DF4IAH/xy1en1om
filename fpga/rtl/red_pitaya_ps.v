@@ -92,7 +92,7 @@ module red_pitaya_ps (
   input              sys_ack_i          ,  // system acknowledge signal
 
   // AXI_ACP master
-  input              S_AXI_ACP_aclk     ,
+/*input              S_AXI_ACP_aclk     ,
   input   [   31: 0] S_AXI_ACP_araddr   ,
   input   [    1: 0] S_AXI_ACP_arburst  ,
   input   [    3: 0] S_AXI_ACP_arcache  ,
@@ -133,9 +133,51 @@ module red_pitaya_ps (
   output             S_AXI_ACP_wready   ,
   input   [    7: 0] S_AXI_ACP_wstrb    ,
   input              S_AXI_ACP_wvalid   ,
+*/
+
+  // AXI_HP0 master
+  input              S_AXI_HP0_aclk     ,
+  input   [   31: 0] S_AXI_HP0_araddr   ,
+  input   [    1: 0] S_AXI_HP0_arburst  ,
+  input   [    3: 0] S_AXI_HP0_arcache  ,
+  input   [    5: 0] S_AXI_HP0_arid     ,
+  input   [    3: 0] S_AXI_HP0_arlen    ,
+  input   [    1: 0] S_AXI_HP0_arlock   ,
+  input   [    2: 0] S_AXI_HP0_arprot   ,
+  input   [    3: 0] S_AXI_HP0_arqos    ,
+  output             S_AXI_HP0_arready  ,
+  input   [    2: 0] S_AXI_HP0_arsize   ,
+  input              S_AXI_HP0_arvalid  ,
+  input   [   31: 0] S_AXI_HP0_awaddr   ,
+  input   [    1: 0] S_AXI_HP0_awburst  ,
+  input   [    3: 0] S_AXI_HP0_awcache  ,
+  input   [    5: 0] S_AXI_HP0_awid     ,
+  input   [    3: 0] S_AXI_HP0_awlen    ,
+  input   [    1: 0] S_AXI_HP0_awlock   ,
+  input   [    2: 0] S_AXI_HP0_awprot   ,
+  input   [    3: 0] S_AXI_HP0_awqos    ,
+  output             S_AXI_HP0_awready  ,
+  input   [    2: 0] S_AXI_HP0_awsize   ,
+  input              S_AXI_HP0_awvalid  ,
+  output  [    5: 0] S_AXI_HP0_bid      ,
+  input              S_AXI_HP0_bready   ,
+  output  [    1: 0] S_AXI_HP0_bresp    ,
+  output             S_AXI_HP0_bvalid   ,
+  output  [   63: 0] S_AXI_HP0_rdata    ,
+  output  [    5: 0] S_AXI_HP0_rid      ,
+  output             S_AXI_HP0_rlast    ,
+  input              S_AXI_HP0_rready   ,
+  output  [    1: 0] S_AXI_HP0_rresp    ,
+  output             S_AXI_HP0_rvalid   ,
+  input   [   63: 0] S_AXI_HP0_wdata    ,
+  input   [    5: 0] S_AXI_HP0_wid      ,
+  input              S_AXI_HP0_wlast    ,
+  output             S_AXI_HP0_wready   ,
+  input   [    7: 0] S_AXI_HP0_wstrb    ,
+  input              S_AXI_HP0_wvalid   ,
 
 /* not in use
-  // AXI masters
+  // AXI masters via axi_master
   input              axi1_clk_i   , axi0_clk_i   ,  // global clock
   input              axi1_rstn_i  , axi0_rstn_i  ,  // global reset
   input   [   31: 0] axi1_waddr_i , axi0_waddr_i ,  // system write address
@@ -181,8 +223,8 @@ wire [    1: 0] hp1_saxi_bresp  , hp0_saxi_bresp  ;
 wire [    1: 0] hp1_saxi_rresp  , hp0_saxi_rresp  ;
 wire [    5: 0] hp1_saxi_bid    , hp0_saxi_bid    ;
 wire [    5: 0] hp1_saxi_rid    , hp0_saxi_rid    ;
-wire [   63: 0] hp1_saxi_rdata  , hp0_saxi_rdata  ;
-wire            hp1_saxi_aclk   , hp0_saxi_aclk   ;
+wire [   63: 0] hp1_saxi_rdata  , hp0_saxi_rdata  ; */
+wire            hp1_saxi_aclk;/* , hp0_saxi_aclk   ;
 wire            hp1_saxi_arvalid, hp0_saxi_arvalid;
 wire            hp1_saxi_awvalid, hp0_saxi_awvalid;
 wire            hp1_saxi_bready , hp0_saxi_bready ;
@@ -302,8 +344,7 @@ assign hp1_saxi_rstn_i = axi1_rstn_i    ;
 assign hp1_saxi_aclk   = hp1_saxi_clk_i ;
 */
 
-assign hp0_saxi_aclk = fclk_clk_o[0];
-assign hp1_saxi_aclk = fclk_clk_o[0];
+assign hp1_saxi_aclk = S_AXI_HP0_aclk;
 
 
 //------------------------------------------------------------------------------
@@ -524,6 +565,7 @@ system_wrapper system_i (
   .M_AXI_GP0_rresp   (gp0_maxi_rresp   ),  // in 2
   .M_AXI_GP0_rdata   (gp0_maxi_rdata   ),  // in 32
 
+/* not in use
   // ACP
   .S_AXI_ACP_aclk    (S_AXI_ACP_aclk   ),
   .S_AXI_ACP_araddr  (S_AXI_ACP_araddr ),
@@ -566,6 +608,48 @@ system_wrapper system_i (
   .S_AXI_ACP_wready  (S_AXI_ACP_wready ),
   .S_AXI_ACP_wstrb   (S_AXI_ACP_wstrb  ),
   .S_AXI_ACP_wvalid  (S_AXI_ACP_wvalid ),
+*/
+
+  // AXI_HP0 master
+  .S_AXI_HP0_aclk    (S_AXI_HP0_aclk   ),
+  .S_AXI_HP0_araddr  (S_AXI_HP0_araddr ),
+  .S_AXI_HP0_arburst (S_AXI_HP0_arburst),
+  .S_AXI_HP0_arcache (S_AXI_HP0_arcache),
+  .S_AXI_HP0_arid    (S_AXI_HP0_arid   ),
+  .S_AXI_HP0_arlen   (S_AXI_HP0_arlen  ),
+  .S_AXI_HP0_arlock  (S_AXI_HP0_arlock ),
+  .S_AXI_HP0_arprot  (S_AXI_HP0_arprot ),
+  .S_AXI_HP0_arqos   (S_AXI_HP0_arqos  ),
+  .S_AXI_HP0_arready (S_AXI_HP0_arready),
+  .S_AXI_HP0_arsize  (S_AXI_HP0_arsize ),
+  .S_AXI_HP0_arvalid (S_AXI_HP0_arvalid),
+  .S_AXI_HP0_awaddr  (S_AXI_HP0_awaddr ),
+  .S_AXI_HP0_awburst (S_AXI_HP0_awburst),
+  .S_AXI_HP0_awcache (S_AXI_HP0_awcache),
+  .S_AXI_HP0_awid    (S_AXI_HP0_awid   ),
+  .S_AXI_HP0_awlen   (S_AXI_HP0_awlen  ),
+  .S_AXI_HP0_awlock  (S_AXI_HP0_awlock ),
+  .S_AXI_HP0_awprot  (S_AXI_HP0_awprot ),
+  .S_AXI_HP0_awqos   (S_AXI_HP0_awqos  ),
+  .S_AXI_HP0_awready (S_AXI_HP0_awready),
+  .S_AXI_HP0_awsize  (S_AXI_HP0_awsize ),
+  .S_AXI_HP0_awvalid (S_AXI_HP0_awvalid),
+  .S_AXI_HP0_bid     (S_AXI_HP0_bid    ),
+  .S_AXI_HP0_bready  (S_AXI_HP0_bready ),
+  .S_AXI_HP0_bresp   (S_AXI_HP0_bresp  ),
+  .S_AXI_HP0_bvalid  (S_AXI_HP0_bvalid ),
+  .S_AXI_HP0_rdata   (S_AXI_HP0_rdata  ),
+  .S_AXI_HP0_rid     (S_AXI_HP0_rid    ),
+  .S_AXI_HP0_rlast   (S_AXI_HP0_rlast  ),
+  .S_AXI_HP0_rready  (S_AXI_HP0_rready ),
+  .S_AXI_HP0_rresp   (S_AXI_HP0_rresp  ),
+  .S_AXI_HP0_rvalid  (S_AXI_HP0_rvalid ),
+  .S_AXI_HP0_wdata   (S_AXI_HP0_wdata  ),
+  .S_AXI_HP0_wid     (S_AXI_HP0_wid    ),
+  .S_AXI_HP0_wlast   (S_AXI_HP0_wlast  ),
+  .S_AXI_HP0_wready  (S_AXI_HP0_wready ),
+  .S_AXI_HP0_wstrb   (S_AXI_HP0_wstrb  ),
+  .S_AXI_HP0_wvalid  (S_AXI_HP0_wvalid ),
 
 /* not in use
   // HP0                                  // HP1
@@ -579,8 +663,8 @@ system_wrapper system_i (
   .S_AXI_HP0_rresp   (hp0_saxi_rresp   ),  .S_AXI_HP1_rresp   (hp1_saxi_rresp   ), // out 2
   .S_AXI_HP0_bid     (hp0_saxi_bid     ),  .S_AXI_HP1_bid     (hp1_saxi_bid     ), // out 6
   .S_AXI_HP0_rid     (hp0_saxi_rid     ),  .S_AXI_HP1_rid     (hp1_saxi_rid     ), // out 6
-  .S_AXI_HP0_rdata   (hp0_saxi_rdata   ),  .S_AXI_HP1_rdata   (hp1_saxi_rdata   ), */ // out 64
-  .S_AXI_HP0_aclk    (hp0_saxi_aclk    ),  .S_AXI_HP1_aclk    (hp1_saxi_aclk    ), // in
+  .S_AXI_HP0_rdata   (hp0_saxi_rdata   ),  .S_AXI_HP1_rdata   (hp1_saxi_rdata   ), // out 64
+  .S_AXI_HP0_aclk    (hp0_saxi_aclk    ),*/.S_AXI_HP1_aclk    (hp1_saxi_aclk    ), // in
 /*.S_AXI_HP0_arvalid (hp0_saxi_arvalid ),  .S_AXI_HP1_arvalid (hp1_saxi_arvalid ), // in
   .S_AXI_HP0_awvalid (hp0_saxi_awvalid ),  .S_AXI_HP1_awvalid (hp1_saxi_awvalid ), // in
   .S_AXI_HP0_bready  (hp0_saxi_bready  ),  .S_AXI_HP1_bready  (hp1_saxi_bready  ), // in
