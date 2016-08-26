@@ -23,7 +23,7 @@
 
 
 const uint64_t testmsg_rom[] = {
-#if 0
+#if 1
             0x81cd02ab01000000,
             0xcd9317e27e569e8b,
             0x44d49ab2fe99f2de,
@@ -217,22 +217,22 @@ void test_sha256_dma_blockchain_example()
     int iter = 68;
     status = g_fpga_xy_reg_mem->sha256_status;
     while (/*!(status & (1L << 1)) && */ iter) {
-        uint32_t fifo_rd_last         = g_fpga_xy_reg_mem->sha256_data_push;
         uint32_t fifo_wr_cnt          = g_fpga_xy_reg_mem->sha256_fifo_wr_count;
         uint32_t fifo_rd_cnt          = g_fpga_xy_reg_mem->sha256_fifo_rd_count;
+        uint32_t fifo_rd_last         = g_fpga_xy_reg_mem->sha256_data_push;
         uint32_t dma_state            = g_fpga_xy_reg_mem->sha256_dma_state;
         uint32_t dma_axi_r_state      = g_fpga_xy_reg_mem->sha256_dma_axi_r_state;
         uint32_t dma_axi_w_state      = g_fpga_xy_reg_mem->sha256_dma_axi_w_state;
         uint32_t sha256_dma_last_data = g_fpga_xy_reg_mem->sha256_dma_last_data;
         fprintf(stderr, "INFO waiting - status = %08x,  " \
-                "fifo_rd_last = 0x%08x,  " \
                 "fifo_wr_cnt = %03d, fifo_rd_cnt = %03d,  " \
+                "fifo_rd_last = 0x%08x,  " \
                 "dma_state = 0x%02x,  " \
                 "dma_axi_r_state = 0x%08x, dma_axi_w_state = 0x%08x,  " \
                 "sha256_dma_last_data = 0x%08x\n",
                 status,
-				fifo_rd_last,
                 fifo_wr_cnt, fifo_rd_cnt,
+				fifo_rd_last,
                 dma_state,
                 dma_axi_r_state, dma_axi_w_state,
                 sha256_dma_last_data);

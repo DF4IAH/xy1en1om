@@ -280,7 +280,7 @@ else begin
       cmd_running            <= 1'b1;
       cmd_start_addr         <= dma_base_addr_i;
       cmd_eof                <= 1'b1;
-      cmd_btt                <= 23'h4 + ((|dma_bit_len_i[7:0]) ?  (dma_bit_len_i[25:3] + 23'd1) : dma_bit_len_i[25:3]);
+      cmd_btt                <= (|dma_bit_len_i[7:0]) ?  (dma_bit_len_i[25:3] + 23'd1) : dma_bit_len_i[25:3];
       cmd_tag                <= cmd_tag + 4'h1;
       s_axis_mm2s_cmd_tvalid <= 1'b1;
       end
