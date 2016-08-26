@@ -246,7 +246,7 @@ assign axi_wfixed_o =  1'b0;
 always @(posedge clk_i)
 if (!rstn_i)
    m_axis_mm2s_tready <= 1'b0;
-else if (!mm2s_err && !m_axis_mm2s_tlast && (fifo_wr_count_i < 9'h1E0))
+else if (!mm2s_err && (fifo_wr_count_i < 9'h1E0))
    m_axis_mm2s_tready <= 1'b1;                              // clear m_axis_mm2s_tready for one clock when last block enters
 else
    m_axis_mm2s_tready <= 1'b0;
@@ -257,9 +257,9 @@ if (!rstn_i) begin
    fifo_wr_en_o <=  1'b0;
    end
 else if (m_axis_mm2s_tvalid && m_axis_mm2s_tready) begin
+   fifo_wr_en_o      <= 1'b1;
    fifo_wr_in_o      <= m_axis_mm2s_tdata;
    dbg_axi_last_data <= m_axis_mm2s_tdata;
-   fifo_wr_en_o <= 1'b1;
    end
 else
    fifo_wr_en_o <= 1'b0;
@@ -280,14 +280,16 @@ else begin
       cmd_running            <= 1'b1;
       cmd_start_addr         <= dma_base_addr_i;
       cmd_eof                <= 1'b1;
-      cmd_btt                <= (|dma_bit_len_i[7:0]) ?  (dma_bit_len_i[25:3] + 23'd1) : dma_bit_len_i[25:3];
+      cmd_btt                <= 23'h4 + ((|dma_bit_len_i[7:0]) ?  (dma_bit_len_i[25:3] + 23'd1) : dma_bit_len_i[25:3]);
       cmd_tag                <= cmd_tag + 4'h1;
       s_axis_mm2s_cmd_tvalid <= 1'b1;
       end
    else if (cmd_running && s_axis_mm2s_cmd_tready && s_axis_mm2s_cmd_tvalid)
       s_axis_mm2s_cmd_tvalid <= 1'b0;
-   else if (!dma_enable_i)
+   else if (!dma_enable_i) begin
       s_axis_mm2s_cmd_tvalid <= 1'b0;
+      cmd_running <= 1'b0;
+      end
 
    if (cmd_running && !dma_start_i && (sts_dec_ok || sts_dec_slverr || sts_dec_decerr || sts_dec_interr))
       cmd_running <= 1'b0;
@@ -299,7 +301,7 @@ assign s_axis_mm2s_cmd_tdata = { 4'b0001,  4'h0, 4'h0, cmd_tag[3:0], cmd_start_a
 
 // debugging
 assign dbg_axi_r_state_o = { cmd_tag[3:0], 8'b0,  dma_start_i, cmd_running, s_axis_mm2s_cmd_tvalid, s_axis_mm2s_cmd_tready,  cmd_start_addr[15:0] };
-assign dbg_axi_w_state_o = { 9'b0, cmd_btt[22:0] };
+assign dbg_axi_w_state_o = { 32'b0 };
 
 
 /* STS */

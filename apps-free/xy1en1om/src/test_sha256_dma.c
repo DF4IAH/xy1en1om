@@ -22,6 +22,46 @@
 #include "fpga_xy.h"
 
 
+const uint64_t testmsg_rom[] = {
+#if 0
+            0x81cd02ab01000000,
+            0xcd9317e27e569e8b,
+            0x44d49ab2fe99f2de,
+            0xa3080000b8851ba4,
+            0xe320b6c200000000,
+            0x0423db8bfffc8d75,
+            0x710e951e1eb942ae,
+            0xfc8892b0d797f7af,
+
+            0xc7f5d74df1fc122b,
+            0x42a14695f2b9441a,
+            0x0000000080000000,
+            0x0000000000000000,
+            0x0000000000000000,
+            0x0000000000000000,
+            0x0000000000000000,
+            0x0000028000000000
+#else
+            0x1020304050607080,
+            0x1121314151617181,
+            0x1222324252627282,
+            0x1323334353637383,
+            0x1424344454647484,
+            0x1525354555657585,
+            0x1626364656667686,
+            0x1727374757677787,
+
+            0x1828384858687888,
+            0x1929394959697989,
+            0x1a2a3a4a5a6a7a8a,
+            0x1b2b3b4b5b6b7b8b,
+            0x1c2c3c4c5c6c7c8c,
+            0x1d2d3d4d5d6d7d8d,
+            0x1e2e3e4e5e6e7e8e,
+            0x1f2f3f4f5f6f7f8f
+#endif
+};
+
 /** @brief CallBack copy of params from the worker when requested */
 extern xy_app_params_t*     g_xy_info_worker_params;
 /** @brief Holds mutex to access on parameters from the worker thread to any other context */
@@ -82,45 +122,6 @@ void test_sha256_dma_blockchain_example()
         if (!g_dma_buf)
             return;
 
-        const uint64_t testmsg_rom[] = {
-#if 0
-            0x81cd02ab01000000,
-            0xcd9317e27e569e8b,
-            0x44d49ab2fe99f2de,
-            0xa3080000b8851ba4,
-            0xe320b6c200000000,
-            0x0423db8bfffc8d75,
-            0x710e951e1eb942ae,
-            0xfc8892b0d797f7af,
-            0xc7f5d74df1fc122b,
-            0x42a14695f2b9441a,
-            0x0000000080000000,
-            0x0000000000000000,
-            0x0000000000000000,
-            0x0000000000000000,
-            0x0000000000000000,
-            0x0000028000000000
-#else
-            0x1020304050607080,
-            0x1121314151617181,
-            0x1222324252627282,
-            0x1323334353637383,
-            0x1424344454647484,
-            0x1525354555657585,
-            0x1626364656667686,
-            0x1727374757677787,
-
-            0x1828384858687888,
-            0x1929394959697989,
-            0x1a2a3a4a5a6a7a8a,
-            0x1b2b3b4b5b6b7b8b,
-            0x1c2c3c4c5c6c7c8c,
-            0x1d2d3d4d5d6d7d8d,
-            0x1e2e3e4e5e6e7e8e,
-            0x1f2f3f4f5f6f7f8f
-#endif
-        };
-
         // prepare the DMA data
         (void) memcpy(g_dma_buf, testmsg_rom, sizeof(testmsg_rom));
 
@@ -167,16 +168,56 @@ void test_sha256_dma_blockchain_example()
     fpga_xy_reset();
 
     (void) gettimeofday(&t0, NULL);
+#if 0
+    // This section is OK proofed
+    g_fpga_xy_reg_mem->sha256_ctrl      = 0x00000013;         // SHA256 control: DBL_HASH | RESET trigger | ENABLE
+
+    g_fpga_xy_reg_mem->sha256_data_push = 0x01000000;         // SHA256 FIFO #00
+    g_fpga_xy_reg_mem->sha256_data_push = 0x81cd02ab;         // SHA256 FIFO #01
+    g_fpga_xy_reg_mem->sha256_data_push = 0x7e569e8b;         // SHA256 FIFO #02
+    g_fpga_xy_reg_mem->sha256_data_push = 0xcd9317e2;         // SHA256 FIFO #03
+    g_fpga_xy_reg_mem->sha256_data_push = 0xfe99f2de;         // SHA256 FIFO #04
+    g_fpga_xy_reg_mem->sha256_data_push = 0x44d49ab2;         // SHA256 FIFO #05
+    g_fpga_xy_reg_mem->sha256_data_push = 0xb8851ba4;         // SHA256 FIFO #06
+    g_fpga_xy_reg_mem->sha256_data_push = 0xa3080000;         // SHA256 FIFO #07
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #08
+    g_fpga_xy_reg_mem->sha256_data_push = 0xe320b6c2;         // SHA256 FIFO #09
+    g_fpga_xy_reg_mem->sha256_data_push = 0xfffc8d75;         // SHA256 FIFO #10
+    g_fpga_xy_reg_mem->sha256_data_push = 0x0423db8b;         // SHA256 FIFO #11
+    g_fpga_xy_reg_mem->sha256_data_push = 0x1eb942ae;         // SHA256 FIFO #12
+    g_fpga_xy_reg_mem->sha256_data_push = 0x710e951e;         // SHA256 FIFO #13
+    g_fpga_xy_reg_mem->sha256_data_push = 0xd797f7af;         // SHA256 FIFO #14
+    g_fpga_xy_reg_mem->sha256_data_push = 0xfc8892b0;         // SHA256 FIFO #15
+
+    g_fpga_xy_reg_mem->sha256_data_push = 0xf1fc122b;         // SHA256 FIFO #16
+    g_fpga_xy_reg_mem->sha256_data_push = 0xc7f5d74d;         // SHA256 FIFO #17
+    g_fpga_xy_reg_mem->sha256_data_push = 0xf2b9441a;         // SHA256 FIFO #18
+    g_fpga_xy_reg_mem->sha256_data_push = 0x42a14695;         // SHA256 FIFO #19
+    g_fpga_xy_reg_mem->sha256_data_push = 0x80000000;         // SHA256 FIFO #20
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #21
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #22
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #23
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #24
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #25
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #26
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #27
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #28
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #29 - one bit after the last data message is set
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #30
+    g_fpga_xy_reg_mem->sha256_data_push = 0x00000280;         // SHA256 FIFO #31
+#else
     g_fpga_xy_reg_mem->sha256_dma_base_addr = g_dma_paddr; // SHA256 DMA - base address
-    g_fpga_xy_reg_mem->sha256_dma_bit_len   = 0x00000400;  // SHA256 DMA - bit len
+    g_fpga_xy_reg_mem->sha256_dma_bit_len   = (sizeof(testmsg_rom) << 3);  // SHA256 DMA - bit len
     g_fpga_xy_reg_mem->sha256_dma_nonce_ofs = 0x00000260;  // SHA256 DMA - nonce entry offset in bits
-    g_fpga_xy_reg_mem->sha256_ctrl          = 0x00000033;  // SHA256 control: RESET trigger | ENABLE | DBL_HASH | DMA_MODE
+    g_fpga_xy_reg_mem->sha256_ctrl          = 0x000000B3;  // SHA256 control: DMA_START | DBL_HASH | DMA_MODE | RESET trigger | ENABLE
+#endif
     (void) gettimeofday(&t1, NULL);  // t1-t0 = x.xµs
 
     // wait until ready
-    int iter = 16;
+    int iter = 68;
     status = g_fpga_xy_reg_mem->sha256_status;
-    while (!(status & (1L << 1)) && iter) {
+    while (/*!(status & (1L << 1)) && */ iter) {
+        uint32_t fifo_rd_last         = g_fpga_xy_reg_mem->sha256_data_push;
         uint32_t fifo_wr_cnt          = g_fpga_xy_reg_mem->sha256_fifo_wr_count;
         uint32_t fifo_rd_cnt          = g_fpga_xy_reg_mem->sha256_fifo_rd_count;
         uint32_t dma_state            = g_fpga_xy_reg_mem->sha256_dma_state;
@@ -184,11 +225,13 @@ void test_sha256_dma_blockchain_example()
         uint32_t dma_axi_w_state      = g_fpga_xy_reg_mem->sha256_dma_axi_w_state;
         uint32_t sha256_dma_last_data = g_fpga_xy_reg_mem->sha256_dma_last_data;
         fprintf(stderr, "INFO waiting - status = %08x,  " \
-                "fifo_wr_cnt = %d, fifo_rd_cnt = %d,  " \
-                "dma_state = 0x%08x,  " \
+                "fifo_rd_last = 0x%08x,  " \
+                "fifo_wr_cnt = %03d, fifo_rd_cnt = %03d,  " \
+                "dma_state = 0x%02x,  " \
                 "dma_axi_r_state = 0x%08x, dma_axi_w_state = 0x%08x,  " \
                 "sha256_dma_last_data = 0x%08x\n",
                 status,
+				fifo_rd_last,
                 fifo_wr_cnt, fifo_rd_cnt,
                 dma_state,
                 dma_axi_r_state, dma_axi_w_state,

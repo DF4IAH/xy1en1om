@@ -98,7 +98,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082601;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082702;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ enum {
     SHA256_CTRL_DBL_HASH,
     SHA256_CTRL_DMA_MODE,
     SHA256_CTRL_DMA_MULTIHASH,
-    SHA256_CTRL_RSVD_D07,
+    SHA256_CTRL_DMA_START,
 
     SHA256_CTRL_RSVD_D08,
     SHA256_CTRL_RSVD_D09,
@@ -292,6 +292,7 @@ wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_C
 wire                     sha256_dbl_hash     = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DBL_HASH];
 wire                     sha256_dma_mode     = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DMA_MODE];
 wire                     sha256_dma_multihash= regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DMA_MULTIHASH];
+wire                     sha256_dma_start    = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DMA_START];
 wire         [ 31:0]     sha256_dma_base_addr= regs[REG_RW_SHA256_DMA_BASE_ADDR];
 wire         [ 31:0]     sha256_dma_bit_len  = regs[REG_RW_SHA256_DMA_BIT_LEN];
 wire         [ 31:0]     sha256_dma_nonce_ofs= regs[REG_RW_SHA256_DMA_NONCE_OFS];
@@ -326,6 +327,9 @@ wire         [  7:0]     sha256_dma_state;
 wire         [ 31:0]     sha256_dma_axi_r_state;
 wire         [ 31:0]     sha256_dma_axi_w_state;
 wire         [ 31:0]     sha256_dma_last_data;
+reg          [ 31:0]     sha256_fifo_read_last = 32'b0;
+reg                      dbg_fifo_read_next    =  1'b0;
+
 
 
 // === NET: KECCAK512 section ===
@@ -463,7 +467,7 @@ dma_engine i_dma_engine (
   .dma_enable_i       (sha256_dma_mode            ),  // 1 = DMA mode, 0 = FIFO mode
   .dma_base_addr_i    (sha256_dma_base_addr       ),  // DMA byte base address, bits [1:0] always 0 (32 bit alignment)
   .dma_bit_len_i      (sha256_dma_bit_len         ),  // submodule number of data bits to be hashed, bits [4:0] always 0 (32 bit alignment)
-  .dma_start_i        (sha256_start               ),
+  .dma_start_i        (sha256_dma_start           ),  // start flag of the DMA engine, that flag is auto-clearing
 
   .sha256_rdy_i       (sha256_rdy                 ),
 
@@ -527,7 +531,7 @@ assign sha256_32b_fifo_wr_in = sha256_dma_mode ?  sha256_dma_fifo_wr_in : sha256
 fifo_32i_32o_512d i_fifo_32i_32o (
   .rst                     ( !sha256_reset_n             ), // reset active high
   .wr_clk                  ( bus_clk                     ), // clock 125.0 MHz
-  .rd_clk                  ( sha256_clk                  ), // clock  62.5 MHz
+  .rd_clk                  ( bus_clk /*sha256_clk*/                  ), // clock  62.5 MHz
 
   .wr_en                   ( sha256_32b_fifo_wr_en       ), // write signal to push into the FIFO
   .din                     ( sha256_32b_fifo_wr_in       ), // 32 bit word in
@@ -535,7 +539,7 @@ fifo_32i_32o_512d i_fifo_32i_32o (
   .full                    ( sha256_fifo_full            ), // FIFO would spill over by next write access
   .wr_data_count           ( sha256_fifo_wr_count        ), // at least this number of entries are pushed on the FIFO
 
-  .rd_en                   ( sha256_32b_fifo_rd_en       ), // enable reading from the FIFO
+  .rd_en                   ( dbg_fifo_read_next /*sha256_32b_fifo_rd_en*/       ), // enable reading from the FIFO
   .valid                   ( sha256_32b_fifo_rd_vld      ), // read data is valid
   .dout                    ( sha256_32b_fifo_rd_out      ), // 32 bit word out for the SHA-256 engine to process
   .empty                   ( sha256_fifo_empty           ), // FIFO does not contain any data
@@ -568,12 +572,18 @@ sha256_engine i_sha256_engine (
 always @(posedge sha256_clk)
 if (!sha256_reset_n)
    sha256_start <= 1'b0;
-else if ((!sha256_fifo_empty || sha256_dma_mode) && sha256_rdy)
+else if (!sha256_fifo_empty && sha256_rdy)
    sha256_start <= 1'b1;
 else
    sha256_start <= 1'b0;
 
 assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha256_fifo_empty,  2'b0, sha256_hash_valid, sha256_rdy };
+
+always @(posedge bus_clk)
+if (!sha256_reset_n)
+   sha256_fifo_read_last <= 32'b0;
+else if (sha256_32b_fifo_rd_vld)
+   sha256_fifo_read_last <= sha256_32b_fifo_rd_out;
 
 
 // === IMPL: KECCAK512 section ===
@@ -614,7 +624,7 @@ if (!bus_rstn) begin
   end
 
 else begin
-  regs[REG_RW_SHA256_CTRL] <= regs[REG_RW_SHA256_CTRL] & ~(32'h00000002);  // mask out one-shot flags (RESET)
+  regs[REG_RW_SHA256_CTRL] <= regs[REG_RW_SHA256_CTRL] & ~(32'h00000082);  // mask out one-shot flags (DMA_START, RESET)
   sha256_port_fifo_wr_en <= 1'b0;
 //kek512_start <= 1'b0;
 
@@ -686,9 +696,12 @@ if (!bus_rstn) begin
   sys_err      <= 1'b0;
   sys_ack      <= 1'b0;
   sys_rdata    <= 32'h00000000;
+  dbg_fifo_read_next <= 1'b0;
   end
 
 else begin
+  dbg_fifo_read_next <= 1'b0;
+
   sys_err <= 1'b0;
   if (sys_ren) begin
     casez (sys_addr[19:0])
@@ -722,7 +735,8 @@ else begin
 
     20'h0010C: begin
       sys_ack   <= sys_en;
-      sys_rdata <= { 23'b0, sha256_fifo_wr_count[8:0] };
+      sys_rdata <= sha256_fifo_read_last;
+      dbg_fifo_read_next <= 1'b1;
       end
 
     20'h00110: begin
