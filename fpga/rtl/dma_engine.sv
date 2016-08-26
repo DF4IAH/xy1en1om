@@ -34,52 +34,54 @@ module dma_engine #(
 
    input              sha256_rdy_i       ,
 
-  // AXI_HP0 master
-   output             S_AXI_HP0_aclk     ,
-   output  [   31: 0] S_AXI_HP0_araddr   ,
-   output  [    1: 0] S_AXI_HP0_arburst  ,
-   output  [    3: 0] S_AXI_HP0_arcache  ,
-   output  [    5: 0] S_AXI_HP0_arid     ,
-   output  [    3: 0] S_AXI_HP0_arlen    ,
-   output  [    1: 0] S_AXI_HP0_arlock   ,
-   output  [    2: 0] S_AXI_HP0_arprot   ,
-   output  [    3: 0] S_AXI_HP0_arqos    ,
-   input              S_AXI_HP0_arready  ,
-   output  [    2: 0] S_AXI_HP0_arsize   ,
-   output             S_AXI_HP0_arvalid  ,
-   output  [   31: 0] S_AXI_HP0_awaddr   ,
-   output  [    1: 0] S_AXI_HP0_awburst  ,
-   output  [    3: 0] S_AXI_HP0_awcache  ,
-   output  [    5: 0] S_AXI_HP0_awid     ,
-   output  [    3: 0] S_AXI_HP0_awlen    ,
-   output  [    1: 0] S_AXI_HP0_awlock   ,
-   output  [    2: 0] S_AXI_HP0_awprot   ,
-   output  [    3: 0] S_AXI_HP0_awqos    ,
-   input              S_AXI_HP0_awready  ,
-   output  [    2: 0] S_AXI_HP0_awsize   ,
-   output             S_AXI_HP0_awvalid  ,
-   input   [    5: 0] S_AXI_HP0_bid      ,
-   output             S_AXI_HP0_bready   ,
-   input   [    1: 0] S_AXI_HP0_bresp    ,
-   input              S_AXI_HP0_bvalid   ,
-   input   [   63: 0] S_AXI_HP0_rdata    ,
-   input   [    5: 0] S_AXI_HP0_rid      ,
-   input              S_AXI_HP0_rlast    ,
-   output             S_AXI_HP0_rready   ,
-   input   [    1: 0] S_AXI_HP0_rresp    ,
-   input              S_AXI_HP0_rvalid   ,
-   output  [   63: 0] S_AXI_HP0_wdata    ,
-   output  [    5: 0] S_AXI_HP0_wid      ,
-   output             S_AXI_HP0_wlast    ,
-   input              S_AXI_HP0_wready   ,
-   output  [    7: 0] S_AXI_HP0_wstrb    ,
-   output             S_AXI_HP0_wvalid   ,
+  // AXI_ACP master
+   output             S_AXI_ACP_aclk     ,
+   output  [   31: 0] S_AXI_ACP_araddr   ,
+   output  [    1: 0] S_AXI_ACP_arburst  ,
+   output  [    3: 0] S_AXI_ACP_arcache  ,
+   output  [    2: 0] S_AXI_ACP_arid     ,
+   output  [    3: 0] S_AXI_ACP_arlen    ,
+   output  [    1: 0] S_AXI_ACP_arlock   ,
+   output  [    2: 0] S_AXI_ACP_arprot   ,
+   output  [    3: 0] S_AXI_ACP_arqos    ,
+   input              S_AXI_ACP_arready  ,
+   output  [    2: 0] S_AXI_ACP_arsize   ,
+   output  [    4: 0] S_AXI_ACP_aruser   ,
+   output             S_AXI_ACP_arvalid  ,
+   output  [   31: 0] S_AXI_ACP_awaddr   ,
+   output  [    1: 0] S_AXI_ACP_awburst  ,
+   output  [    3: 0] S_AXI_ACP_awcache  ,
+   output  [    2: 0] S_AXI_ACP_awid     ,
+   output  [    3: 0] S_AXI_ACP_awlen    ,
+   output  [    1: 0] S_AXI_ACP_awlock   ,
+   output  [    2: 0] S_AXI_ACP_awprot   ,
+   output  [    3: 0] S_AXI_ACP_awqos    ,
+   input              S_AXI_ACP_awready  ,
+   output  [    2: 0] S_AXI_ACP_awsize   ,
+   output  [    4: 0] S_AXI_ACP_awuser   ,
+   output             S_AXI_ACP_awvalid  ,
+   input   [    2: 0] S_AXI_ACP_bid      ,
+   output             S_AXI_ACP_bready   ,
+   input   [    1: 0] S_AXI_ACP_bresp    ,
+   input              S_AXI_ACP_bvalid   ,
+   input   [   63: 0] S_AXI_ACP_rdata    ,
+   input   [    2: 0] S_AXI_ACP_rid      ,
+   input              S_AXI_ACP_rlast    ,
+   output             S_AXI_ACP_rready   ,
+   input   [    1: 0] S_AXI_ACP_rresp    ,
+   input              S_AXI_ACP_rvalid   ,
+   output  [   63: 0] S_AXI_ACP_wdata    ,
+   output  [    2: 0] S_AXI_ACP_wid      ,
+   output             S_AXI_ACP_wlast    ,
+   input              S_AXI_ACP_wready   ,
+   output  [    7: 0] S_AXI_ACP_wstrb    ,
+   output             S_AXI_ACP_wvalid   ,
 
    output reg         fifo_wr_en_o       ,
    output reg [ 31:0] fifo_wr_in_o       ,
    input      [  8:0] fifo_wr_count_i    ,
 
-   output     [  3:0] dbg_state_o        ,
+   output     [  7:0] dbg_state_o        ,
    output     [ 31:0] dbg_axi_r_state_o  ,
    output     [ 31:0] dbg_axi_w_state_o  ,
    output reg [ 31:0] dbg_axi_last_data
@@ -88,89 +90,97 @@ module dma_engine #(
 
 // AXIS master MM2S - to the FIFO
 wire          [ 31:0] m_axis_mm2s_tdata;
+wire                  m_axis_mm2s_tvalid;
 wire          [  3:0] m_axis_mm2s_tkeep;
 wire                  m_axis_mm2s_tlast;
-wire                  m_axis_mm2s_tready;
-wire                  m_axis_mm2s_tvalid;
+reg                   m_axis_mm2s_tready     =  1'b0;
 
 // AXIS slave MM2S_CMD - command interface
 wire          [ 71:0] s_axis_mm2s_cmd_tdata;
+reg                   s_axis_mm2s_cmd_tvalid =  1'b0;
 wire                  s_axis_mm2s_cmd_tready;
-wire                  s_axis_mm2s_cmd_tvalid;
 
 // AXIS master MM2S_STS - status interface
 wire          [  7:0] m_axis_mm2s_sts_tdata;
+wire                  m_axis_mm2s_sts_tvalid;
 wire          [  0:0] m_axis_mm2s_sts_tkeep;
 wire                  m_axis_mm2s_sts_tlast;
-wire                  m_axis_mm2s_sts_tready;
-wire                  m_axis_mm2s_sts_tvalid;
+reg                   m_axis_mm2s_sts_tready =  1'b0;
 
 // interrupt source
 wire                  mm2s_err;
 
 
-reg  unsigned [ 31:0] ofs_addr;
-reg  unsigned [ 31:0] rd_len;
-reg           [ 31:0] rd_cache;
-reg           [  3:0] state;
+reg           [  2:0] cmd_tag                =  3'h0;
+reg           [ 31:0] cmd_start_addr         = 32'b0;
+reg                   cmd_eof                =  1'b0;
+reg           [ 22:0] cmd_btt                = 23'h0;
+reg                   cmd_running            =  1'b0;
+reg           [  7:0] sts_last               =  8'h0;
+reg           [  7:0] dbg_sts                =  8'h0;
+wire                  sts_dec_ok;
+wire          [  3:0] sts_dec_tag;
+wire                  sts_dec_interr;
+wire                  sts_dec_decerr;
+wire                  sts_dec_slverr;
+wire                  sts_dec_ok;
 
 
-assign S_AXI_HP0_aclk = clk_i;
+assign S_AXI_ACP_aclk = clk_i;
 
-
-// debugging
-assign dbg_state_o       = state;
-//assign dbg_axi_r_state_o = { axi_rdata_i[7:0],  1'b0, dma_enable_i, dma_start_i, sha256_rdy_i,  1'b0, axi_rerr_i, axi_rrdy_i, axi_rvalid_o,  axi_raddr_o[15:0] };
-//assign dbg_axi_w_state_o = { axi_wdata_o[7:0],  1'b0, dma_enable_i, dma_start_i, sha256_rdy_i,  1'b0, axi_werr_i, axi_wrdy_i, axi_wvalid_o,  axi_waddr_o[15:0] };
+// dummy size connection parts
+wire          [ 3: 0] S_AXI_ACP_arlen_nc;
+//wire        [ 3: 0] S_AXI_ACP_awlen_nc;
 
 // AXI datamover: master --> read slave, master --> FIFO
-axi_datamover_s_axi_hp0 datamover (
+axi_datamover_s_axi_acp datamover (
 
-  // AXI_HP0 master - read access - M_AXI_MM2S
-  .m_axi_mm2s_aclk    (S_AXI_HP0_aclk             ),
+  // AXI_ACP master - read access - M_AXI_MM2S
+  .m_axi_mm2s_aclk    (S_AXI_ACP_aclk             ),
   .m_axi_mm2s_aresetn (rstn_i                     ),
-  .m_axi_mm2s_arid    (S_AXI_HP0_arid             ),
-  .m_axi_mm2s_araddr  (S_AXI_HP0_araddr           ),
-  .m_axi_mm2s_arvalid (S_AXI_HP0_arvalid          ),
-//.m_axi_mm2s_arlock  (S_AXI_HP0_arlock           ),
-  .m_axi_mm2s_arprot  (S_AXI_HP0_arprot           ),
-//.m_axi_mm2s_arqos   (S_AXI_HP0_arqos            ),
-  .m_axi_mm2s_arburst (S_AXI_HP0_arburst          ),
-  .m_axi_mm2s_arcache (S_AXI_HP0_arcache          ),
-  .m_axi_mm2s_arlen   (S_AXI_HP0_arlen            ),
-  .m_axi_mm2s_arsize  (S_AXI_HP0_arsize           ),
-  .m_axi_mm2s_arready (S_AXI_HP0_arready          ),
-  .m_axi_mm2s_aruser  (                           ),
-//.m_axi_mm2s_rid     (S_AXI_HP0_rid              ),
-  .m_axi_mm2s_rdata   (S_AXI_HP0_rdata            ),
-  .m_axi_mm2s_rvalid  (S_AXI_HP0_rvalid           ),
-  .m_axi_mm2s_rlast   (S_AXI_HP0_rlast            ),
-  .m_axi_mm2s_rresp   (S_AXI_HP0_rresp            ),
-  .m_axi_mm2s_rready  (S_AXI_HP0_rready           ),
+  .m_axi_mm2s_arid    (S_AXI_ACP_arid             ),
+  .m_axi_mm2s_araddr  (S_AXI_ACP_araddr           ),
+  .m_axi_mm2s_arvalid (S_AXI_ACP_arvalid          ),
+//.m_axi_mm2s_arlock  (S_AXI_ACP_arlock           ),
+  .m_axi_mm2s_arprot  (S_AXI_ACP_arprot           ),
+//.m_axi_mm2s_arqos   (S_AXI_ACP_arqos            ),
+  .m_axi_mm2s_arburst (S_AXI_ACP_arburst          ),
+  .m_axi_mm2s_arcache (S_AXI_ACP_arcache          ),
+  .m_axi_mm2s_arlen   ({S_AXI_ACP_arlen_nc, S_AXI_ACP_arlen}),
+  .m_axi_mm2s_arsize  (S_AXI_ACP_arsize           ),
+  .m_axi_mm2s_arready (S_AXI_ACP_arready          ),
+  .m_axi_mm2s_aruser  (S_AXI_ACP_aruser[3:0]      ),
+//.m_axi_mm2s_rid     (S_AXI_ACP_rid              ),
+  .m_axi_mm2s_rdata   (S_AXI_ACP_rdata            ),
+  .m_axi_mm2s_rvalid  (S_AXI_ACP_rvalid           ),
+  .m_axi_mm2s_rlast   (S_AXI_ACP_rlast            ),
+  .m_axi_mm2s_rresp   (S_AXI_ACP_rresp            ),
+  .m_axi_mm2s_rready  (S_AXI_ACP_rready           ),
 
 /*
-  // AXI_HP0 master - write access - M_AXI_MM2S
-  .m_axi_mm2s_awid    (S_AXI_HP0_awid             ),
-  .m_axi_mm2s_awaddr  (S_AXI_HP0_awaddr           ),
-  .m_axi_mm2s_awvalid (S_AXI_HP0_awvalid          ),
-  .m_axi_mm2s_awlock  (S_AXI_HP0_awlock           ),
-  .m_axi_mm2s_awprot  (S_AXI_HP0_awprot           ),
-  .m_axi_mm2s_awqos   (S_AXI_HP0_awqos            ),
-  .m_axi_mm2s_awburst (S_AXI_HP0_awburst          ),
-  .m_axi_mm2s_awcache (S_AXI_HP0_awcache          ),
-  .m_axi_mm2s_awlen   (S_AXI_HP0_awlen            ),
-  .m_axi_mm2s_awsize  (S_AXI_HP0_awsize           ),
-  .m_axi_mm2s_awready (S_AXI_HP0_awready          ),
-  .m_axi_mm2s_wid     (S_AXI_HP0_wid              ),
-  .m_axi_mm2s_wdata   (S_AXI_HP0_wdata            ),
-  .m_axi_mm2s_wvalid  (S_AXI_HP0_wvalid           ),
-  .m_axi_mm2s_wstrb   (S_AXI_HP0_wstrb            ),
-  .m_axi_mm2s_wlast   (S_AXI_HP0_wlast            ),
-  .m_axi_mm2s_wready  (S_AXI_HP0_wready           ),
-  .m_axi_mm2s_bid     (S_AXI_HP0_bid              ),
-  .m_axi_mm2s_bresp   (S_AXI_HP0_bresp            ),
-  .m_axi_mm2s_bvalid  (S_AXI_HP0_bvalid           ),
-  .m_axi_mm2s_bready  (S_AXI_HP0_bready           ),
+  // AXI_ACP master - write access - M_AXI_MM2S
+  .m_axi_mm2s_awid    (S_AXI_ACP_awid             ),
+  .m_axi_mm2s_awaddr  (S_AXI_ACP_awaddr           ),
+  .m_axi_mm2s_awvalid (S_AXI_ACP_awvalid          ),
+  .m_axi_mm2s_awlock  (S_AXI_ACP_awlock           ),
+  .m_axi_mm2s_awprot  (S_AXI_ACP_awprot           ),
+  .m_axi_mm2s_awqos   (S_AXI_ACP_awqos            ),
+  .m_axi_mm2s_awburst (S_AXI_ACP_awburst          ),
+  .m_axi_mm2s_awcache (S_AXI_ACP_awcache          ),
+  .m_axi_mm2s_awlen   ({S_AXI_ACP_awlen_nc, S_AXI_ACP_awlen}),
+  .m_axi_mm2s_awsize  (S_AXI_ACP_awsize           ),
+  .m_axi_mm2s_awuser  ({ 1'b0, S_AXI_ACP_awuser } ),
+  .m_axi_mm2s_awready (S_AXI_ACP_awready          ),
+  .m_axi_mm2s_wid     (S_AXI_ACP_wid              ),
+  .m_axi_mm2s_wdata   (S_AXI_ACP_wdata            ),
+  .m_axi_mm2s_wvalid  (S_AXI_ACP_wvalid           ),
+  .m_axi_mm2s_wstrb   (S_AXI_ACP_wstrb            ),
+  .m_axi_mm2s_wlast   (S_AXI_ACP_wlast            ),
+  .m_axi_mm2s_wready  (S_AXI_ACP_wready           ),
+  .m_axi_mm2s_bid     (S_AXI_ACP_bid              ),
+  .m_axi_mm2s_bresp   (S_AXI_ACP_bresp            ),
+  .m_axi_mm2s_bvalid  (S_AXI_ACP_bvalid           ),
+  .m_axi_mm2s_bready  (S_AXI_ACP_bready           ),
 */
 
   // AXIS master MM2S - to the FIFO
@@ -197,25 +207,27 @@ axi_datamover_s_axi_hp0 datamover (
   .mm2s_err                   (mm2s_err                   )
 );
 
-assign S_AXI_HP0_arlock   =  2'b00;
-assign S_AXI_HP0_arqos    =  4'b0000;
+assign S_AXI_ACP_arlock   =  2'b00;
+assign S_AXI_ACP_arqos    =  4'b0000;
+assign S_AXI_ACP_aruser[4]=  1'b0;
 
-assign S_AXI_HP0_awaddr   = 32'h0;
-assign S_AXI_HP0_awburst  =  2'h0;
-assign S_AXI_HP0_awcache  =  4'h0;
-assign S_AXI_HP0_awid     =  6'h0;
-assign S_AXI_HP0_awlen    =  4'h0;
-assign S_AXI_HP0_awlock   =  2'h0;
-assign S_AXI_HP0_awprot   =  3'h0;
-assign S_AXI_HP0_awqos    =  4'h0;
-assign S_AXI_HP0_awsize   =  3'h0;
-assign S_AXI_HP0_awvalid  =  1'b0;
-assign S_AXI_HP0_wdata    = 64'h0;
-assign S_AXI_HP0_wid      =  6'h0;
-assign S_AXI_HP0_wlast    =  1'b0;
-assign S_AXI_HP0_wstrb    =  8'h0;
-assign S_AXI_HP0_wvalid   =  1'b0;
-assign S_AXI_HP0_bready   =  1'b0;
+assign S_AXI_ACP_awaddr   = 32'h0;
+assign S_AXI_ACP_awburst  =  2'h0;
+assign S_AXI_ACP_awcache  =  4'h0;
+assign S_AXI_ACP_awid     =  6'h0;
+assign S_AXI_ACP_awlen    =  4'h0;
+assign S_AXI_ACP_awlock   =  2'h0;
+assign S_AXI_ACP_awprot   =  3'h0;
+assign S_AXI_ACP_awqos    =  4'h0;
+assign S_AXI_ACP_awsize   =  3'h0;
+assign S_AXI_ACP_awuser   =  5'b0;
+assign S_AXI_ACP_awvalid  =  1'b0;
+assign S_AXI_ACP_wdata    = 64'h0;
+assign S_AXI_ACP_wid      =  6'h0;
+assign S_AXI_ACP_wlast    =  1'b0;
+assign S_AXI_ACP_wstrb    =  8'h0;
+assign S_AXI_ACP_wvalid   =  1'b0;
+assign S_AXI_ACP_bready   =  1'b0;
 
 
 // AXI master system write bus not used
@@ -230,107 +242,94 @@ assign axi_wlen_o   =  4'b0;
 assign axi_wfixed_o =  1'b0;
 */
 
-/*
-always @(posedge clk_i) begin
+
+/* FIFO */
+always @(posedge clk_i)
+if (!rstn_i)
+   m_axis_mm2s_tready <= 1'b0;
+else if (!mm2s_err && !m_axis_mm2s_tlast && (fifo_wr_count_i < 9'h1E0))
+   m_axis_mm2s_tready <= 1'b1;                              // clear m_axis_mm2s_tready for one clock when last block enters
+else
+   m_axis_mm2s_tready <= 1'b0;
+
+always @(posedge clk_i)
 if (!rstn_i) begin
-   rd_len       <= 16'b0;
-   rd_cache     <= 32'b0;
-   ofs_addr     <= 32'b0;
    fifo_wr_in_o <= 32'b0;
    fifo_wr_en_o <=  1'b0;
-   axi_raddr_o  <= 32'b0;
-   axi_rvalid_o <=  1'b0;
-   axi_rsel_o   <=  8'b0;
-   axi_rlen_o   <=  4'b0;
-   axi_rfixed_o <=  1'b0;
-   state <= 4'h0;
    end
-
+else if (m_axis_mm2s_tvalid && m_axis_mm2s_tready) begin
+   fifo_wr_in_o      <= m_axis_mm2s_tdata;
+   dbg_axi_last_data <= m_axis_mm2s_tdata;
+   fifo_wr_en_o <= 1'b1;
+   end
 else
-   case (state)
+   fifo_wr_en_o <= 1'b0;
 
-   4'h0: if (sha256_rdy_i && dma_enable_i && dma_start_i && (|dma_bit_len_i) && (fifo_wr_count_i <= 9'h1E0)) begin
-            rd_len       <= dma_bit_len_i;
-            rd_cache     <= 32'b0;
-            ofs_addr     <= 32'b0;
-            fifo_wr_in_o <= 32'b0;
-            fifo_wr_en_o <= 1'b0;
-            axi_raddr_o  <= dma_base_addr_i;                // start read address
-            axi_rvalid_o <= 1'b1;
-            axi_rsel_o   <= 8'hFF;                          // keep all bits on for 64 bit transfers
-            axi_rlen_o   <= 4'h6;  // DEBUGGING
-//          if (dma_bit_len_i >= 32'h400)                   // longest burst is 16 words for one hashing sub-process
-//             axi_rlen_o <= 4'h7;                          // AXI4 says: axi_rlen[3:0] + 1
-//          else if (dma_bit_len_i >= 32'h40)               // burst length as needed
-//             axi_rlen_o <= (dma_bit_len_i >> 10) - 32'h1;
-//          else
-//             axi_rlen_o <= 4'h0;                          // minimal length is one transfer
-//          axi_rfixed_o <= 1'b0;                           // keep it cleared
-            state <= 4'h1;
-            end
 
-   4'h1: if (axi_rrdy_i && !axi_rerr_i) begin               // read data valid
-            rd_cache     <= axi_rdata_i[31: 0];
-            fifo_wr_in_o <= axi_rdata_i[63:32];             // push upper part into FIFO
-            dbg_axi_last_data <= axi_rdata_i[63:32];        // DEBUGGING
-            fifo_wr_en_o <= 1'b1;
-            axi_rvalid_o <= 1'b0;
-
-            if (rd_len >= 32'h40) begin                     // 64 bits to be stored, next data to request
-               rd_len   <= rd_len - 32'h40;                 // remaining bits to read
-               ofs_addr <= ofs_addr + 32'h08;               // byte address increments by 64 bits = 8 bytes
-               state <= 4'h2;                               // goto push lower part branch
-               end
-            else if (rd_len > 32'h20) begin                 // 64 bits to be stored, but no more data request
-               rd_len <= 32'b0;                             // no more data to request
-               state <= 4'h2;
-               end
-            else begin                                      // less data to be stored, no more data request
-               rd_len <= 32'b0;                             // no more data to read
-               state <= 4'h4;
-               end
-            end
-         else if (axi_rerr_i) begin                         // error case stop transfer and trap
-            axi_raddr_o  <= 32'b0;
-            axi_rvalid_o <=  1'b0;
-            fifo_wr_en_o <=  1'b0;
-            state <= 4'hF;
-            end
-
-   4'h2: begin                                              // prepare for lower FIFO push
-            fifo_wr_en_o <= 1'b0;
-            state <= 4'h3;
-            end
-
-   4'h3: begin
-            fifo_wr_in_o <= rd_cache;                       // push lower part into FIFO
-            dbg_axi_last_data <= rd_cache;                  // DEBUGGING
-            fifo_wr_en_o <= 1'b1;
-            state <= 4'h4;
-            end
-
-   4'h4: begin
-            fifo_wr_en_o <= 1'b0;
-            if (|rd_len)
-               if (fifo_wr_count_i <= 9'h1E0) begin         // DMA read access requests next address
-                  axi_raddr_o  <= dma_base_addr_i + ofs_addr;
-                  axi_rvalid_o <= 1'b1;
-                  if (dma_bit_len_i >= 32'h400)             // longest burst is 16 words for one hashing sub-process
-                     axi_rlen_o <= 4'h7;                    // AXI4 says: axi_rlen[3:0] + 1
-                  else if (dma_bit_len_i >= 32'h40)         // burst length as needed
-                     axi_rlen_o <= (dma_bit_len_i >> 10) - 32'h1;
-                  else
-                     axi_rlen_o <= 4'h0;                    // minimal length is one transfer
-                  state <= 4'h1;
-                  end
-            else
-               state <= 4'h0;                               // DMA access finished
-         end
-
-   default: state <= 4'hF;                                  // being trapped in case of an error
-
-   endcase
+/* CMD */
+always @(posedge clk_i)
+if (!rstn_i) begin
+   cmd_running            <=  1'b0;
+   cmd_tag                <=  3'h0;
+   cmd_start_addr         <= 32'h0;
+   cmd_eof                <=  1'b0;
+   cmd_btt                <= 23'b0;
+   s_axis_mm2s_cmd_tvalid <=  1'b0;
    end
-*/
+else begin
+   if (!cmd_running && s_axis_mm2s_cmd_tready && sha256_rdy_i && dma_enable_i && dma_start_i) begin
+      cmd_running            <= 1'b1;
+      cmd_start_addr         <= dma_base_addr_i;
+      cmd_eof                <= 1'b1;
+      cmd_btt                <= (|dma_bit_len_i[7:0]) ?  (dma_bit_len_i[25:3] + 23'd1) : dma_bit_len_i[25:3];
+      cmd_tag                <= cmd_tag + 3'h1;
+      s_axis_mm2s_cmd_tvalid <= 1'b1;
+      end
+   else if (cmd_running && s_axis_mm2s_cmd_tready && s_axis_mm2s_cmd_tvalid)
+      s_axis_mm2s_cmd_tvalid <= 1'b0;
+   else if (!dma_enable_i)
+      s_axis_mm2s_cmd_tvalid <= 1'b0;
+
+   if (cmd_running && !s_axis_mm2s_cmd_tvalid && dbg_sts && !dma_start_i)
+      cmd_running <= 1'b0;
+   end
+
+//                                 bufferable, non-cacheable
+//                                 CACHE, XUSER, RSVD,     TAG,   START ADDRES,  DRR,     EOF,  DSA, INCR,     BTT
+assign s_axis_mm2s_cmd_tdata = { 4'b0001,  4'h0, 4'h0, cmd_tag, cmd_start_addr, 1'b0, cmd_eof, 4'h0, 1'b1, cmd_btt};
+
+// debugging
+assign dbg_axi_r_state_o = { 1'b0, cmd_tag[2:0], 8'b0,  dma_start_i, cmd_running, s_axis_mm2s_cmd_tvalid, s_axis_mm2s_cmd_tready,  cmd_start_addr[15:0] };
+assign dbg_axi_w_state_o = { 9'b0, cmd_btt };
+
+
+/* STS */
+always @(posedge clk_i)
+if (!rstn_i)
+   m_axis_mm2s_sts_tready <= 1'b0;
+else
+   m_axis_mm2s_sts_tready <= 1'b1;
+
+always @(posedge clk_i)
+if (!rstn_i) begin
+   dbg_sts  <= 8'b0;
+   sts_last <= 8'hFF;
+   end
+else if (m_axis_mm2s_sts_tvalid && m_axis_mm2s_sts_tready) begin
+   dbg_sts  <= m_axis_mm2s_sts_tdata;
+   sts_last <= m_axis_mm2s_sts_tdata;
+   end
+else
+   dbg_sts <= 8'b0;
+
+
+assign sts_dec_tag    = sts_last[3:0];
+assign sts_dec_interr = sts_last[4];
+assign sts_dec_decerr = sts_last[5];
+assign sts_dec_slverr = sts_last[6];
+assign sts_dec_ok     = sts_last[7];
+
+assign dbg_state_o = sts_last;
+
 
 endmodule: dma_engine

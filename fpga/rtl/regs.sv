@@ -40,46 +40,48 @@ module regs #(
   output reg            sys_err         ,  // bus error indicator
   output reg            sys_ack         ,  // bus acknowledge signal
 
-  // AXI_HP0 master
-  output             S_AXI_HP0_aclk     ,
-  output  [   31: 0] S_AXI_HP0_araddr   ,
-  output  [    1: 0] S_AXI_HP0_arburst  ,
-  output  [    3: 0] S_AXI_HP0_arcache  ,
-  output  [    5: 0] S_AXI_HP0_arid     ,
-  output  [    3: 0] S_AXI_HP0_arlen    ,
-  output  [    1: 0] S_AXI_HP0_arlock   ,
-  output  [    2: 0] S_AXI_HP0_arprot   ,
-  output  [    3: 0] S_AXI_HP0_arqos    ,
-  input              S_AXI_HP0_arready  ,
-  output  [    2: 0] S_AXI_HP0_arsize   ,
-  output             S_AXI_HP0_arvalid  ,
-  output  [   31: 0] S_AXI_HP0_awaddr   ,
-  output  [    1: 0] S_AXI_HP0_awburst  ,
-  output  [    3: 0] S_AXI_HP0_awcache  ,
-  output  [    5: 0] S_AXI_HP0_awid     ,
-  output  [    3: 0] S_AXI_HP0_awlen    ,
-  output  [    1: 0] S_AXI_HP0_awlock   ,
-  output  [    2: 0] S_AXI_HP0_awprot   ,
-  output  [    3: 0] S_AXI_HP0_awqos    ,
-  input              S_AXI_HP0_awready  ,
-  output  [    2: 0] S_AXI_HP0_awsize   ,
-  output             S_AXI_HP0_awvalid  ,
-  input   [    5: 0] S_AXI_HP0_bid      ,
-  output             S_AXI_HP0_bready   ,
-  input   [    1: 0] S_AXI_HP0_bresp    ,
-  input              S_AXI_HP0_bvalid   ,
-  input   [   63: 0] S_AXI_HP0_rdata    ,
-  input   [    5: 0] S_AXI_HP0_rid      ,
-  input              S_AXI_HP0_rlast    ,
-  output             S_AXI_HP0_rready   ,
-  input   [    1: 0] S_AXI_HP0_rresp    ,
-  input              S_AXI_HP0_rvalid   ,
-  output  [   63: 0] S_AXI_HP0_wdata    ,
-  output  [    5: 0] S_AXI_HP0_wid      ,
-  output             S_AXI_HP0_wlast    ,
-  input              S_AXI_HP0_wready   ,
-  output  [    7: 0] S_AXI_HP0_wstrb    ,
-  output             S_AXI_HP0_wvalid   ,
+  // AXI_ACP master
+  output             S_AXI_ACP_aclk     ,
+  output  [   31: 0] S_AXI_ACP_araddr   ,
+  output  [    1: 0] S_AXI_ACP_arburst  ,
+  output  [    3: 0] S_AXI_ACP_arcache  ,
+  output  [    2: 0] S_AXI_ACP_arid     ,
+  output  [    3: 0] S_AXI_ACP_arlen    ,
+  output  [    1: 0] S_AXI_ACP_arlock   ,
+  output  [    2: 0] S_AXI_ACP_arprot   ,
+  output  [    3: 0] S_AXI_ACP_arqos    ,
+  input              S_AXI_ACP_arready  ,
+  output  [    2: 0] S_AXI_ACP_arsize   ,
+  output  [    4: 0] S_AXI_ACP_aruser   ,
+  output             S_AXI_ACP_arvalid  ,
+  output  [   31: 0] S_AXI_ACP_awaddr   ,
+  output  [    1: 0] S_AXI_ACP_awburst  ,
+  output  [    3: 0] S_AXI_ACP_awcache  ,
+  output  [    2: 0] S_AXI_ACP_awid     ,
+  output  [    3: 0] S_AXI_ACP_awlen    ,
+  output  [    1: 0] S_AXI_ACP_awlock   ,
+  output  [    2: 0] S_AXI_ACP_awprot   ,
+  output  [    3: 0] S_AXI_ACP_awqos    ,
+  input              S_AXI_ACP_awready  ,
+  output  [    2: 0] S_AXI_ACP_awsize   ,
+  output  [    4: 0] S_AXI_ACP_awuser   ,
+  output             S_AXI_ACP_awvalid  ,
+  input   [    2: 0] S_AXI_ACP_bid      ,
+  output             S_AXI_ACP_bready   ,
+  input   [    1: 0] S_AXI_ACP_bresp    ,
+  input              S_AXI_ACP_bvalid   ,
+  input   [   63: 0] S_AXI_ACP_rdata    ,
+  input   [    2: 0] S_AXI_ACP_rid      ,
+  input              S_AXI_ACP_rlast    ,
+  output             S_AXI_ACP_rready   ,
+  input   [    1: 0] S_AXI_ACP_rresp    ,
+  input              S_AXI_ACP_rvalid   ,
+  output  [   63: 0] S_AXI_ACP_wdata    ,
+  output  [    2: 0] S_AXI_ACP_wid      ,
+  output             S_AXI_ACP_wlast    ,
+  input              S_AXI_ACP_wready   ,
+  output  [    7: 0] S_AXI_ACP_wstrb    ,
+  output             S_AXI_ACP_wvalid   ,
 
   // AXI streaming master from XADC
   input              xadc_axis_aclk     ,  // AXI-streaming from the XADC, clock from the AXI-S FIFO
@@ -96,7 +98,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082311;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082503;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -127,8 +129,10 @@ enum {
     REG_RW_SHA256_DMA_NONCE_OFS,                // h148: SHA256 offset location of the 32 bit nonce value for the autoincrementer, bits [4:0] always 0 (32 bit alignment)
 
     /* KECCAK512 section */
+/*
     REG_RW_KECCAK512_CTRL,                      // h200: KECCAK512 submodule control register
 //  REG_RD_KECCAK512_STATUS,                    // h204: KECCAK512 submodule status register
+*/
 
     REG_COUNT
 } REG_ENUMS;
@@ -223,6 +227,7 @@ enum {
 
 // === CONST: KEK512 section ===
 
+/*
 enum {
     KEK512_CTRL_ENABLE                    =  0, // KEK512: reset engine
     KEK512_CTRL_RESET,
@@ -264,6 +269,7 @@ enum {
     KEK512_CTRL_RSVD_D30,
     KEK512_CTRL_RSVD_D31
 } KEK512_CTRL_BITS_ENUM;
+*/
 
 
 // === NET: X11 - OMNI section ===
@@ -316,7 +322,7 @@ wire                     sha256_hash_valid;
 wire         [255:0]     sha256_hash_data;
 
 // debugging DMA engine
-wire         [  3:0]     sha256_dma_state;
+wire         [  7:0]     sha256_dma_state;
 wire         [ 31:0]     sha256_dma_axi_r_state;
 wire         [ 31:0]     sha256_dma_axi_w_state;
 wire         [ 31:0]     sha256_dma_last_data;
@@ -324,6 +330,7 @@ wire         [ 31:0]     sha256_dma_last_data;
 
 // === NET: KECCAK512 section ===
 
+/*
 wire                     kek512_clk          = clks[0];     // 125.0 MHz
 wire                     kek512_rstn         = rstsn[0];
 wire                     kek512_enable       = regs[REG_RW_KECCAK512_CTRL][KEK512_CTRL_ENABLE] &  x11_enable;
@@ -335,6 +342,7 @@ wire                     kek512_rdy;                        // keccak engine is 
 reg          [ 63:0]     kek512_in[25]  = '{25{0}};         // feeding keccak engine
 reg                      kek512_start   = 'b0;              // start keccak engine
 wire         [ 63:0]     kek512_out[25];                    // result of keccak engine
+*/
 
 
 // === IMPL: X11 - OMNI section ===
@@ -375,7 +383,7 @@ red_pitaya_rst_clken i_rst_clken_sha256 (
 );
 wire          sha256_activated = sha256_reset_n;
 
-
+/*
 wire          kek512_clk_en;
 wire          kek512_reset_n;
 red_pitaya_rst_clken i_rst_clken_kek512 (
@@ -392,8 +400,9 @@ red_pitaya_rst_clken i_rst_clken_kek512 (
 );
 
 wire          kek512_activated = kek512_reset_n;
+*/
 
-assign status = { 20'b0,  3'b0 , kek512_activated,  3'b0, sha256_activated,  3'b0, x11_activated };
+assign status = { 20'b0,  3'b0 , 1'b0 /*kek512_activated*/,  3'b0, sha256_activated,  3'b0, x11_activated };
 
 
 // AXIS
@@ -458,46 +467,48 @@ dma_engine i_dma_engine (
 
   .sha256_rdy_i       (sha256_rdy                 ),
 
-  // AXI_HP0 master
-  .S_AXI_HP0_aclk     (S_AXI_HP0_aclk             ),
-  .S_AXI_HP0_araddr   (S_AXI_HP0_araddr           ),
-  .S_AXI_HP0_arburst  (S_AXI_HP0_arburst          ),
-  .S_AXI_HP0_arcache  (S_AXI_HP0_arcache          ),
-  .S_AXI_HP0_arid     (S_AXI_HP0_arid             ),
-  .S_AXI_HP0_arlen    (S_AXI_HP0_arlen            ),
-  .S_AXI_HP0_arlock   (S_AXI_HP0_arlock           ),
-  .S_AXI_HP0_arprot   (S_AXI_HP0_arprot           ),
-  .S_AXI_HP0_arqos    (S_AXI_HP0_arqos            ),
-  .S_AXI_HP0_arready  (S_AXI_HP0_arready          ),
-  .S_AXI_HP0_arsize   (S_AXI_HP0_arsize           ),
-  .S_AXI_HP0_arvalid  (S_AXI_HP0_arvalid          ),
-  .S_AXI_HP0_awaddr   (S_AXI_HP0_awaddr           ),
-  .S_AXI_HP0_awburst  (S_AXI_HP0_awburst          ),
-  .S_AXI_HP0_awcache  (S_AXI_HP0_awcache          ),
-  .S_AXI_HP0_awid     (S_AXI_HP0_awid             ),
-  .S_AXI_HP0_awlen    (S_AXI_HP0_awlen            ),
-  .S_AXI_HP0_awlock   (S_AXI_HP0_awlock           ),
-  .S_AXI_HP0_awprot   (S_AXI_HP0_awprot           ),
-  .S_AXI_HP0_awqos    (S_AXI_HP0_awqos            ),
-  .S_AXI_HP0_awready  (S_AXI_HP0_awready          ),
-  .S_AXI_HP0_awsize   (S_AXI_HP0_awsize           ),
-  .S_AXI_HP0_awvalid  (S_AXI_HP0_awvalid          ),
-  .S_AXI_HP0_bid      (S_AXI_HP0_bid              ),
-  .S_AXI_HP0_bready   (S_AXI_HP0_bready           ),
-  .S_AXI_HP0_bresp    (S_AXI_HP0_bresp            ),
-  .S_AXI_HP0_bvalid   (S_AXI_HP0_bvalid           ),
-  .S_AXI_HP0_rdata    (S_AXI_HP0_rdata            ),
-  .S_AXI_HP0_rid      (S_AXI_HP0_rid              ),
-  .S_AXI_HP0_rlast    (S_AXI_HP0_rlast            ),
-  .S_AXI_HP0_rready   (S_AXI_HP0_rready           ),
-  .S_AXI_HP0_rresp    (S_AXI_HP0_rresp            ),
-  .S_AXI_HP0_rvalid   (S_AXI_HP0_rvalid           ),
-  .S_AXI_HP0_wdata    (S_AXI_HP0_wdata            ),
-  .S_AXI_HP0_wid      (S_AXI_HP0_wid              ),
-  .S_AXI_HP0_wlast    (S_AXI_HP0_wlast            ),
-  .S_AXI_HP0_wready   (S_AXI_HP0_wready           ),
-  .S_AXI_HP0_wstrb    (S_AXI_HP0_wstrb            ),
-  .S_AXI_HP0_wvalid   (S_AXI_HP0_wvalid           ),
+  // AXI_ACP master
+  .S_AXI_ACP_aclk     (S_AXI_ACP_aclk             ),
+  .S_AXI_ACP_araddr   (S_AXI_ACP_araddr           ),
+  .S_AXI_ACP_arburst  (S_AXI_ACP_arburst          ),
+  .S_AXI_ACP_arcache  (S_AXI_ACP_arcache          ),
+  .S_AXI_ACP_arid     (S_AXI_ACP_arid             ),
+  .S_AXI_ACP_arlen    (S_AXI_ACP_arlen            ),
+  .S_AXI_ACP_arlock   (S_AXI_ACP_arlock           ),
+  .S_AXI_ACP_arprot   (S_AXI_ACP_arprot           ),
+  .S_AXI_ACP_arqos    (S_AXI_ACP_arqos            ),
+  .S_AXI_ACP_arready  (S_AXI_ACP_arready          ),
+  .S_AXI_ACP_arsize   (S_AXI_ACP_arsize           ),
+  .S_AXI_ACP_aruser   (S_AXI_ACP_aruser           ),
+  .S_AXI_ACP_arvalid  (S_AXI_ACP_arvalid          ),
+  .S_AXI_ACP_awaddr   (S_AXI_ACP_awaddr           ),
+  .S_AXI_ACP_awburst  (S_AXI_ACP_awburst          ),
+  .S_AXI_ACP_awcache  (S_AXI_ACP_awcache          ),
+  .S_AXI_ACP_awid     (S_AXI_ACP_awid             ),
+  .S_AXI_ACP_awlen    (S_AXI_ACP_awlen            ),
+  .S_AXI_ACP_awlock   (S_AXI_ACP_awlock           ),
+  .S_AXI_ACP_awprot   (S_AXI_ACP_awprot           ),
+  .S_AXI_ACP_awqos    (S_AXI_ACP_awqos            ),
+  .S_AXI_ACP_awready  (S_AXI_ACP_awready          ),
+  .S_AXI_ACP_awsize   (S_AXI_ACP_awsize           ),
+  .S_AXI_ACP_awuser   (S_AXI_ACP_awuser           ),
+  .S_AXI_ACP_awvalid  (S_AXI_ACP_awvalid          ),
+  .S_AXI_ACP_bid      (S_AXI_ACP_bid              ),
+  .S_AXI_ACP_bready   (S_AXI_ACP_bready           ),
+  .S_AXI_ACP_bresp    (S_AXI_ACP_bresp            ),
+  .S_AXI_ACP_bvalid   (S_AXI_ACP_bvalid           ),
+  .S_AXI_ACP_rdata    (S_AXI_ACP_rdata            ),
+  .S_AXI_ACP_rid      (S_AXI_ACP_rid              ),
+  .S_AXI_ACP_rlast    (S_AXI_ACP_rlast            ),
+  .S_AXI_ACP_rready   (S_AXI_ACP_rready           ),
+  .S_AXI_ACP_rresp    (S_AXI_ACP_rresp            ),
+  .S_AXI_ACP_rvalid   (S_AXI_ACP_rvalid           ),
+  .S_AXI_ACP_wdata    (S_AXI_ACP_wdata            ),
+  .S_AXI_ACP_wid      (S_AXI_ACP_wid              ),
+  .S_AXI_ACP_wlast    (S_AXI_ACP_wlast            ),
+  .S_AXI_ACP_wready   (S_AXI_ACP_wready           ),
+  .S_AXI_ACP_wstrb    (S_AXI_ACP_wstrb            ),
+  .S_AXI_ACP_wvalid   (S_AXI_ACP_wvalid           ),
 
   .fifo_wr_en_o       (sha256_dma_fifo_wr_en      ),
   .fifo_wr_in_o       (sha256_dma_fifo_wr_in      ),
@@ -566,7 +577,7 @@ assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha
 
 
 // === IMPL: KECCAK512 section ===
-
+/*
 keccak_f1600_round i_keccak_f1600_round (
   // global signals
   .clk_i                   ( kek512_clk                  ),  // clock 125 MHz
@@ -579,6 +590,7 @@ keccak_f1600_round i_keccak_f1600_round (
 );
 
 assign kek512_status = { 32'b0 };
+*/
 
 
 // === BUS: OMNI section ===
@@ -594,17 +606,17 @@ if (!bus_rstn) begin
   regs[REG_RW_SHA256_DMA_BASE_ADDR]               <= 32'b0;
   regs[REG_RW_SHA256_DMA_BIT_LEN]                 <= 32'b0;
   regs[REG_RW_SHA256_DMA_NONCE_OFS]               <= 32'b0;
-  regs[REG_RW_KECCAK512_CTRL]                     <= 32'b0;
+//regs[REG_RW_KECCAK512_CTRL]                     <= 32'b0;
 
   sha256_port_fifo_wr_en                          <= 'b0;
-  kek512_in                                       <= '{25{0}};
-  kek512_start                                    <= 'b0;
+//kek512_in                                       <= '{25{0}};
+//kek512_start                                    <= 'b0;
   end
 
 else begin
   regs[REG_RW_SHA256_CTRL] <= regs[REG_RW_SHA256_CTRL] & ~(32'h00000002);  // mask out one-shot flags (RESET)
   sha256_port_fifo_wr_en <= 1'b0;
-  kek512_start <= 1'b0;
+//kek512_start <= 1'b0;
 
   if (sys_wen) begin
     casez (sys_addr[19:0])
@@ -644,11 +656,11 @@ else begin
 
     /* KECCAK512 section */
 
+/*
     20'h00200: begin
       regs[REG_RW_KECCAK512_CTRL]                 <= sys_wdata[31:0];
       end
 
-/*
     20'h100zz: begin
       if ((sys_addr & 20'hFF) < 8'd26) begin
         kek512_in[sys_addr & 8'hF]                <= sys_wdata;
@@ -770,7 +782,7 @@ else begin
 
     20'h00150: begin
       sys_ack   <= sys_en;
-      sys_rdata <= { 24'b0, sha256_dma_state[3:0] };
+      sys_rdata <= { 24'b0, sha256_dma_state[7:0] };
       end
     20'h00154: begin
       sys_ack   <= sys_en;
@@ -788,6 +800,7 @@ else begin
 
     /* KECCAK512 section */
 
+/*
     20'h00200: begin
       sys_ack   <= sys_en;
       sys_rdata <= regs[REG_RW_KECCAK512_CTRL];
@@ -797,7 +810,6 @@ else begin
       sys_rdata <= kek512_status;
       end
 
-/*
     20'h100zz: begin
       sys_ack <= sys_en;
       if ((sys_addr & 20'hFF) < 8'd26)

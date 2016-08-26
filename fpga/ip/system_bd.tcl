@@ -154,6 +154,34 @@ CONFIG.DATA_WIDTH {32} \
 CONFIG.FREQ_HZ {125000000} \
 CONFIG.PROTOCOL {AXI3} \
  ] $M_AXI_GP0
+  set S_AXI_ACP [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_ACP ]
+  set_property -dict [ list \
+CONFIG.ADDR_WIDTH {32} \
+CONFIG.ARUSER_WIDTH {5} \
+CONFIG.AWUSER_WIDTH {5} \
+CONFIG.BUSER_WIDTH {0} \
+CONFIG.CLK_DOMAIN {system_S_AXI_ACP_aclk} \
+CONFIG.DATA_WIDTH {64} \
+CONFIG.FREQ_HZ {125000000} \
+CONFIG.HAS_BRESP {1} \
+CONFIG.HAS_BURST {1} \
+CONFIG.HAS_CACHE {1} \
+CONFIG.HAS_LOCK {1} \
+CONFIG.HAS_PROT {1} \
+CONFIG.HAS_QOS {0} \
+CONFIG.HAS_REGION {0} \
+CONFIG.HAS_RRESP {1} \
+CONFIG.HAS_WSTRB {1} \
+CONFIG.ID_WIDTH {3} \
+CONFIG.MAX_BURST_LENGTH {16} \
+CONFIG.NUM_READ_OUTSTANDING {8} \
+CONFIG.NUM_WRITE_OUTSTANDING {8} \
+CONFIG.PROTOCOL {AXI3} \
+CONFIG.READ_WRITE_MODE {READ_WRITE} \
+CONFIG.RUSER_WIDTH {0} \
+CONFIG.SUPPORTS_NARROW_BURST {1} \
+CONFIG.WUSER_WIDTH {0} \
+ ] $S_AXI_ACP
   set S_AXI_HP0 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_HP0 ]
   set_property -dict [ list \
 CONFIG.ADDR_WIDTH {32} \
@@ -248,6 +276,10 @@ CONFIG.PortWidth {15} \
 CONFIG.ASSOCIATED_BUSIF {M_AXI_GP0} \
 CONFIG.FREQ_HZ {125000000} \
  ] $M_AXI_GP0_ACLK
+  set S_AXI_ACP_aclk [ create_bd_port -dir I -type clk S_AXI_ACP_aclk ]
+  set_property -dict [ list \
+CONFIG.FREQ_HZ {125000000} \
+ ] $S_AXI_ACP_aclk
   set S_AXI_HP0_aclk [ create_bd_port -dir I -type clk S_AXI_HP0_aclk ]
   set_property -dict [ list \
 CONFIG.FREQ_HZ {125000000} \
@@ -910,8 +942,10 @@ CONFIG.PCW_USB_RESET_ENABLE {1} \
 CONFIG.PCW_USB_RESET_POLARITY {Active Low} \
 CONFIG.PCW_USB_RESET_SELECT {Share reset pin} \
 CONFIG.PCW_USE_CROSS_TRIGGER {0} \
+CONFIG.PCW_USE_DEFAULT_ACP_USER_VAL {1} \
 CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
 CONFIG.PCW_USE_M_AXI_GP1 {1} \
+CONFIG.PCW_USE_S_AXI_ACP {1} \
 CONFIG.PCW_USE_S_AXI_HP0 {1} \
 CONFIG.PCW_USE_S_AXI_HP1 {1} \
 CONFIG.PCW_WDT_PERIPHERAL_CLKSRC {CPU_1X} \
@@ -1537,6 +1571,7 @@ CONFIG.IN1_WIDTH {15} \
   set xlconstant [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant ]
 
   # Create interface connections
+  connect_bd_intf_net -intf_net S_AXI_ACP_1 [get_bd_intf_ports S_AXI_ACP] [get_bd_intf_pins processing_system7/S_AXI_ACP]
   connect_bd_intf_net -intf_net Vaux0_1 [get_bd_intf_ports Vaux0] [get_bd_intf_pins xadc/Vaux0]
   connect_bd_intf_net -intf_net Vaux1_1 [get_bd_intf_ports Vaux1] [get_bd_intf_pins xadc/Vaux1]
   connect_bd_intf_net -intf_net Vaux8_1 [get_bd_intf_ports Vaux8] [get_bd_intf_pins xadc/Vaux8]
@@ -1553,6 +1588,7 @@ CONFIG.IN1_WIDTH {15} \
 
   # Create port connections
   connect_bd_net -net IRQ_F2P_xlconcat_1 [get_bd_ports IRQ_F2P_xlconcat] [get_bd_pins xlconcat_0/In1]
+  connect_bd_net -net S_AXI_ACP_aclk_1 [get_bd_ports S_AXI_ACP_aclk] [get_bd_pins processing_system7/S_AXI_ACP_ACLK]
   connect_bd_net -net dcm_locked_proc_sys_reset_1 [get_bd_ports dcm_locked] [get_bd_pins proc_sys_reset/dcm_locked]
   connect_bd_net -net m_axi_gp0_aclk_1 [get_bd_ports M_AXI_GP0_ACLK] [get_bd_pins processing_system7/M_AXI_GP0_ACLK]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn [get_bd_pins axi_protocol_converter_0/aresetn] [get_bd_pins proc_sys_reset/interconnect_aresetn]
@@ -1576,6 +1612,11 @@ CONFIG.IN1_WIDTH {15} \
   create_bd_addr_seg -range 0x00010000 -offset 0x83C00000 [get_bd_addr_spaces processing_system7/Data] [get_bd_addr_segs xadc/s_axi_lite/Reg] SEG_xadc_wiz_0_Reg
   create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces S_AXI_HP0] [get_bd_addr_segs processing_system7/S_AXI_HP0/HP0_DDR_LOWOCM] SEG_processing_system7_0_HP0_DDR_LOWOCM
   create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces S_AXI_HP1] [get_bd_addr_segs processing_system7/S_AXI_HP1/HP1_DDR_LOWOCM] SEG_processing_system7_0_HP1_DDR_LOWOCM
+  create_bd_addr_seg -range 0x20000000 -offset 0x00000000 [get_bd_addr_spaces S_AXI_ACP] [get_bd_addr_segs processing_system7/S_AXI_ACP/ACP_DDR_LOWOCM] SEG_processing_system7_ACP_DDR_LOWOCM
+  create_bd_addr_seg -range 0x00400000 -offset 0xE0000000 [get_bd_addr_spaces S_AXI_ACP] [get_bd_addr_segs processing_system7/S_AXI_ACP/ACP_IOP] SEG_processing_system7_ACP_IOP
+  create_bd_addr_seg -range 0x40000000 -offset 0x40000000 [get_bd_addr_spaces S_AXI_ACP] [get_bd_addr_segs processing_system7/S_AXI_ACP/ACP_M_AXI_GP0] SEG_processing_system7_ACP_M_AXI_GP0
+  create_bd_addr_seg -range 0x40000000 -offset 0x80000000 [get_bd_addr_spaces S_AXI_ACP] [get_bd_addr_segs processing_system7/S_AXI_ACP/ACP_M_AXI_GP1] SEG_processing_system7_ACP_M_AXI_GP1
+  create_bd_addr_seg -range 0x01000000 -offset 0xFC000000 [get_bd_addr_spaces S_AXI_ACP] [get_bd_addr_segs processing_system7/S_AXI_ACP/ACP_QSPI_LINEAR] SEG_processing_system7_ACP_QSPI_LINEAR
 
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
@@ -1585,12 +1626,14 @@ preplace port FCLK_CLK3 -pg 1 -y 260 -defaultsOSRD
 preplace port M_AXIS_GP1_xadc_aclk -pg 1 -y 560 -defaultsOSRD
 preplace port S_AXI_HP1 -pg 1 -y 170 -defaultsOSRD
 preplace port DDR -pg 1 -y 40 -defaultsOSRD
+preplace port S_AXI_ACP -pg 1 -y 130 -defaultsOSRD
 preplace port Vp_Vn -pg 1 -y 530 -defaultsOSRD
 preplace port Vaux0 -pg 1 -y 510 -defaultsOSRD
 preplace port FCLK_RESET0_N -pg 1 -y 280 -defaultsOSRD
 preplace port M_AXI_GP0_ACLK -pg 1 -y 190 -defaultsOSRD
 preplace port Vaux1 -pg 1 -y 690 -defaultsOSRD
-preplace port S_AXI_HP0_aclk -pg 1 -y 230 -defaultsOSRD
+preplace port S_AXI_ACP_aclk -pg 1 -y 230 -defaultsOSRD
+preplace port S_AXI_HP0_aclk -pg 1 -y 270 -defaultsOSRD
 preplace port M_AXI_GP0 -pg 1 -y 100 -defaultsOSRD
 preplace port FCLK_RESET1_N -pg 1 -y 300 -defaultsOSRD
 preplace port S_AXI_HP1_aclk -pg 1 -y 250 -defaultsOSRD
@@ -1620,30 +1663,32 @@ preplace netloc s_axi_hp0_1 1 0 4 NJ 150 NJ 150 NJ 150 NJ
 preplace netloc processing_system7_0_fclk_reset2_n 1 4 1 NJ
 preplace netloc processing_system7_0_M_AXI_GP0 1 4 1 NJ
 preplace netloc xlconstant_dout 1 1 1 NJ
-preplace netloc xadc_ip2intc_irpt 1 2 3 530 520 NJ 520 1240
+preplace netloc xadc_ip2intc_irpt 1 2 3 380 520 NJ 520 1220
 preplace netloc processing_system7_0_fclk_reset1_n 1 4 1 NJ
 preplace netloc dcm_locked_proc_sys_reset_1 1 0 2 NJ 660 NJ
+preplace netloc S_AXI_ACP_1 1 0 4 NJ 130 NJ 130 NJ 130 N
 preplace netloc Vp_Vn_1 1 0 4 NJ 520 NJ 520 NJ 560 NJ
-preplace netloc processing_system7_0_M_AXI_GP1 1 2 3 520 390 NJ 390 1240
-preplace netloc s_axi_hp0_aclk 1 0 4 NJ 230 NJ 230 NJ 230 NJ
+preplace netloc processing_system7_0_M_AXI_GP1 1 2 3 370 390 NJ 390 1220
+preplace netloc s_axi_hp0_aclk 1 0 4 NJ 250 NJ 250 NJ 250 NJ
 preplace netloc s_axi_hp1_1 1 0 4 NJ 170 NJ 170 NJ 170 NJ
-preplace netloc proc_sys_reset_0_interconnect_aresetn 1 2 1 490
+preplace netloc S_AXI_ACP_aclk_1 1 0 4 NJ 230 NJ 230 NJ 230 N
+preplace netloc proc_sys_reset_0_interconnect_aresetn 1 2 1 340
 preplace netloc Vaux8_1 1 0 4 NJ 710 NJ 710 NJ 710 NJ
 preplace netloc axi_protocol_converter_0_M_AXI 1 3 1 N
-preplace netloc xlconcat_0_dout 1 3 1 790
-preplace netloc s_axi_hp1_aclk 1 0 4 NJ 250 NJ 250 NJ 250 NJ
-preplace netloc processing_system7_0_fclk_reset0_n 1 1 4 140 400 NJ 400 NJ 400 1250
+preplace netloc xlconcat_0_dout 1 3 1 640
+preplace netloc s_axi_hp1_aclk 1 0 4 NJ 270 NJ 270 NJ 270 NJ
+preplace netloc processing_system7_0_fclk_reset0_n 1 1 4 -10 400 NJ 400 NJ 400 1230
 preplace netloc Vaux9_1 1 0 4 NJ 730 NJ 730 NJ 730 NJ
 preplace netloc processing_system7_0_fixed_io 1 4 1 NJ
-preplace netloc processing_system7_0_fclk_clk0 1 1 4 150 500 500 540 810 410 1260
-preplace netloc proc_sys_reset_0_peripheral_aresetn 1 2 2 480 790 NJ
+preplace netloc processing_system7_0_fclk_clk0 1 1 4 0 500 350 540 660 410 1240
+preplace netloc proc_sys_reset_0_peripheral_aresetn 1 2 2 330 790 NJ
 preplace netloc Vaux1_1 1 0 4 NJ 690 NJ 700 NJ 700 NJ
 preplace netloc processing_system7_0_fclk_clk1 1 4 1 NJ
 preplace netloc m_axi_gp0_aclk_1 1 0 4 NJ 190 NJ 190 NJ 190 NJ
 preplace netloc xadc_M_AXIS 1 4 1 NJ
 preplace netloc processing_system7_0_fclk_clk2 1 4 1 NJ
 preplace netloc processing_system7_0_fclk_clk3 1 4 1 NJ
-levelinfo -pg 1 -10 80 320 660 1030 1280 -top 0 -bot 890
+levelinfo -pg 1 -170 -70 170 510 1010 1260 -top 0 -bot 890
 ",
 }
 

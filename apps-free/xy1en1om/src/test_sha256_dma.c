@@ -40,7 +40,48 @@ intptr_t g_dma_paddr = 0;
 
 void test_sha256_dma_INIT()
 {
-    const uint64_t testmsg_rom[] = {
+#if 1
+    // get DMA memory on a 4kB page - this allows axi_datamover_s_axi_hp0 to operate with the basic command mode
+    g_dma_buf = valloc(1UL << 12);  // 4kB
+#else
+    // get DMA memory on an 64bit-alignment (at least)
+    posix_memalign(&g_dma_buf, sizeof(uint64_t), 1UL << 20);
+#endif
+}
+
+void test_sha256_dma_TEST()
+{
+    test_sha256_dma_blockchain_example();
+}
+
+void test_sha256_dma_FINALIZE()
+{
+    if (g_dma_buf) {
+        g_dma_paddr = 0;
+        free(g_dma_buf);
+        g_dma_buf = NULL;
+    }
+}
+
+/* --- */
+
+
+void test_sha256_dma_blockchain_example()
+{
+    uint32_t h7, h6, h5, h4, h3, h2, h1, h0;
+    uint32_t status = 0;
+    struct timeval t0 = { 0 };
+    struct timeval t1 = { 0 };
+    struct timeval t2 = { 0 };
+    struct timeval t3 = { 0 };
+
+    // ---
+    // Prepare DMA memory
+    {
+        if (!g_dma_buf)
+            return;
+
+        const uint64_t testmsg_rom[] = {
 #if 0
             0x81cd02ab01000000,
             0xcd9317e27e569e8b,
@@ -77,67 +118,40 @@ void test_sha256_dma_INIT()
             0x1e2e3e4e5e6e7e8e,
             0x1f2f3f4f5f6f7f8f
 #endif
-    };
+        };
 
-    // get DMA memory on an 64bit-alignment (at least)
-//  g_dma_buf = valloc(sizeof(testmsg_rom));
-    posix_memalign(&g_dma_buf, sizeof(uint64_t), sizeof(testmsg_rom));
+        {
+            // https://www.kernel.org/doc/Documentation/vm/pagemap.txt
+            FILE *pagemap;
+            intptr_t paddr = 0;
+            uint64_t e;
+            int offset = (((uint32_t) g_dma_buf) / sysconf(_SC_PAGESIZE)) * sizeof(uint64_t);
 
-    {
-        // https://www.kernel.org/doc/Documentation/vm/pagemap.txt
-        FILE *pagemap;
-        intptr_t paddr = 0;
-        uint64_t e;
+            //fprintf(stderr, "INFO sysconf(_SC_PAGESIZE) = %ld, sizeof(uint64_t) = %d, offset = %d\n", sysconf(_SC_PAGESIZE), sizeof(uint64_t), offset);
 
-        int offset = (((uint32_t) g_dma_buf) / sysconf(_SC_PAGESIZE)) * sizeof(uint64_t);
-        //fprintf(stderr, "INFO sysconf(_SC_PAGESIZE) = %ld, sizeof(uint64_t) = %d, offset = %d\n", sysconf(_SC_PAGESIZE), sizeof(uint64_t), offset);
-
-        if ((pagemap = fopen("/proc/self/pagemap", "r"))) {
-            if (lseek(fileno(pagemap), offset, SEEK_SET) == offset) {
-                if (fread(&e, sizeof(uint64_t), 1, pagemap)) {
-                    if (e & (1ULL << 63)) { // page present ?
-                        paddr  = e & ((1ULL << 55) - 1); // pfn mask
-                        paddr *= sysconf(_SC_PAGESIZE);
-                        // add offset within page
-                        paddr |= (((uint32_t) g_dma_buf) & (sysconf(_SC_PAGESIZE) - 1));
-                        g_dma_paddr = paddr;
+            if ((pagemap = fopen("/proc/self/pagemap", "r"))) {
+                if (lseek(fileno(pagemap), offset, SEEK_SET) == offset) {
+                    if (fread(&e, sizeof(uint64_t), 1, pagemap)) {
+                        if (e & (1ULL << 63)) { // page present ?
+                            paddr  = e & ((1ULL << 55) - 1); // pfn mask
+                            paddr *= sysconf(_SC_PAGESIZE);
+                            // add offset within page
+                            paddr |= (((uint32_t) g_dma_buf) & (sysconf(_SC_PAGESIZE) - 1));
+                        }
                     }
                 }
+                fclose(pagemap);
             }
-            fclose(pagemap);
+            g_dma_paddr = paddr;
+
+            fprintf(stderr, "INFO g_dma_buf = %p\tg_dma_paddr = 0x%08x\n", g_dma_buf, g_dma_paddr);
         }
-        fprintf(stderr, "INFO g_dma_buf = %p\tg_dma_paddr = 0x%08x\n", g_dma_buf, g_dma_paddr);
+
+        // prepare the DMA data
+        (void) memcpy(g_dma_buf, testmsg_rom, sizeof(testmsg_rom));
     }
 
-    // prepare the DMA data
-    (void) memcpy(g_dma_buf, testmsg_rom, sizeof(testmsg_rom));
-}
-
-void test_sha256_dma_TEST()
-{
-
-    test_sha256_dma_blockchain_example();
-
-}
-
-void test_sha256_dma_FINALIZE()
-{
-    free(g_dma_buf);
-    g_dma_buf   = NULL;
-    g_dma_paddr = 0;
-}
-
-/* --- */
-
-
-void test_sha256_dma_blockchain_example()
-{
-    uint32_t h7, h6, h5, h4, h3, h2, h1, h0;
-    uint32_t status = 0;
-    struct timeval t0 = { 0 };
-    struct timeval t1 = { 0 };
-    struct timeval t2 = { 0 };
-    struct timeval t3 = { 0 };
+    // ---
 
     fpga_xy_reset();
 
@@ -160,7 +174,7 @@ void test_sha256_dma_blockchain_example()
         uint32_t sha256_dma_last_data = g_fpga_xy_reg_mem->sha256_dma_last_data;
         fprintf(stderr, "INFO waiting - status = %08x,  " \
                 "fifo_wr_cnt = %d, fifo_rd_cnt = %d,  " \
-                "dma_state = 0x%x,  " \
+                "dma_state = 0x%08x,  " \
                 "dma_axi_r_state = 0x%08x, dma_axi_w_state = 0x%08x,  " \
                 "sha256_dma_last_data = 0x%08x\n",
                 status,
