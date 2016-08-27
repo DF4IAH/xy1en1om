@@ -280,7 +280,7 @@ else begin
       cmd_running            <= 1'b1;
       cmd_start_addr         <= dma_base_addr_i;
       cmd_eof                <= 1'b1;
-      cmd_btt                <= (|dma_bit_len_i[7:0]) ?  (dma_bit_len_i[25:3] + 23'd1) : dma_bit_len_i[25:3];
+      cmd_btt                <= (|dma_bit_len_i[4:0]) ?  (dma_bit_len_i[25:3] + 23'd1) : dma_bit_len_i[25:3];
       cmd_tag                <= cmd_tag + 4'h1;
       s_axis_mm2s_cmd_tvalid <= 1'b1;
       end
@@ -297,7 +297,7 @@ else begin
 
 //                               bufferable, non-cacheable
 //                               CACHE  , XUSER, RSVD, TAG         , START ADDRES        , DRR , EOF    , DSA , INCR, BTT
-assign s_axis_mm2s_cmd_tdata = { 4'b0001,  4'h0, 4'h0, cmd_tag[3:0], cmd_start_addr[31:0], 1'b0, cmd_eof, 6'h0, 1'b1, cmd_btt[22:0]};
+assign s_axis_mm2s_cmd_tdata = { 4'b0001,  4'h0, 4'h0, cmd_tag[3:0], cmd_start_addr[31:0], 1'b1, cmd_eof, 6'h0, 1'b1, cmd_btt[22:0]};
 
 // debugging
 assign dbg_axi_r_state_o = { cmd_tag[3:0], 8'b0,  dma_start_i, cmd_running, s_axis_mm2s_cmd_tvalid, s_axis_mm2s_cmd_tready,  cmd_start_addr[15:0] };

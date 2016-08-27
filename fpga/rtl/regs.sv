@@ -98,7 +98,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082703;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082706;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -288,7 +288,7 @@ wire         [ 31:0]     status;
 wire                     sha256_clk          = clks[2];     // 62.5 MHz
 wire                     sha256_rstn         = rstsn[2];
 wire                     sha256_enable       = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_ENABLE] &  x11_enable;
-wire                     sha256_reset        = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET]  | !x11_enable;
+wire                     sha256_reset_pulse  = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET]  | !x11_enable;
 wire                     sha256_dbl_hash     = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DBL_HASH];
 wire                     sha256_dma_mode     = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DMA_MODE];
 wire                     sha256_dma_multihash= regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DMA_MULTIHASH];
@@ -364,7 +364,7 @@ red_pitaya_rst_clken i_rst_clken_sha256_bus (
   .rstn                    ( bus_rstn                    ), // clock reset - active low
 
   // input signals
-  .enable_i                ( sha256_enable               ),
+  .enable_i                ( sha256_enable & !sha256_reset_pulse ),
 
   // output signals
   .clk_en_o                (                             ),
@@ -379,7 +379,7 @@ red_pitaya_rst_clken i_rst_clken_sha256 (
   .rstn                    ( sha256_rstn                 ), // clock reset - active low
 
   // input signals
-  .enable_i                ( sha256_enable               ),
+  .enable_i                ( sha256_enable & !sha256_reset_pulse ),
 
   // output signals
   .clk_en_o                ( sha256_clk_en               ),
@@ -531,7 +531,7 @@ assign sha256_32b_fifo_wr_in = sha256_dma_mode ?  sha256_dma_fifo_wr_in : sha256
 fifo_32i_32o_512d i_fifo_32i_32o (
   .rst                     ( !sha256_reset_n             ), // reset active high
   .wr_clk                  ( bus_clk                     ), // clock 125.0 MHz
-  .rd_clk                  ( bus_clk /*sha256_clk*/                  ), // clock  62.5 MHz
+  .rd_clk                  ( sha256_clk  /*bus_clk*/     ), // clock  62.5 MHz
 
   .wr_en                   ( sha256_32b_fifo_wr_en       ), // write signal to push into the FIFO
   .din                     ( sha256_32b_fifo_wr_in       ), // 32 bit word in
@@ -539,7 +539,7 @@ fifo_32i_32o_512d i_fifo_32i_32o (
   .full                    ( sha256_fifo_full            ), // FIFO would spill over by next write access
   .wr_data_count           ( sha256_fifo_wr_count        ), // at least this number of entries are pushed on the FIFO
 
-  .rd_en                   ( dbg_fifo_read_next /*sha256_32b_fifo_rd_en*/       ), // enable reading from the FIFO
+  .rd_en                   ( sha256_32b_fifo_rd_en  /*dbg_fifo_read_next*/), // enable reading from the FIFO
   .valid                   ( sha256_32b_fifo_rd_vld      ), // read data is valid
   .dout                    ( sha256_32b_fifo_rd_out      ), // 32 bit word out for the SHA-256 engine to process
   .empty                   ( sha256_fifo_empty           ), // FIFO does not contain any data
@@ -579,7 +579,7 @@ else
 
 assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha256_fifo_empty,  2'b0, sha256_hash_valid, sha256_rdy };
 
-always @(posedge bus_clk)
+always @(posedge sha256_clk)
 if (!sha256_reset_n)
    sha256_fifo_read_last <= 32'b0;
 else if (sha256_32b_fifo_rd_vld)
