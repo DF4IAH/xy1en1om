@@ -131,6 +131,10 @@ assign rb_out_ch[1] = 16'b0;
 assign dac_pwm_o    =  4'b0;
 
 
+// master clock
+reg unsigned [  63:0] masterclock = 64'b0;
+
+
 //---------------------------------------------------------------------------------
 //
 //  Connections to PS
@@ -586,69 +590,72 @@ assign sys_ack  [1       ] =  1'b1;
 
 regs i_regs (
   // clock & reset
-  .clks               (fclk                       ),  // clocks
-  .rstsn              (frstn                      ),  // clock reset lines - active low
+  .clks_i             (fclk                       ),  // clocks
+  .rstsn_i            (frstn                      ),  // clock reset lines - active low
 
   // activation
-  .x11_activated      (x11_activated              ),  // x11 crypto engine is enabled
+  .x11_activated_o    (x11_activated              ),  // x11 crypto engine is enabled
 
   // System bus
-  .sys_addr           (sys_addr                   ),  // address
-  .sys_wdata          (sys_wdata                  ),  // write data
-  .sys_sel            (sys_sel                    ),  // write byte select
-  .sys_wen            (sys_wen[1]                 ),  // write enable
-  .sys_ren            (sys_ren[1]                 ),  // read enable
-  .sys_rdata          (sys_rdata[ 1*32+:32]       ),  // read data
-  .sys_err            (sys_err[1]                 ),  // error indicator
-  .sys_ack            (sys_ack[1]                 ),  // acknowledge signal
+  .sys_addr_i         (sys_addr                   ),  // address
+  .sys_wdata_i        (sys_wdata                  ),  // write data
+  .sys_sel_i          (sys_sel                    ),  // write byte select
+  .sys_wen_i          (sys_wen[1]                 ),  // write enable
+  .sys_ren_i          (sys_ren[1]                 ),  // read enable
+  .sys_rdata_o        (sys_rdata[ 1*32+:32]       ),  // read data
+  .sys_err_o          (sys_err[1]                 ),  // error indicator
+  .sys_ack_o          (sys_ack[1]                 ),  // acknowledge signal
 
   // AXI_HP0 master
-  .S_AXI_HP0_aclk     (S_AXI_HP0_aclk             ),
-  .S_AXI_HP0_araddr   (S_AXI_HP0_araddr           ),
-  .S_AXI_HP0_arburst  (S_AXI_HP0_arburst          ),
-  .S_AXI_HP0_arcache  (S_AXI_HP0_arcache          ),
-  .S_AXI_HP0_arid     (S_AXI_HP0_arid             ),
-  .S_AXI_HP0_arlen    (S_AXI_HP0_arlen            ),
-  .S_AXI_HP0_arlock   (S_AXI_HP0_arlock           ),
-  .S_AXI_HP0_arprot   (S_AXI_HP0_arprot           ),
-  .S_AXI_HP0_arqos    (S_AXI_HP0_arqos            ),
-  .S_AXI_HP0_arready  (S_AXI_HP0_arready          ),
-  .S_AXI_HP0_arsize   (S_AXI_HP0_arsize           ),
-  .S_AXI_HP0_arvalid  (S_AXI_HP0_arvalid          ),
-  .S_AXI_HP0_awaddr   (S_AXI_HP0_awaddr           ),
-  .S_AXI_HP0_awburst  (S_AXI_HP0_awburst          ),
-  .S_AXI_HP0_awcache  (S_AXI_HP0_awcache          ),
-  .S_AXI_HP0_awid     (S_AXI_HP0_awid             ),
-  .S_AXI_HP0_awlen    (S_AXI_HP0_awlen            ),
-  .S_AXI_HP0_awlock   (S_AXI_HP0_awlock           ),
-  .S_AXI_HP0_awprot   (S_AXI_HP0_awprot           ),
-  .S_AXI_HP0_awqos    (S_AXI_HP0_awqos            ),
-  .S_AXI_HP0_awready  (S_AXI_HP0_awready          ),
-  .S_AXI_HP0_awsize   (S_AXI_HP0_awsize           ),
-  .S_AXI_HP0_awvalid  (S_AXI_HP0_awvalid          ),
-  .S_AXI_HP0_bid      (S_AXI_HP0_bid              ),
-  .S_AXI_HP0_bready   (S_AXI_HP0_bready           ),
-  .S_AXI_HP0_bresp    (S_AXI_HP0_bresp            ),
-  .S_AXI_HP0_bvalid   (S_AXI_HP0_bvalid           ),
-  .S_AXI_HP0_rdata    (S_AXI_HP0_rdata            ),
-  .S_AXI_HP0_rid      (S_AXI_HP0_rid              ),
-  .S_AXI_HP0_rlast    (S_AXI_HP0_rlast            ),
-  .S_AXI_HP0_rready   (S_AXI_HP0_rready           ),
-  .S_AXI_HP0_rresp    (S_AXI_HP0_rresp            ),
-  .S_AXI_HP0_rvalid   (S_AXI_HP0_rvalid           ),
-  .S_AXI_HP0_wdata    (S_AXI_HP0_wdata            ),
-  .S_AXI_HP0_wid      (S_AXI_HP0_wid              ),
-  .S_AXI_HP0_wlast    (S_AXI_HP0_wlast            ),
-  .S_AXI_HP0_wready   (S_AXI_HP0_wready           ),
-  .S_AXI_HP0_wstrb    (S_AXI_HP0_wstrb            ),
-  .S_AXI_HP0_wvalid   (S_AXI_HP0_wvalid           ),
+  .S_AXI_HP0_aclk_o   (S_AXI_HP0_aclk             ),
+  .S_AXI_HP0_araddr_o (S_AXI_HP0_araddr           ),
+  .S_AXI_HP0_arburst_o(S_AXI_HP0_arburst          ),
+  .S_AXI_HP0_arcache_o(S_AXI_HP0_arcache          ),
+  .S_AXI_HP0_arid_o   (S_AXI_HP0_arid             ),
+  .S_AXI_HP0_arlen_o  (S_AXI_HP0_arlen            ),
+  .S_AXI_HP0_arlock_o (S_AXI_HP0_arlock           ),
+  .S_AXI_HP0_arprot_o (S_AXI_HP0_arprot           ),
+  .S_AXI_HP0_arqos_o  (S_AXI_HP0_arqos            ),
+  .S_AXI_HP0_arready_i(S_AXI_HP0_arready          ),
+  .S_AXI_HP0_arsize_o (S_AXI_HP0_arsize           ),
+  .S_AXI_HP0_arvalid_o(S_AXI_HP0_arvalid          ),
+  .S_AXI_HP0_awaddr_o (S_AXI_HP0_awaddr           ),
+  .S_AXI_HP0_awburst_o(S_AXI_HP0_awburst          ),
+  .S_AXI_HP0_awcache_o(S_AXI_HP0_awcache          ),
+  .S_AXI_HP0_awid_o   (S_AXI_HP0_awid             ),
+  .S_AXI_HP0_awlen_o  (S_AXI_HP0_awlen            ),
+  .S_AXI_HP0_awlock_o (S_AXI_HP0_awlock           ),
+  .S_AXI_HP0_awprot_o (S_AXI_HP0_awprot           ),
+  .S_AXI_HP0_awqos_o  (S_AXI_HP0_awqos            ),
+  .S_AXI_HP0_awready_i(S_AXI_HP0_awready          ),
+  .S_AXI_HP0_awsize_o (S_AXI_HP0_awsize           ),
+  .S_AXI_HP0_awvalid_o(S_AXI_HP0_awvalid          ),
+  .S_AXI_HP0_bid_i    (S_AXI_HP0_bid              ),
+  .S_AXI_HP0_bready_o (S_AXI_HP0_bready           ),
+  .S_AXI_HP0_bresp_i  (S_AXI_HP0_bresp            ),
+  .S_AXI_HP0_bvalid_i (S_AXI_HP0_bvalid           ),
+  .S_AXI_HP0_rdata_i  (S_AXI_HP0_rdata            ),
+  .S_AXI_HP0_rid_i    (S_AXI_HP0_rid              ),
+  .S_AXI_HP0_rlast_i  (S_AXI_HP0_rlast            ),
+  .S_AXI_HP0_rready_o (S_AXI_HP0_rready           ),
+  .S_AXI_HP0_rresp_i  (S_AXI_HP0_rresp            ),
+  .S_AXI_HP0_rvalid_i (S_AXI_HP0_rvalid           ),
+  .S_AXI_HP0_wdata_o  (S_AXI_HP0_wdata            ),
+  .S_AXI_HP0_wid_o    (S_AXI_HP0_wid              ),
+  .S_AXI_HP0_wlast_o  (S_AXI_HP0_wlast            ),
+  .S_AXI_HP0_wready_i (S_AXI_HP0_wready           ),
+  .S_AXI_HP0_wstrb_o  (S_AXI_HP0_wstrb            ),
+  .S_AXI_HP0_wvalid_o (S_AXI_HP0_wvalid           ),
 
   // AXIS MASTER from the XADC
-  .xadc_axis_aclk     (xadc_axis_aclk             ),  // AXI-streaming from the XADC, clock from the AXI-S FIFO
-  .xadc_axis_tdata    (xadc_axis_tdata            ),  // AXI-streaming from the XADC, data
-  .xadc_axis_tid      (xadc_axis_tid              ),  // AXI-streaming from the XADC, analog data source channel for this data
-  .xadc_axis_tready   (xadc_axis_tready           ),  // AXI-streaming from the XADC, slave indicating ready for data
-  .xadc_axis_tvalid   (xadc_axis_tvalid           )   // AXI-streaming from the XADC, data transfer valid
+  .xadc_axis_aclk_i   (xadc_axis_aclk             ),  // AXI-streaming from the XADC, clock from the AXI-S FIFO
+  .xadc_axis_tdata_i  (xadc_axis_tdata            ),  // AXI-streaming from the XADC, data
+  .xadc_axis_tid_i    (xadc_axis_tid              ),  // AXI-streaming from the XADC, analog data source channel for this data
+  .xadc_axis_tready_o (xadc_axis_tready           ),  // AXI-streaming from the XADC, slave indicating ready for data
+  .xadc_axis_tvalid_i (xadc_axis_tvalid           ),  // AXI-streaming from the XADC, data transfer valid
+
+  // masterclock progress with each 125 MHz tick and starts after release of reset
+  .masterclock_i      (masterclock[31:0]          )
 );
 
 
@@ -701,6 +708,15 @@ assign sys_ack  [7       ] =  1'b1;
 
 assign daisy_p_o = 2'bzz;
 assign daisy_n_o = 2'bzz;
+
+
+// masterclock progress with each 125 MHz tick and starts after release of reset
+
+always @(posedge fclk[0])
+if (!frstn[0])
+   masterclock <= 64'b0;
+else
+   masterclock <= masterclock + 1'b1;
 
 
 endmodule: top

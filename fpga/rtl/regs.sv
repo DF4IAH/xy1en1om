@@ -24,72 +24,74 @@ module regs #(
   // parameter RSZ = 14  // RAM size 2^RSZ
 )(
   // clock & reset
-  input        [  3: 0] clks            ,  // clocks
-  input        [  3: 0] rstsn           ,  // clock reset lines - active low
+  input      [  3: 0] clks_i               ,  // clocks
+  input      [  3: 0] rstsn_i              ,  // clock reset lines - active low
 
   // activation
-  output                x11_activated   ,  // x11 sub-module is activated
+  output              x11_activated_o      ,  // x11 sub-module is activated
 
   // System bus - slave
-  input        [ 31: 0] sys_addr        ,  // bus saddress
-  input        [ 31: 0] sys_wdata       ,  // bus write data
-  input        [  3: 0] sys_sel         ,  // bus write byte select
-  input                 sys_wen         ,  // bus write enable
-  input                 sys_ren         ,  // bus read enable
-  output reg   [ 31: 0] sys_rdata       ,  // bus read data
-  output reg            sys_err         ,  // bus error indicator
-  output reg            sys_ack         ,  // bus acknowledge signal
+  input      [ 31: 0] sys_addr_i           ,  // bus saddress
+  input      [ 31: 0] sys_wdata_i          ,  // bus write data
+  input      [  3: 0] sys_sel_i            ,  // bus write byte select
+  input               sys_wen_i            ,  // bus write enable
+  input               sys_ren_i            ,  // bus read enable
+  output reg [ 31: 0] sys_rdata_o          ,  // bus read data
+  output reg          sys_err_o            ,  // bus error indicator
+  output reg          sys_ack_o            ,  // bus acknowledge signal
 
   // AXI_HP0 master
-  output             S_AXI_HP0_aclk     ,
-  output  [   31: 0] S_AXI_HP0_araddr   ,
-  output  [    1: 0] S_AXI_HP0_arburst  ,
-  output  [    3: 0] S_AXI_HP0_arcache  ,
-  output  [    5: 0] S_AXI_HP0_arid     ,
-  output  [    3: 0] S_AXI_HP0_arlen    ,
-  output  [    1: 0] S_AXI_HP0_arlock   ,
-  output  [    2: 0] S_AXI_HP0_arprot   ,
-  output  [    3: 0] S_AXI_HP0_arqos    ,
-  input              S_AXI_HP0_arready  ,
-  output  [    2: 0] S_AXI_HP0_arsize   ,
-  output  [    4: 0] S_AXI_HP0_aruser   ,
-  output             S_AXI_HP0_arvalid  ,
-  output  [   31: 0] S_AXI_HP0_awaddr   ,
-  output  [    1: 0] S_AXI_HP0_awburst  ,
-  output  [    3: 0] S_AXI_HP0_awcache  ,
-  output  [    5: 0] S_AXI_HP0_awid     ,
-  output  [    3: 0] S_AXI_HP0_awlen    ,
-  output  [    1: 0] S_AXI_HP0_awlock   ,
-  output  [    2: 0] S_AXI_HP0_awprot   ,
-  output  [    3: 0] S_AXI_HP0_awqos    ,
-  input              S_AXI_HP0_awready  ,
-  output  [    2: 0] S_AXI_HP0_awsize   ,
-  output  [    4: 0] S_AXI_HP0_awuser   ,
-  output             S_AXI_HP0_awvalid  ,
-  input   [    5: 0] S_AXI_HP0_bid      ,
-  output             S_AXI_HP0_bready   ,
-  input   [    1: 0] S_AXI_HP0_bresp    ,
-  input              S_AXI_HP0_bvalid   ,
-  input   [   63: 0] S_AXI_HP0_rdata    ,
-  input   [    5: 0] S_AXI_HP0_rid      ,
-  input              S_AXI_HP0_rlast    ,
-  output             S_AXI_HP0_rready   ,
-  input   [    1: 0] S_AXI_HP0_rresp    ,
-  input              S_AXI_HP0_rvalid   ,
-  output  [   63: 0] S_AXI_HP0_wdata    ,
-  output  [    5: 0] S_AXI_HP0_wid      ,
-  output             S_AXI_HP0_wlast    ,
-  input              S_AXI_HP0_wready   ,
-  output  [    7: 0] S_AXI_HP0_wstrb    ,
-  output             S_AXI_HP0_wvalid   ,
+  output              S_AXI_HP0_aclk_o     ,
+  output     [ 31: 0] S_AXI_HP0_araddr_o   ,
+  output     [  1: 0] S_AXI_HP0_arburst_o  ,
+  output     [  3: 0] S_AXI_HP0_arcache_o  ,
+  output     [  5: 0] S_AXI_HP0_arid_o     ,
+  output     [  3: 0] S_AXI_HP0_arlen_o    ,
+  output     [  1: 0] S_AXI_HP0_arlock_o   ,
+  output     [  2: 0] S_AXI_HP0_arprot_o   ,
+  output     [  3: 0] S_AXI_HP0_arqos_o    ,
+  input               S_AXI_HP0_arready_i  ,
+  output     [  2: 0] S_AXI_HP0_arsize_o   ,
+  output     [  4: 0] S_AXI_HP0_aruser_o   ,
+  output              S_AXI_HP0_arvalid_o  ,
+  output     [ 31: 0] S_AXI_HP0_awaddr_o   ,
+  output     [  1: 0] S_AXI_HP0_awburst_o  ,
+  output     [  3: 0] S_AXI_HP0_awcache_o  ,
+  output     [  5: 0] S_AXI_HP0_awid_o     ,
+  output     [  3: 0] S_AXI_HP0_awlen_o    ,
+  output     [  1: 0] S_AXI_HP0_awlock_o   ,
+  output     [  2: 0] S_AXI_HP0_awprot_o   ,
+  output     [  3: 0] S_AXI_HP0_awqos_o    ,
+  input               S_AXI_HP0_awready_i  ,
+  output     [  2: 0] S_AXI_HP0_awsize_o   ,
+  output     [  4: 0] S_AXI_HP0_awuser_o   ,
+  output              S_AXI_HP0_awvalid_o  ,
+  input      [  5: 0] S_AXI_HP0_bid_i      ,
+  output              S_AXI_HP0_bready_o   ,
+  input      [  1: 0] S_AXI_HP0_bresp_i    ,
+  input               S_AXI_HP0_bvalid_i   ,
+  input      [ 63: 0] S_AXI_HP0_rdata_i    ,
+  input      [  5: 0] S_AXI_HP0_rid_i      ,
+  input               S_AXI_HP0_rlast_i    ,
+  output              S_AXI_HP0_rready_o   ,
+  input      [  1: 0] S_AXI_HP0_rresp_i    ,
+  input               S_AXI_HP0_rvalid_i   ,
+  output     [ 63: 0] S_AXI_HP0_wdata_o    ,
+  output     [  5: 0] S_AXI_HP0_wid_o      ,
+  output              S_AXI_HP0_wlast_o    ,
+  input               S_AXI_HP0_wready_i   ,
+  output     [  7: 0] S_AXI_HP0_wstrb_o    ,
+  output              S_AXI_HP0_wvalid_o   ,
 
   // AXI streaming master from XADC
-  input              xadc_axis_aclk     ,  // AXI-streaming from the XADC, clock from the AXI-S FIFO
-  input   [   15: 0] xadc_axis_tdata    ,  // AXI-streaming from the XADC, data
-  input   [    4: 0] xadc_axis_tid      ,  // AXI-streaming from the XADC, analog data source channel for this data
-                                           // TID=0x10:VAUXp0_VAUXn0 & TID=0x18:VAUXp8_VAUXn8, TID=0x11:VAUXp1_VAUXn1 & TID=0x19:VAUXp9_VAUXn9, TID=0x03:Vp_Vn
-  output reg         xadc_axis_tready   ,  // AXI-streaming from the XADC, slave indicating ready for data
-  input              xadc_axis_tvalid      // AXI-streaming from the XADC, data transfer valid
+  input               xadc_axis_aclk_i     ,  // AXI-streaming from the XADC, clock from the AXI-S FIFO
+  input      [ 15: 0] xadc_axis_tdata_i    ,  // AXI-streaming from the XADC, data
+  input      [  4: 0] xadc_axis_tid_i      ,  // AXI-streaming from the XADC, analog data source channel for this data
+                                                // TID=0x10:VAUXp0_VAUXn0 & TID=0x18:VAUXp8_VAUXn8, TID=0x11:VAUXp1_VAUXn1 & TID=0x19:VAUXp9_VAUXn9, TID=0x03:Vp_Vn
+  output reg          xadc_axis_tready_o   ,  // AXI-streaming from the XADC, slave indicating ready for data
+  input               xadc_axis_tvalid_i   ,  // AXI-streaming from the XADC, data transfer valid
+
+  input      [ 31: 0] masterclock_i             // masterclock progress with each 125 MHz tick and starts after release of reset
 );
 
 
@@ -98,7 +100,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082706;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082811;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -276,8 +278,8 @@ enum {
 
 reg          [ 31:0]     regs[REG_COUNT];                   // registers to be accessed by the system bus
 
-wire                     bus_clk             = clks[0];     // 125.0 MHz;
-wire                     bus_rstn            = rstsn[0];
+wire                     bus_clk             = clks_i[0];   // 125.0 MHz;
+wire                     bus_rstn            = rstsn_i[0];
 
 wire                     x11_enable          = regs[REG_RW_CTRL][CTRL_ENABLE];
 wire         [ 31:0]     status;
@@ -285,8 +287,8 @@ wire         [ 31:0]     status;
 
 // === NET: SHA256 section ===
 
-wire                     sha256_clk          = clks[2];     // 62.5 MHz
-wire                     sha256_rstn         = rstsn[2];
+wire                     sha256_clk          = clks_i[2];   // 62.5 MHz
+wire                     sha256_rstn         = rstsn_i[2];
 wire                     sha256_enable       = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_ENABLE] &  x11_enable;
 wire                     sha256_reset_pulse  = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_RESET]  | !x11_enable;
 wire                     sha256_dbl_hash     = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DBL_HASH];
@@ -294,7 +296,7 @@ wire                     sha256_dma_mode     = regs[REG_RW_SHA256_CTRL][SHA256_C
 wire                     sha256_dma_multihash= regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DMA_MULTIHASH];
 wire                     sha256_dma_start    = regs[REG_RW_SHA256_CTRL][SHA256_CTRL_DMA_START];
 wire         [ 31:0]     sha256_dma_base_addr= regs[REG_RW_SHA256_DMA_BASE_ADDR];
-wire         [ 31:0]     sha256_dma_bit_len  = regs[REG_RW_SHA256_DMA_BIT_LEN];
+wire         [ 25:0]     sha256_dma_bit_len  = regs[REG_RW_SHA256_DMA_BIT_LEN][25:0];
 wire         [ 31:0]     sha256_dma_nonce_ofs= regs[REG_RW_SHA256_DMA_NONCE_OFS];
 
 wire         [ 31:0]     sha256_status;
@@ -318,11 +320,18 @@ wire                     sha256_32b_fifo_rd_vld;
 wire                     sha256_fifo_empty;
 wire         [  8:0]     sha256_fifo_rd_count;
 
+wire                     sha256_dma_in_progress;
+
 reg                      sha256_start = 'b0;
 wire                     sha256_hash_valid;
 wire         [255:0]     sha256_hash_data;
 
 // debugging DMA engine
+wire         [ 31:0]     sha256_dma_clock_start;
+wire         [ 31:0]     sha256_dma_clock_last;
+wire         [ 31:0]     sha256_dma_clock_stop;
+wire         [ 31:0]     sha256_eng_clock_complete;
+wire         [ 31:0]     sha256_eng_clock_finish;
 wire         [  7:0]     sha256_dma_state;
 wire         [ 31:0]     sha256_dma_axi_r_state;
 wire         [ 31:0]     sha256_dma_axi_w_state;
@@ -351,7 +360,7 @@ wire         [ 63:0]     kek512_out[25];                    // result of keccak 
 
 // === IMPL: X11 - OMNI section ===
 
-assign        x11_activated = x11_enable;
+assign        x11_activated_o = x11_enable;
 
 
 //---------------------------------------------------------------------------------
@@ -360,8 +369,8 @@ assign        x11_activated = x11_enable;
 wire          bus_sha256_reset_n;
 red_pitaya_rst_clken i_rst_clken_sha256_bus (
   // global signals
-  .clk                     ( bus_clk                     ), // clock 125.0 MHz
-  .rstn                    ( bus_rstn                    ), // clock reset - active low
+  .clk_i                   ( bus_clk                     ), // clock 125.0 MHz
+  .rstn_i                  ( bus_rstn                    ), // clock reset - active low
 
   // input signals
   .enable_i                ( sha256_enable & !sha256_reset_pulse ),
@@ -375,8 +384,8 @@ wire          sha256_clk_en;
 wire          sha256_reset_n;
 red_pitaya_rst_clken i_rst_clken_sha256 (
   // global signals
-  .clk                     ( sha256_clk                  ), // clock 62.5 MHz
-  .rstn                    ( sha256_rstn                 ), // clock reset - active low
+  .clk_i                   ( sha256_clk                  ), // clock 62.5 MHz
+  .rstn_i                  ( sha256_rstn                 ), // clock reset - active low
 
   // input signals
   .enable_i                ( sha256_enable & !sha256_reset_pulse ),
@@ -392,8 +401,8 @@ wire          kek512_clk_en;
 wire          kek512_reset_n;
 red_pitaya_rst_clken i_rst_clken_kek512 (
   // global signals
-  .clk                     ( kek512_clk                  ), // clock 125.0 MHz
-  .rstn                    ( kek512_rstn                 ), // clock reset - active low
+  .clk_i                   ( kek512_clk                  ), // clock 125.0 MHz
+  .rstn_i                  ( kek512_rstn                 ), // clock reset - active low
 
   // input signals
   .enable_i                ( kek512_enable               ),
@@ -406,11 +415,11 @@ red_pitaya_rst_clken i_rst_clken_kek512 (
 wire          kek512_activated = kek512_reset_n;
 */
 
-assign status = { 20'b0,  3'b0 , 1'b0 /*kek512_activated*/,  3'b0, sha256_activated,  3'b0, x11_activated };
+assign status = { 20'b0,  3'b0 , 1'b0 /*kek512_activated*/,  3'b0, sha256_activated,  3'b0, x11_activated_o };
 
 
 // AXIS
-assign xadc_axis_tready = 1'b0;
+assign xadc_axis_tready_o = 1'b0;
 
 // AXI masters
 assign axi1_clk_o    = bus_clk;
@@ -461,70 +470,77 @@ else
 
 dma_engine i_dma_engine (
   // global signals
-  .clk_i              (bus_clk                    ),  // clock 125.0 MHz
-  .rstn_i             (bus_sha256_reset_n         ),  // SHA256 enabled clock reset - active low
+  .clk_i                   ( bus_clk                     ),  // clock 125.0 MHz
+  .rstn_i                  ( bus_sha256_reset_n          ),  // SHA256 enabled clock reset - active low
 
-  .dma_enable_i       (sha256_dma_mode            ),  // 1 = DMA mode, 0 = FIFO mode
-  .dma_base_addr_i    (sha256_dma_base_addr       ),  // DMA byte base address, bits [1:0] always 0 (32 bit alignment)
-  .dma_bit_len_i      (sha256_dma_bit_len         ),  // submodule number of data bits to be hashed, bits [4:0] always 0 (32 bit alignment)
-  .dma_start_i        (sha256_dma_start           ),  // start flag of the DMA engine, that flag is auto-clearing
+  .dma_enable_i            ( sha256_dma_mode             ),  // 1 = DMA mode, 0 = FIFO mode
+  .dma_base_addr_i         ( sha256_dma_base_addr        ),  // DMA byte base address, bits [1:0] always 0 (32 bit alignment)
+  .dma_bit_len_i           ( sha256_dma_bit_len          ),  // submodule number of data bits to be hashed, bits [4:0] always 0 (32 bit alignment)
+  .dma_start_i             ( sha256_dma_start            ),  // start flag of the DMA engine, that flag is auto-clearing
 
-  .sha256_rdy_i       (sha256_rdy                 ),
+  .sha256_rdy_i            ( sha256_rdy                  ),
 
   // AXI_HP0 master
-  .S_AXI_HP0_aclk     (S_AXI_HP0_aclk             ),
-  .S_AXI_HP0_araddr   (S_AXI_HP0_araddr           ),
-  .S_AXI_HP0_arburst  (S_AXI_HP0_arburst          ),
-  .S_AXI_HP0_arcache  (S_AXI_HP0_arcache          ),
-  .S_AXI_HP0_arid     (S_AXI_HP0_arid             ),
-  .S_AXI_HP0_arlen    (S_AXI_HP0_arlen            ),
-  .S_AXI_HP0_arlock   (S_AXI_HP0_arlock           ),
-  .S_AXI_HP0_arprot   (S_AXI_HP0_arprot           ),
-  .S_AXI_HP0_arqos    (S_AXI_HP0_arqos            ),
-  .S_AXI_HP0_arready  (S_AXI_HP0_arready          ),
-  .S_AXI_HP0_arsize   (S_AXI_HP0_arsize           ),
-  .S_AXI_HP0_aruser   (S_AXI_HP0_aruser           ),
-  .S_AXI_HP0_arvalid  (S_AXI_HP0_arvalid          ),
-  .S_AXI_HP0_awaddr   (S_AXI_HP0_awaddr           ),
-  .S_AXI_HP0_awburst  (S_AXI_HP0_awburst          ),
-  .S_AXI_HP0_awcache  (S_AXI_HP0_awcache          ),
-  .S_AXI_HP0_awid     (S_AXI_HP0_awid             ),
-  .S_AXI_HP0_awlen    (S_AXI_HP0_awlen            ),
-  .S_AXI_HP0_awlock   (S_AXI_HP0_awlock           ),
-  .S_AXI_HP0_awprot   (S_AXI_HP0_awprot           ),
-  .S_AXI_HP0_awqos    (S_AXI_HP0_awqos            ),
-  .S_AXI_HP0_awready  (S_AXI_HP0_awready          ),
-  .S_AXI_HP0_awsize   (S_AXI_HP0_awsize           ),
-  .S_AXI_HP0_awuser   (S_AXI_HP0_awuser           ),
-  .S_AXI_HP0_awvalid  (S_AXI_HP0_awvalid          ),
-  .S_AXI_HP0_bid      (S_AXI_HP0_bid              ),
-  .S_AXI_HP0_bready   (S_AXI_HP0_bready           ),
-  .S_AXI_HP0_bresp    (S_AXI_HP0_bresp            ),
-  .S_AXI_HP0_bvalid   (S_AXI_HP0_bvalid           ),
-  .S_AXI_HP0_rdata    (S_AXI_HP0_rdata            ),
-  .S_AXI_HP0_rid      (S_AXI_HP0_rid              ),
-  .S_AXI_HP0_rlast    (S_AXI_HP0_rlast            ),
-  .S_AXI_HP0_rready   (S_AXI_HP0_rready           ),
-  .S_AXI_HP0_rresp    (S_AXI_HP0_rresp            ),
-  .S_AXI_HP0_rvalid   (S_AXI_HP0_rvalid           ),
-  .S_AXI_HP0_wdata    (S_AXI_HP0_wdata            ),
-  .S_AXI_HP0_wid      (S_AXI_HP0_wid              ),
-  .S_AXI_HP0_wlast    (S_AXI_HP0_wlast            ),
-  .S_AXI_HP0_wready   (S_AXI_HP0_wready           ),
-  .S_AXI_HP0_wstrb    (S_AXI_HP0_wstrb            ),
-  .S_AXI_HP0_wvalid   (S_AXI_HP0_wvalid           ),
+  .S_AXI_HP0_aclk_o        ( S_AXI_HP0_aclk_o            ),
+  .S_AXI_HP0_araddr_o      ( S_AXI_HP0_araddr_o          ),
+  .S_AXI_HP0_arburst_o     ( S_AXI_HP0_arburst_o         ),
+  .S_AXI_HP0_arcache_o     ( S_AXI_HP0_arcache_o         ),
+  .S_AXI_HP0_arid_o        ( S_AXI_HP0_arid_o            ),
+  .S_AXI_HP0_arlen_o       ( S_AXI_HP0_arlen_o           ),
+  .S_AXI_HP0_arlock_o      ( S_AXI_HP0_arlock_o          ),
+  .S_AXI_HP0_arprot_o      ( S_AXI_HP0_arprot_o          ),
+  .S_AXI_HP0_arqos_o       ( S_AXI_HP0_arqos_o           ),
+  .S_AXI_HP0_arready_i     ( S_AXI_HP0_arready_i         ),
+  .S_AXI_HP0_arsize_o      ( S_AXI_HP0_arsize_o          ),
+  .S_AXI_HP0_aruser_o      ( S_AXI_HP0_aruser_o          ),
+  .S_AXI_HP0_arvalid_o     ( S_AXI_HP0_arvalid_o         ),
+  .S_AXI_HP0_awaddr_o      ( S_AXI_HP0_awaddr_o          ),
+  .S_AXI_HP0_awburst_o     ( S_AXI_HP0_awburst_o         ),
+  .S_AXI_HP0_awcache_o     ( S_AXI_HP0_awcache_o         ),
+  .S_AXI_HP0_awid_o        ( S_AXI_HP0_awid_o            ),
+  .S_AXI_HP0_awlen_o       ( S_AXI_HP0_awlen_o           ),
+  .S_AXI_HP0_awlock_o      ( S_AXI_HP0_awlock_o          ),
+  .S_AXI_HP0_awprot_o      ( S_AXI_HP0_awprot_o          ),
+  .S_AXI_HP0_awqos_o       ( S_AXI_HP0_awqos_o           ),
+  .S_AXI_HP0_awready_i     ( S_AXI_HP0_awready_i         ),
+  .S_AXI_HP0_awsize_o      ( S_AXI_HP0_awsize_o          ),
+  .S_AXI_HP0_awuser_o      ( S_AXI_HP0_awuser_o          ),
+  .S_AXI_HP0_awvalid_o     ( S_AXI_HP0_awvalid_o         ),
+  .S_AXI_HP0_bid_i         ( S_AXI_HP0_bid_i             ),
+  .S_AXI_HP0_bready_o      ( S_AXI_HP0_bready_o          ),
+  .S_AXI_HP0_bresp_i       ( S_AXI_HP0_bresp_i           ),
+  .S_AXI_HP0_bvalid_i      ( S_AXI_HP0_bvalid_i          ),
+  .S_AXI_HP0_rdata_i       ( S_AXI_HP0_rdata_i           ),
+  .S_AXI_HP0_rid_i         ( S_AXI_HP0_rid_i             ),
+  .S_AXI_HP0_rlast_i       ( S_AXI_HP0_rlast_i           ),
+  .S_AXI_HP0_rready_o      ( S_AXI_HP0_rready_o          ),
+  .S_AXI_HP0_rresp_i       ( S_AXI_HP0_rresp_i           ),
+  .S_AXI_HP0_rvalid_i      ( S_AXI_HP0_rvalid_i          ),
+  .S_AXI_HP0_wdata_o       ( S_AXI_HP0_wdata_o           ),
+  .S_AXI_HP0_wid_o         ( S_AXI_HP0_wid_o             ),
+  .S_AXI_HP0_wlast_o       ( S_AXI_HP0_wlast_o           ),
+  .S_AXI_HP0_wready_i      ( S_AXI_HP0_wready_i          ),
+  .S_AXI_HP0_wstrb_o       ( S_AXI_HP0_wstrb_o           ),
+  .S_AXI_HP0_wvalid_o      ( S_AXI_HP0_wvalid_o          ),
 
-  .fifo_wr_en_o       (sha256_dma_fifo_wr_en      ),
-  .fifo_wr_in_o       (sha256_dma_fifo_wr_in      ),
-  .fifo_wr_count_i    (sha256_fifo_rd_count       ),
+  .fifo_wr_en_o            ( sha256_dma_fifo_wr_en       ),
+  .fifo_wr_in_o            ( sha256_dma_fifo_wr_in       ),
+  .fifo_wr_count_i         ( sha256_fifo_wr_count        ),
 
-  .dbg_state_o        (sha256_dma_state           ),
-  .dbg_axi_r_state_o  (sha256_dma_axi_r_state     ),
-  .dbg_axi_w_state_o  (sha256_dma_axi_w_state     ),
-  .dbg_axi_last_data  (sha256_dma_last_data       )
+  .dma_in_progress_o       ( sha256_dma_in_progress      ),
+
+  .masterclock_i           ( masterclock_i[31:0]         ), // masterclock progress with each 125 MHz tick and starts after release of reset
+
+  .dbg_clock_start_o       ( sha256_dma_clock_start      ),
+  .dbg_clock_last_o        ( sha256_dma_clock_last       ),
+  .dbg_clock_stop_o        ( sha256_dma_clock_stop       ),
+  .dbg_state_o             ( sha256_dma_state            ),
+  .dbg_axi_r_state_o       ( sha256_dma_axi_r_state      ),
+  .dbg_axi_w_state_o       ( sha256_dma_axi_w_state      ),
+  .dbg_axi_last_data_o     ( sha256_dma_last_data        )
 );
 
-
+// FIFO input MUX for DMA access or push()
 assign sha256_32b_fifo_wr_en = sha256_dma_mode ?  sha256_dma_fifo_wr_en : sha256_port_fifo_wr_en;
 assign sha256_32b_fifo_wr_in = sha256_dma_mode ?  sha256_dma_fifo_wr_in : sha256_port_fifo_wr_in;
 
@@ -560,13 +576,20 @@ sha256_engine i_sha256_engine (
 //.sha256_multihash_i      ( sha256_multihash            ), // 1 = re-do automatic enabled with nonce incrementation
   .sha256_dbl_hash_i       ( sha256_dbl_hash             ), // do a sha256(sha256(x)) operation
 
-  .fifo_empty              ( sha256_fifo_empty           ), // indicator for continuation with next block
-  .fifo_rd_en              ( sha256_32b_fifo_rd_en       ), // enable reading of the FIFO
-  .fifo_rd_vld             ( sha256_32b_fifo_rd_vld      ), // read data from the FIFO is valid
-  .fifo_rd_dat             ( sha256_32b_fifo_rd_out      ), // 32 bit word out of the FIFO for the SHA-256 engine to process
+  .fifo_empty_i            ( sha256_fifo_empty           ), // indicator for continuation with next block
+  .fifo_rd_en_o            ( sha256_32b_fifo_rd_en       ), // enable reading of the FIFO
+  .fifo_rd_vld_i           ( sha256_32b_fifo_rd_vld      ), // read data from the FIFO is valid
+  .fifo_rd_dat_i           ( sha256_32b_fifo_rd_out      ), // 32 bit word out of the FIFO for the SHA-256 engine to process
+
+  .dma_in_progress_i       ( sha256_dma_in_progress      ), // DMA process is running and has not completed now
 
   .valid_o                 ( sha256_hash_valid           ), // hash output vector is valid
-  .hash_o                  ( sha256_hash_data            )  // computated hash value
+  .hash_o                  ( sha256_hash_data            ), // computated hash value
+
+  .masterclock_i           ( masterclock_i[31:0]         ), // masterclock progress with each 125 MHz tick and starts after release of reset 
+
+  .dbg_clock_complete_o    ( sha256_eng_clock_complete   ),
+  .dbg_clock_finish_o      ( sha256_eng_clock_finish     )
 );
 
 always @(posedge sha256_clk)
@@ -577,7 +600,7 @@ else if (!sha256_fifo_empty && sha256_rdy)
 else
    sha256_start <= 1'b0;
 
-assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha256_fifo_empty,  2'b0, sha256_hash_valid, sha256_rdy };
+assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha256_fifo_empty,  1'b0, sha256_dma_in_progress, sha256_hash_valid, sha256_rdy };
 
 always @(posedge sha256_clk)
 if (!sha256_reset_n)
@@ -628,39 +651,39 @@ else begin
   sha256_port_fifo_wr_en <= 1'b0;
 //kek512_start <= 1'b0;
 
-  if (sys_wen) begin
-    casez (sys_addr[19:0])
+  if (sys_wen_i) begin
+    casez (sys_addr_i[19:0])
 
     /* OMNI section */
 
     20'h00000: begin
-      regs[REG_RW_CTRL]                           <= sys_wdata[31:0];
+      regs[REG_RW_CTRL]                           <= sys_wdata_i[31:0];
       end
 
 
     /* SHA256 section */
 
     20'h00100: begin
-      regs[REG_RW_SHA256_CTRL]                    <= sys_wdata[31:0];
+      regs[REG_RW_SHA256_CTRL]                    <= sys_wdata_i[31:0];
       end
 /*  20'h00108: begin
       regs[REG_RW_SHA256_BIT_LEN]                 <= sys_wdata[31:0];
       end */
     20'h0010C: begin
-      sha256_port_fifo_wr_in[31:0]                <= sys_wdata[31:0];
+      sha256_port_fifo_wr_in[31:0]                <= sys_wdata_i[31:0];
       sha256_port_fifo_wr_en <= 1'b1;
       end
 
     20'h00140: begin
-      regs[REG_RW_SHA256_DMA_BASE_ADDR]           <= sys_wdata[31:0];
+      regs[REG_RW_SHA256_DMA_BASE_ADDR]           <= sys_wdata_i[31:0];
       end
 
     20'h00144: begin
-      regs[REG_RW_SHA256_DMA_BIT_LEN]             <= sys_wdata[31:0];
+      regs[REG_RW_SHA256_DMA_BIT_LEN]             <= sys_wdata_i[31:0];
       end
 
     20'h00148: begin
-      regs[REG_RW_SHA256_DMA_NONCE_OFS]           <= sys_wdata[31:0];
+      regs[REG_RW_SHA256_DMA_NONCE_OFS]           <= sys_wdata_i[31:0];
       end
 
 
@@ -668,12 +691,12 @@ else begin
 
 /*
     20'h00200: begin
-      regs[REG_RW_KECCAK512_CTRL]                 <= sys_wdata[31:0];
+      regs[REG_RW_KECCAK512_CTRL]                 <= sys_wdata_i[31:0];
       end
 
     20'h100zz: begin
       if ((sys_addr & 20'hFF) < 8'd26) begin
-        kek512_in[sys_addr & 8'hF]                <= sys_wdata;
+        kek512_in[sys_addr & 8'hF]                <= sys_wdata_i;
         kek512_start <= 1'b1;
         end
     end
@@ -688,127 +711,147 @@ else begin
 
 
 wire sys_en;
-assign sys_en = sys_wen | sys_ren;
+assign sys_en = sys_wen_i | sys_ren_i;
 
 // READ access to the registers
 always @(posedge bus_clk)
 if (!bus_rstn) begin
-  sys_err      <= 1'b0;
-  sys_ack      <= 1'b0;
-  sys_rdata    <= 32'h00000000;
+  sys_err_o      <= 1'b0;
+  sys_ack_o      <= 1'b0;
+  sys_rdata_o    <= 32'h00000000;
   dbg_fifo_read_next <= 1'b0;
   end
 
 else begin
   dbg_fifo_read_next <= 1'b0;
 
-  sys_err <= 1'b0;
-  if (sys_ren) begin
-    casez (sys_addr[19:0])
+  sys_err_o <= 1'b0;
+  if (sys_ren_i) begin
+    casez (sys_addr_i[19:0])
 
     /* OMNI section */
 
     20'h00000: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RW_CTRL];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RW_CTRL];
       end
     20'h00004: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= status;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= status;
       end
     20'h0000C: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= CURRENT_DATE;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= CURRENT_DATE;
       end
 
 
     /* SHA256 section */
 
     20'h00100: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RW_SHA256_CTRL];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RW_SHA256_CTRL];
       end
     20'h00104: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= sha256_status;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_status;
       end
 
     20'h0010C: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= sha256_fifo_read_last;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_fifo_read_last;
       dbg_fifo_read_next <= 1'b1;
       end
 
     20'h00110: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H7];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H7];
       end
     20'h00114: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H6];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H6];
       end
     20'h00118: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H5];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H5];
       end
     20'h0011C: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H4];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H4];
       end
     20'h00120: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H3];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H3];
       end
     20'h00124: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H2];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H2];
       end
     20'h00128: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H1];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H1];
       end
     20'h0012C: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RD_SHA256_HASH_H0];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RD_SHA256_HASH_H0];
       end
 
     20'h00130: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= { 23'b0, sha256_fifo_wr_count[8:0] };
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= { 23'b0, sha256_fifo_wr_count[8:0] };
       end
     20'h00134: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= { 23'b0, sha256_fifo_rd_count[8:0] };
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= { 23'b0, sha256_fifo_rd_count[8:0] };
       end
 
     20'h00140: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RW_SHA256_DMA_BASE_ADDR];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RW_SHA256_DMA_BASE_ADDR];
       end
     20'h00144: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RW_SHA256_DMA_BIT_LEN];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= { 6'b0, regs[REG_RW_SHA256_DMA_BIT_LEN][25:0] };
       end
     20'h00148: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RW_SHA256_DMA_NONCE_OFS];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RW_SHA256_DMA_NONCE_OFS];
       end
 
     20'h00150: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= { 24'b0, sha256_dma_state[7:0] };
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= { 24'b0, sha256_dma_state[7:0] };
       end
     20'h00154: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= sha256_dma_axi_r_state;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_dma_axi_r_state;
       end
     20'h00158: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= sha256_dma_axi_w_state;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_dma_axi_w_state;
       end
     20'h0015C: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= sha256_dma_last_data;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_dma_last_data;
+      end
+    20'h00160: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_dma_clock_start;
+      end
+    20'h00164: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_dma_clock_last;
+      end
+    20'h00168: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_dma_clock_stop;
+      end
+    20'h0016C: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_eng_clock_complete;
+      end
+    20'h00170: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_eng_clock_finish;
       end
 
 
@@ -816,46 +859,46 @@ else begin
 
 /*
     20'h00200: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= regs[REG_RW_KECCAK512_CTRL];
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= regs[REG_RW_KECCAK512_CTRL];
       end
     20'h00204: begin
-      sys_ack   <= sys_en;
-      sys_rdata <= kek512_status;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= kek512_status;
       end
 
     20'h100zz: begin
-      sys_ack <= sys_en;
-      if ((sys_addr & 20'hFF) < 8'd26)
-        sys_rdata <= kek512_in[sys_addr & 8'hFF];
+      sys_ack_o <= sys_en;
+      if ((sys_addr_i & 20'hFF) < 8'd26)
+        sys_rdata_o <= kek512_in[sys_addr & 8'hFF];
       else
-        sys_rdata <= 32'h00000000;
+        sys_rdata_o <= 32'h00000000;
     end
 
     20'h020zz: begin
-      sys_ack <= sys_en;
-      if ((sys_addr & 20'hFF) < 8'd26)
-        sys_rdata <= kek512_out[sys_addr & 8'hFF];
+      sys_ack_o <= sys_en;
+      if ((sys_addr_i & 20'hFF) < 8'd26)
+        sys_rdata_o <= kek512_out[sys_addr & 8'hFF];
       else
-        sys_rdata <= 32'h00000000;
+        sys_rdata_o <= 32'h00000000;
     end
 */
 
 
     default:   begin
-      sys_ack   <= sys_en;
-      sys_rdata <= 32'b0;
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= 32'b0;
       end
 
     endcase
     end
 
-  else if (sys_wen) begin                                                                                   // keep sys_ack assignment in this process
-    sys_ack <= sys_en;
+  else if (sys_wen_i) begin                                                                                   // keep sys_ack assignment in this process
+    sys_ack_o <= sys_en;
     end
 
   else begin
-    sys_ack <= 1'b0;
+    sys_ack_o <= 1'b0;
     end
   end
 

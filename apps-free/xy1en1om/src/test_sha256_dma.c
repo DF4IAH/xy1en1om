@@ -206,15 +206,16 @@ void test_sha256_dma_blockchain_example()
     g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #30
     g_fpga_xy_reg_mem->sha256_data_push = 0x00000280;         // SHA256 FIFO #31
 #else
-    g_fpga_xy_reg_mem->sha256_dma_base_addr = g_dma_paddr; // SHA256 DMA - base address
-    g_fpga_xy_reg_mem->sha256_dma_bit_len   = 1 * 32; // (sizeof(testmsg_rom) << 3);  // SHA256 DMA - bit len
+    g_fpga_xy_reg_mem->sha256_dma_base_addr = g_dma_paddr + 0; // SHA256 DMA - base address
+    g_fpga_xy_reg_mem->sha256_dma_bit_len   = 32 * 32; // (sizeof(testmsg_rom) << 3);  // SHA256 DMA - bit len
     g_fpga_xy_reg_mem->sha256_dma_nonce_ofs = 0x00000260;  // SHA256 DMA - nonce entry offset in bits
     g_fpga_xy_reg_mem->sha256_ctrl          = 0x00000013;  // SHA256 control:             DBL_HASH |            RESET trigger | ENABLE
-    //g_fpga_xy_reg_mem->sha256_data_push     = 0x10000000;
+//  g_fpga_xy_reg_mem->sha256_data_push     = 0x01000000;
     g_fpga_xy_reg_mem->sha256_ctrl          = 0x000000B1;  // SHA256 control: DMA_START | DBL_HASH | DMA_MODE |                 ENABLE
-    usleep(10);
+    usleep(100);
     g_fpga_xy_reg_mem->sha256_ctrl          = 0x00000011;  // SHA256 control: DMA_START | DBL_HASH | DMA_MODE |                 ENABLE
-//  g_fpga_xy_reg_mem->sha256_data_push = 0x01000000;         // SHA256 FIFO #00
+#if 0
+    g_fpga_xy_reg_mem->sha256_data_push = 0x01000000;         // SHA256 FIFO #00
     g_fpga_xy_reg_mem->sha256_data_push = 0x81cd02ab;         // SHA256 FIFO #01
     g_fpga_xy_reg_mem->sha256_data_push = 0x7e569e8b;         // SHA256 FIFO #02
     g_fpga_xy_reg_mem->sha256_data_push = 0xcd9317e2;         // SHA256 FIFO #03
@@ -229,6 +230,8 @@ void test_sha256_dma_blockchain_example()
     g_fpga_xy_reg_mem->sha256_data_push = 0x1eb942ae;         // SHA256 FIFO #12
     g_fpga_xy_reg_mem->sha256_data_push = 0x710e951e;         // SHA256 FIFO #13
     g_fpga_xy_reg_mem->sha256_data_push = 0xd797f7af;         // SHA256 FIFO #14
+
+// HINT: ab der folgenden Adresse wird DMA nicht richtig ausgeführt (Adresse, nicht Länge)
     g_fpga_xy_reg_mem->sha256_data_push = 0xfc8892b0;         // SHA256 FIFO #15
 
     g_fpga_xy_reg_mem->sha256_data_push = 0xf1fc122b;         // SHA256 FIFO #16
@@ -247,6 +250,7 @@ void test_sha256_dma_blockchain_example()
     g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #29 - one bit after the last data message is set
     g_fpga_xy_reg_mem->sha256_data_push = 0x00000000;         // SHA256 FIFO #30
     g_fpga_xy_reg_mem->sha256_data_push = 0x00000280;         // SHA256 FIFO #31
+#endif
 #endif
     (void) gettimeofday(&t1, NULL);  // t1-t0 = x.xµs
 
@@ -269,7 +273,7 @@ void test_sha256_dma_blockchain_example()
                 "sha256_dma_last_data = 0x%08x\n",
                 status,
                 fifo_wr_cnt, fifo_rd_cnt,
-				0, //fifo_rd_last,
+                0, //fifo_rd_last,
                 dma_state,
                 dma_axi_r_state, dma_axi_w_state,
                 sha256_dma_last_data);
@@ -289,8 +293,22 @@ void test_sha256_dma_blockchain_example()
     h0 = g_fpga_xy_reg_mem->sha256_hash_h0;
     (void) gettimeofday(&t3, NULL);  // t3-t0 = x.xµs
 
+    uint32_t sha256_dma_clock_start    =  g_fpga_xy_reg_mem->sha256_dma_clock_start;
+    uint32_t sha256_dma_clock_last     =  g_fpga_xy_reg_mem->sha256_dma_clock_last;
+    uint32_t sha256_dma_clock_stop     =  g_fpga_xy_reg_mem->sha256_dma_clock_stop;
+    uint32_t sha256_eng_clock_complete =  g_fpga_xy_reg_mem->sha256_eng_clock_complete;
+    uint32_t sha256_eng_clock_finish   =  g_fpga_xy_reg_mem->sha256_eng_clock_finish;
+
     fpga_xy_enable(0);
 
+    fprintf(stderr, "INFO DMA-FIFO    starting clock = %d last_dta clock = %d, time used = %05d clocks = %11.6lf µs\n",
+            sha256_dma_clock_start, sha256_dma_clock_last, sha256_dma_clock_last - sha256_dma_clock_start, (sha256_dma_clock_last - sha256_dma_clock_start) / 125.0);
+    fprintf(stderr, "INFO DMA-FIFO    starting clock = %d stopping clock = %d, time used = %05d clocks = %11.6lf µs\n",
+            sha256_dma_clock_start, sha256_dma_clock_stop, sha256_dma_clock_stop - sha256_dma_clock_start, (sha256_dma_clock_stop - sha256_dma_clock_start) / 125.0);
+    fprintf(stderr, "INFO SHA256-Eng. starting clock = %d complete clock = %d, time used = %05d clocks = %11.6lf µs\n",
+            sha256_dma_clock_start, sha256_eng_clock_complete, sha256_eng_clock_complete - sha256_dma_clock_start, (sha256_eng_clock_complete - sha256_dma_clock_start) / 125.0);
+    fprintf(stderr, "INFO SHA256-Eng. starting clock = %d finish.  clock = %d, time used = %05d clocks = %11.6lf µs\n",
+            sha256_dma_clock_start, sha256_eng_clock_finish, sha256_eng_clock_finish - sha256_dma_clock_start, (sha256_eng_clock_finish - sha256_dma_clock_start) / 125.0);
     fprintf(stderr, "INFO HASH = 0x%s  (reference = should be this value)\n", "1dbd981fe6985776b644b173a4d0385ddc1aa2a829688d1e0000000000000000");
     fprintf(stderr, "INFO HASH = 0x%08x%08x%08x%08x%08x%08x%08x%08x  (calculated value)\n", h0, h1, h2, h3, h4, h5, h6, h7);
     fprintf(stderr, "INFO t0 = %ld.%06ld\n", t0.tv_sec, t0.tv_usec);

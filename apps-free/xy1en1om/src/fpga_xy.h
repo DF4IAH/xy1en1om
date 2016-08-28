@@ -273,11 +273,15 @@ typedef struct fpga_xy_reg_mem_s {
 
     // debugging DMA engine
     uint32_t reserved_14c;
-    uint32_t sha256_dma_state;        // (addr: 0x40100150)
-    uint32_t sha256_dma_axi_r_state;  // (addr: 0x40100154)
-    uint32_t sha256_dma_axi_w_state;  // (addr: 0x40100158)
-    uint32_t sha256_dma_last_data;    // (addr: 0x4010015C)
-
+    uint32_t sha256_dma_state;           // (addr: 0x40100150)
+    uint32_t sha256_dma_axi_r_state;     // (addr: 0x40100154)
+    uint32_t sha256_dma_axi_w_state;     // (addr: 0x40100158)
+    uint32_t sha256_dma_last_data;       // (addr: 0x4010015C)
+    uint32_t sha256_dma_clock_start;     // (addr: 0x40100160)
+    uint32_t sha256_dma_clock_last;      // (addr: 0x40100164)
+    uint32_t sha256_dma_clock_stop;      // (addr: 0x40100168)
+    uint32_t sha256_eng_clock_complete;  // (addr: 0x4010016C)
+    uint32_t sha256_eng_clock_finish;    // (addr: 0x40100170)
 
     /** @brief  Placeholder for addr: 0x40100160 .. 0x406001FC
      *
