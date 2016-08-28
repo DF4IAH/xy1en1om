@@ -330,6 +330,8 @@ wire         [255:0]     sha256_hash_data;
 wire         [ 31:0]     sha256_dma_clock_start;
 wire         [ 31:0]     sha256_dma_clock_last;
 wire         [ 31:0]     sha256_dma_clock_stop;
+wire         [ 31:0]     sha256_eng_clock_continue;
+wire         [ 31:0]     sha256_eng_clock_dblhash;
 wire         [ 31:0]     sha256_eng_clock_complete;
 wire         [ 31:0]     sha256_eng_clock_finish;
 wire         [  7:0]     sha256_dma_state;
@@ -588,6 +590,8 @@ sha256_engine i_sha256_engine (
 
   .masterclock_i           ( masterclock_i[31:0]         ), // masterclock progress with each 125 MHz tick and starts after release of reset 
 
+  .dbg_clock_continue_o    ( sha256_eng_clock_continue   ),
+  .dbg_clock_dblhash_o     ( sha256_eng_clock_dblhash    ),
   .dbg_clock_complete_o    ( sha256_eng_clock_complete   ),
   .dbg_clock_finish_o      ( sha256_eng_clock_finish     )
 );
@@ -847,9 +851,17 @@ else begin
       end
     20'h0016C: begin
       sys_ack_o   <= sys_en;
-      sys_rdata_o <= sha256_eng_clock_complete;
+      sys_rdata_o <= sha256_eng_clock_continue;
       end
     20'h00170: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_eng_clock_dblhash;
+      end
+    20'h00174: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_eng_clock_complete;
+      end
+    20'h00178: begin
       sys_ack_o   <= sys_en;
       sys_rdata_o <= sha256_eng_clock_finish;
       end

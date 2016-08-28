@@ -280,8 +280,10 @@ typedef struct fpga_xy_reg_mem_s {
     uint32_t sha256_dma_clock_start;     // (addr: 0x40100160)
     uint32_t sha256_dma_clock_last;      // (addr: 0x40100164)
     uint32_t sha256_dma_clock_stop;      // (addr: 0x40100168)
-    uint32_t sha256_eng_clock_complete;  // (addr: 0x4010016C)
-    uint32_t sha256_eng_clock_finish;    // (addr: 0x40100170)
+    uint32_t sha256_eng_clock_continue;  // (addr: 0x4010016C)
+    uint32_t sha256_eng_clock_dblhash;   // (addr: 0x40100170)
+    uint32_t sha256_eng_clock_complete;  // (addr: 0x40100174)
+    uint32_t sha256_eng_clock_finish;    // (addr: 0x40100178)
 
     /** @brief  Placeholder for addr: 0x40100160 .. 0x406001FC
      *

@@ -48,6 +48,8 @@ module sha256_engine #(
 
   input      [ 31: 0]  masterclock_i       ,    // masterclock progress with each 125 MHz tick and starts after release of reset
 
+  output reg [ 31: 0]  dbg_clock_continue_o,
+  output reg [ 31: 0]  dbg_clock_dblhash_o,
   output reg [ 31: 0]  dbg_clock_complete_o,
   output reg [ 31: 0]  dbg_clock_finish_o
 );
@@ -278,10 +280,10 @@ else
          end
 
       else begin
-         if (!(|dbg_clock_complete_o))
-            dbg_clock_complete_o <= masterclock_i;
-
          if (!fifo_empty_i || dma_in_progress) begin        // continue with next frame
+            if (!(|dbg_clock_continue_o))
+               dbg_clock_continue_o <= masterclock_i;
+
             ha[0] <= ha[0] + a;
             ha[1] <= ha[1] + b;
             ha[2] <= ha[2] + c;
@@ -296,6 +298,9 @@ else
             end
          else begin
             if (sha256_dbl_hash_op) begin
+               if (!(|dbg_clock_dblhash_o))
+                  dbg_clock_dblhash_o <= masterclock_i;
+
                sha256_dbl_hash_op <= 1'b0;
 
                w[ 0] <= ha[0] + a;
@@ -328,6 +333,9 @@ else
                state <= 4'h2;
                end
             else begin
+               if (!(|dbg_clock_complete_o))
+                  dbg_clock_complete_o <= masterclock_i;
+
                ha[0] <= ha[0] + a;
                ha[1] <= ha[1] + b;
                ha[2] <= ha[2] + c;
