@@ -316,7 +316,7 @@ void test_sha256_dma_blockchain_example()
             sha256_dma_clock_start, sha256_eng_clock_complete, sha256_eng_clock_complete - sha256_dma_clock_start, (sha256_eng_clock_complete - sha256_dma_clock_start) / 125.0);
     fprintf(stderr, "INFO SHA256-Eng. starting clock = %d finish.  clock = %d, time used = %05d clocks = %11.6lf µs\n",
             sha256_dma_clock_start, sha256_eng_clock_finish,   sha256_eng_clock_finish   - sha256_dma_clock_start, (sha256_eng_clock_finish   - sha256_dma_clock_start) / 125.0);
-    fprintf(stderr, "INFO sha256_engine state_loop   = %02d\n", sha256_eng_state_loop);
+    fprintf(stderr, "INFO sha256_engine state_loop   = %08x\n", sha256_eng_state_loop);
     fprintf(stderr, "INFO HASH = 0x%s  (reference = should be this value)\n", "1dbd981fe6985776b644b173a4d0385ddc1aa2a829688d1e0000000000000000");
     fprintf(stderr, "INFO HASH = 0x%08x%08x%08x%08x%08x%08x%08x%08x  (calculated value)\n", h0, h1, h2, h3, h4, h5, h6, h7);
     fprintf(stderr, "INFO t0 = %ld.%06ld\n", t0.tv_sec, t0.tv_usec);

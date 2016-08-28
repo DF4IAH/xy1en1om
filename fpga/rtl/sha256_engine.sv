@@ -48,7 +48,7 @@ module sha256_engine #(
 
   input      [ 31: 0]  masterclock_i       ,    // masterclock progress with each 125 MHz tick and starts after release of reset
 
-  output     [  3: 0]  dbg_state_loop_o    ,
+  output     [ 31: 0]  dbg_state_loop_o    ,
   output reg [ 31: 0]  dbg_clock_continue_o,
   output reg [ 31: 0]  dbg_clock_dblhash_o ,
   output reg [ 31: 0]  dbg_clock_complete_o,
@@ -231,10 +231,10 @@ else
    4'h1: begin
       if (fifo_rd_vld_i) begin
          w[loop] <= fifo_rd_dat_i;                          // fill input array (contd.)
-         if (loop == 15) begin
+         if (loop == 14)
             fifo_rd_en_o <= 1'b0;
+         if (loop == 15)
             state <= 4'h2;
-            end
          loop <= loop + 1;
          end
       end
