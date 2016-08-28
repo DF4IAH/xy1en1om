@@ -284,6 +284,7 @@ typedef struct fpga_xy_reg_mem_s {
     uint32_t sha256_eng_clock_dblhash;   // (addr: 0x40100170)
     uint32_t sha256_eng_clock_complete;  // (addr: 0x40100174)
     uint32_t sha256_eng_clock_finish;    // (addr: 0x40100178)
+    uint32_t sha256_eng_state_loop;      // (addr: 0x4010017C)
 
     /** @brief  Placeholder for addr: 0x40100160 .. 0x406001FC
      *

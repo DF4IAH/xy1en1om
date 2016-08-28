@@ -48,8 +48,9 @@ module sha256_engine #(
 
   input      [ 31: 0]  masterclock_i       ,    // masterclock progress with each 125 MHz tick and starts after release of reset
 
+  output     [  3: 0]  dbg_state_loop_o    ,
   output reg [ 31: 0]  dbg_clock_continue_o,
-  output reg [ 31: 0]  dbg_clock_dblhash_o,
+  output reg [ 31: 0]  dbg_clock_dblhash_o ,
   output reg [ 31: 0]  dbg_clock_complete_o,
   output reg [ 31: 0]  dbg_clock_finish_o
 );
@@ -104,6 +105,9 @@ assign maj = (a & b) ^ (a & c) ^ (b & c);
 assign temp2 = S0 + maj;
 
 assign hash_o = { ha[0], ha[1], ha[2], ha[3], ha[4], ha[5], ha[6], ha[7] };
+
+assign dbg_state_loop_o = { 4'b0, state[3:0],  loop[23:0]};
+
 
 // FIFO delay compensation
 always @(posedge clk_i)
@@ -293,8 +297,9 @@ else
             ha[6] <= ha[6] + g;
             ha[7] <= ha[7] + h;
 
-            ready_o <= 1'b1;
-            state <= 4'h0;
+            fifo_rd_en_o <= 1'b1;
+            loop  <= 0;
+            state <= 4'h1;
             end
          else begin
             if (sha256_dbl_hash_op) begin

@@ -100,7 +100,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082811;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082901;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -334,6 +334,7 @@ wire         [ 31:0]     sha256_eng_clock_continue;
 wire         [ 31:0]     sha256_eng_clock_dblhash;
 wire         [ 31:0]     sha256_eng_clock_complete;
 wire         [ 31:0]     sha256_eng_clock_finish;
+wire         [ 31:0]     sha256_eng_state_loop;
 wire         [  7:0]     sha256_dma_state;
 wire         [ 31:0]     sha256_dma_axi_r_state;
 wire         [ 31:0]     sha256_dma_axi_w_state;
@@ -590,6 +591,7 @@ sha256_engine i_sha256_engine (
 
   .masterclock_i           ( masterclock_i[31:0]         ), // masterclock progress with each 125 MHz tick and starts after release of reset 
 
+  .dbg_state_loop_o        ( sha256_eng_state_loop       ),
   .dbg_clock_continue_o    ( sha256_eng_clock_continue   ),
   .dbg_clock_dblhash_o     ( sha256_eng_clock_dblhash    ),
   .dbg_clock_complete_o    ( sha256_eng_clock_complete   ),
@@ -864,6 +866,10 @@ else begin
     20'h00178: begin
       sys_ack_o   <= sys_en;
       sys_rdata_o <= sha256_eng_clock_finish;
+      end
+    20'h0017C: begin
+      sys_ack_o   <= sys_en;
+      sys_rdata_o <= sha256_eng_state_loop;
       end
 
 
