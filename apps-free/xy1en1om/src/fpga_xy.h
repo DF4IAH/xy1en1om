@@ -149,12 +149,12 @@ typedef struct fpga_xy_reg_mem_s {
      */
     uint32_t sha256_status;
 
-    /** @brief  R/W XY_SHA256_BIT_LEN - Status register (addr: 0x40100108)
+    /** @brief  Placeholder for addr: 0x40100108
      *
-     * bit h1F..h01: number of bit to hash (not yet enabled)
+     * n/a
      *
      */
-    uint32_t sha256_bit_len;
+    uint32_t reserved_108;
 
     /** @brief  W/O XY_SHA256_DATA_PUSH - Data push register (addr: 0x4010010C)
      *
@@ -162,6 +162,7 @@ typedef struct fpga_xy_reg_mem_s {
      *
      */
     uint32_t sha256_data_push;
+
 
     /** @brief  R/O XY_SHA256_HASH_H7 - Returned hash value register (addr: 0x40100110)
      *
@@ -219,6 +220,7 @@ typedef struct fpga_xy_reg_mem_s {
      */
     uint32_t sha256_hash_h0;
 
+
     /** @brief  R/O XY_SHA256_FIFO_WR_COUNT - SHA256 FIFO write stack count register (addr: 0x40100130)
      *
      * bit h1F..h00: at most this number of items are in the FIFO.
@@ -233,13 +235,63 @@ typedef struct fpga_xy_reg_mem_s {
      */
     uint32_t sha256_fifo_rd_count;
 
-
-    /** @brief  Placeholder for addr: 0x40100138 .. 0x406001FC
+    /** @brief  Placeholder for addr: 0x40100138
      *
      * n/a
      *
      */
-    uint32_t reserved_138To1fc[((0x1fc - 0x138) >> 2) + 1];
+    uint32_t reserved_138;
+
+    /** @brief  Placeholder for addr: 0x4010013C
+     *
+     * n/a
+     *
+     */
+    uint32_t reserved_13c;
+
+
+    /** @brief  R/W XY_SHA256_DMA_BASE_ADDR - physical address register (addr: 0x40100140)
+     *
+     * bit h1F..h01: number of bit to hash (not yet enabled)
+     *
+     */
+    uint32_t sha256_dma_base_addr;
+
+    /** @brief  R/W XY_SHA256_DMA_BIT_LEN - count of data bits to be hashed register (addr: 0x40100144)
+     *
+     * bit h1F..h01: number of bit to hash (not yet enabled)
+     *
+     */
+    uint32_t sha256_dma_bit_len;
+
+    /** @brief  R/W XY_SHA256_DMA_NONCE_OFS - offset position of the nonce entry in bits register (addr: 0x40100148)
+     *
+     * bit h1F..h01: number of bit to hash (not yet enabled)
+     *
+     */
+    uint32_t sha256_dma_nonce_ofs;
+
+    // debugging DMA engine
+    uint32_t reserved_14c;
+    uint32_t sha256_dma_state;           // (addr: 0x40100150)
+    uint32_t sha256_dma_axi_r_state;     // (addr: 0x40100154)
+    uint32_t sha256_dma_axi_w_state;     // (addr: 0x40100158)
+    uint32_t sha256_dma_last_data;       // (addr: 0x4010015C)
+    uint32_t sha256_dma_clock_start;     // (addr: 0x40100160)
+    uint32_t sha256_dma_clock_last;      // (addr: 0x40100164)
+    uint32_t sha256_dma_clock_stop;      // (addr: 0x40100168)
+    uint32_t sha256_eng_clock_continue;  // (addr: 0x4010016C)
+    uint32_t sha256_eng_clock_dblhash;   // (addr: 0x40100170)
+    uint32_t sha256_eng_clock_complete;  // (addr: 0x40100174)
+    uint32_t sha256_eng_clock_finish;    // (addr: 0x40100178)
+    uint32_t sha256_eng_state_loop;      // (addr: 0x4010017C)
+
+    /** @brief  Placeholder for addr: 0x40100160 .. 0x406001FC
+     *
+     * n/a
+     *
+     */
+    uint32_t reserved_160To1fc[((0x1fc - 0x160) >> 2) + 1];
 
 
     /** @brief  R/W XY_KEK512_CTRL - Control register (addr: 0x40100200)

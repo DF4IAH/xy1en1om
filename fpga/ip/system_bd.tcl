@@ -910,8 +910,10 @@ CONFIG.PCW_USB_RESET_ENABLE {1} \
 CONFIG.PCW_USB_RESET_POLARITY {Active Low} \
 CONFIG.PCW_USB_RESET_SELECT {Share reset pin} \
 CONFIG.PCW_USE_CROSS_TRIGGER {0} \
+CONFIG.PCW_USE_DEFAULT_ACP_USER_VAL {0} \
 CONFIG.PCW_USE_FABRIC_INTERRUPT {1} \
 CONFIG.PCW_USE_M_AXI_GP1 {1} \
+CONFIG.PCW_USE_S_AXI_ACP {0} \
 CONFIG.PCW_USE_S_AXI_HP0 {1} \
 CONFIG.PCW_USE_S_AXI_HP1 {1} \
 CONFIG.PCW_WDT_PERIPHERAL_CLKSRC {CPU_1X} \
@@ -1582,7 +1584,7 @@ CONFIG.IN1_WIDTH {15} \
    guistr: "# # String gsaved with Nlview 6.5.12  2016-01-29 bk=1.3547 VDI=39 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
 preplace port FCLK_CLK3 -pg 1 -y 260 -defaultsOSRD
-preplace port M_AXIS_GP1_xadc_aclk -pg 1 -y 560 -defaultsOSRD
+preplace port M_AXIS_GP1_xadc_aclk -pg 1 -y 200 -defaultsOSRD
 preplace port S_AXI_HP1 -pg 1 -y 170 -defaultsOSRD
 preplace port DDR -pg 1 -y 40 -defaultsOSRD
 preplace port Vp_Vn -pg 1 -y 530 -defaultsOSRD
@@ -1597,7 +1599,7 @@ preplace port S_AXI_HP1_aclk -pg 1 -y 250 -defaultsOSRD
 preplace port FCLK_RESET3_N -pg 1 -y 340 -defaultsOSRD
 preplace port FIXED_IO -pg 1 -y 60 -defaultsOSRD
 preplace port FCLK_RESET2_N -pg 1 -y 320 -defaultsOSRD
-preplace port FCLK_CLK0 -pg 1 -y 200 -defaultsOSRD
+preplace port FCLK_CLK0 -pg 1 -y 180 -defaultsOSRD
 preplace port dcm_locked -pg 1 -y 660 -defaultsOSRD
 preplace port FCLK_CLK1 -pg 1 -y 220 -defaultsOSRD
 preplace port Vaux8 -pg 1 -y 710 -defaultsOSRD
@@ -1643,7 +1645,7 @@ preplace netloc m_axi_gp0_aclk_1 1 0 4 NJ 190 NJ 190 NJ 190 NJ
 preplace netloc xadc_M_AXIS 1 4 1 NJ
 preplace netloc processing_system7_0_fclk_clk2 1 4 1 NJ
 preplace netloc processing_system7_0_fclk_clk3 1 4 1 NJ
-levelinfo -pg 1 -10 80 320 660 1030 1280 -top 0 -bot 890
+levelinfo -pg 1 0 80 320 660 1030 1280 -top 0 -bot 890
 ",
 }
 

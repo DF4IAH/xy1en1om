@@ -91,7 +91,93 @@ module red_pitaya_ps (
   input              sys_err_i          ,  // system error indicator
   input              sys_ack_i          ,  // system acknowledge signal
 
-  // AXI masters
+  // AXI_ACP master
+/*input              S_AXI_ACP_aclk     ,
+  input   [   31: 0] S_AXI_ACP_araddr   ,
+  input   [    1: 0] S_AXI_ACP_arburst  ,
+  input   [    3: 0] S_AXI_ACP_arcache  ,
+  input   [    2: 0] S_AXI_ACP_arid     ,
+  input   [    3: 0] S_AXI_ACP_arlen    ,
+  input   [    1: 0] S_AXI_ACP_arlock   ,
+  input   [    2: 0] S_AXI_ACP_arprot   ,
+  input   [    3: 0] S_AXI_ACP_arqos    ,
+  output             S_AXI_ACP_arready  ,
+  input   [    2: 0] S_AXI_ACP_arsize   ,
+  input   [    4: 0] S_AXI_ACP_aruser   ,
+  input              S_AXI_ACP_arvalid  ,
+  input   [   31: 0] S_AXI_ACP_awaddr   ,
+  input   [    1: 0] S_AXI_ACP_awburst  ,
+  input   [    3: 0] S_AXI_ACP_awcache  ,
+  input   [    2: 0] S_AXI_ACP_awid     ,
+  input   [    3: 0] S_AXI_ACP_awlen    ,
+  input   [    1: 0] S_AXI_ACP_awlock   ,
+  input   [    2: 0] S_AXI_ACP_awprot   ,
+  input   [    3: 0] S_AXI_ACP_awqos    ,
+  output             S_AXI_ACP_awready  ,
+  input   [    2: 0] S_AXI_ACP_awsize   ,
+  input   [    4: 0] S_AXI_ACP_awuser   ,
+  input              S_AXI_ACP_awvalid  ,
+  output  [    2: 0] S_AXI_ACP_bid      ,
+  input              S_AXI_ACP_bready   ,
+  output  [    1: 0] S_AXI_ACP_bresp    ,
+  output             S_AXI_ACP_bvalid   ,
+  output  [   63: 0] S_AXI_ACP_rdata    ,
+  output  [    2: 0] S_AXI_ACP_rid      ,
+  output             S_AXI_ACP_rlast    ,
+  input              S_AXI_ACP_rready   ,
+  output  [    1: 0] S_AXI_ACP_rresp    ,
+  output             S_AXI_ACP_rvalid   ,
+  input   [   63: 0] S_AXI_ACP_wdata    ,
+  input   [    2: 0] S_AXI_ACP_wid      ,
+  input              S_AXI_ACP_wlast    ,
+  output             S_AXI_ACP_wready   ,
+  input   [    7: 0] S_AXI_ACP_wstrb    ,
+  input              S_AXI_ACP_wvalid   ,
+*/
+
+  // AXI_HP0 master
+  input              S_AXI_HP0_aclk     ,
+  input   [   31: 0] S_AXI_HP0_araddr   ,
+  input   [    1: 0] S_AXI_HP0_arburst  ,
+  input   [    3: 0] S_AXI_HP0_arcache  ,
+  input   [    5: 0] S_AXI_HP0_arid     ,
+  input   [    3: 0] S_AXI_HP0_arlen    ,
+  input   [    1: 0] S_AXI_HP0_arlock   ,
+  input   [    2: 0] S_AXI_HP0_arprot   ,
+  input   [    3: 0] S_AXI_HP0_arqos    ,
+  output             S_AXI_HP0_arready  ,
+  input   [    2: 0] S_AXI_HP0_arsize   ,
+  input              S_AXI_HP0_arvalid  ,
+  input   [   31: 0] S_AXI_HP0_awaddr   ,
+  input   [    1: 0] S_AXI_HP0_awburst  ,
+  input   [    3: 0] S_AXI_HP0_awcache  ,
+  input   [    5: 0] S_AXI_HP0_awid     ,
+  input   [    3: 0] S_AXI_HP0_awlen    ,
+  input   [    1: 0] S_AXI_HP0_awlock   ,
+  input   [    2: 0] S_AXI_HP0_awprot   ,
+  input   [    3: 0] S_AXI_HP0_awqos    ,
+  output             S_AXI_HP0_awready  ,
+  input   [    2: 0] S_AXI_HP0_awsize   ,
+  input              S_AXI_HP0_awvalid  ,
+  output  [    5: 0] S_AXI_HP0_bid      ,
+  input              S_AXI_HP0_bready   ,
+  output  [    1: 0] S_AXI_HP0_bresp    ,
+  output             S_AXI_HP0_bvalid   ,
+  output  [   63: 0] S_AXI_HP0_rdata    ,
+  output  [    5: 0] S_AXI_HP0_rid      ,
+  output             S_AXI_HP0_rlast    ,
+  input              S_AXI_HP0_rready   ,
+  output  [    1: 0] S_AXI_HP0_rresp    ,
+  output             S_AXI_HP0_rvalid   ,
+  input   [   63: 0] S_AXI_HP0_wdata    ,
+  input   [    5: 0] S_AXI_HP0_wid      ,
+  input              S_AXI_HP0_wlast    ,
+  output             S_AXI_HP0_wready   ,
+  input   [    7: 0] S_AXI_HP0_wstrb    ,
+  input              S_AXI_HP0_wvalid   ,
+
+/* not in use
+  // AXI masters via axi_master
   input              axi1_clk_i   , axi0_clk_i   ,  // global clock
   input              axi1_rstn_i  , axi0_rstn_i  ,  // global reset
   input   [   31: 0] axi1_waddr_i , axi0_waddr_i ,  // system write address
@@ -102,6 +188,15 @@ module red_pitaya_ps (
   input              axi1_wfixed_i, axi0_wfixed_i,  // system write burst type (fixed / incremental)
   output             axi1_werr_o  , axi0_werr_o  ,  // system write error
   output             axi1_wrdy_o  , axi0_wrdy_o  ,  // system write ready
+  input   [   31: 0] axi1_raddr_i , axi0_raddr_i ,  // system read address
+  input              axi1_rvalid_i, axi0_rvalid_i,  // system read data valid
+  input   [    7: 0] axi1_rsel_i  , axi0_rsel_i  ,  // system read byte select
+  input   [    3: 0] axi1_rlen_i  , axi0_rlen_i  ,  // system read burst length
+  input              axi1_rfixed_i, axi0_rfixed_i,  // system read burst type (fixed / incremental)
+  output  [   63: 0] axi1_rdata_o , axi0_rdata_o ,  // system read data
+  output             axi1_rrdy_o  , axi0_rrdy_o  ,  // system read data is ready
+  output             axi1_rerr_o  , axi0_rerr_o  ,  // system read error
+*/
 
   // XADC_AXIS
   output             xadc_axis_aclk     ,  // XADC AXI-S clock
@@ -111,6 +206,7 @@ module red_pitaya_ps (
   output             xadc_axis_tvalid      // XADC AXI-S tvalid
 );
 
+/* not in use
 //------------------------------------------------------------------------------
 // AXI masters
 
@@ -127,8 +223,8 @@ wire [    1: 0] hp1_saxi_bresp  , hp0_saxi_bresp  ;
 wire [    1: 0] hp1_saxi_rresp  , hp0_saxi_rresp  ;
 wire [    5: 0] hp1_saxi_bid    , hp0_saxi_bid    ;
 wire [    5: 0] hp1_saxi_rid    , hp0_saxi_rid    ;
-wire [   63: 0] hp1_saxi_rdata  , hp0_saxi_rdata  ;
-wire            hp1_saxi_aclk   , hp0_saxi_aclk   ;
+wire [   63: 0] hp1_saxi_rdata  , hp0_saxi_rdata  ; */
+wire            hp1_saxi_aclk;/* , hp0_saxi_aclk   ;
 wire            hp1_saxi_arvalid, hp0_saxi_arvalid;
 wire            hp1_saxi_awvalid, hp0_saxi_awvalid;
 wire            hp1_saxi_bready , hp0_saxi_bready ;
@@ -225,27 +321,31 @@ axi_master #(
   .sys_wrdy_o     ({axi1_wrdy_o     , axi0_wrdy_o     }), // system write ready
 
    // system read channel
-  .sys_raddr_i    ({32'h0           , 32'h0           }), // system read address
-  .sys_rvalid_i   ({ 1'b0           ,  1'b0           }), // system read address valid
-  .sys_rsel_i     ({ 8'h0           ,  8'h0           }), // system read byte select
-  .sys_rlen_i     ({ 4'h0           ,  4'h0           }), // system read burst length
-  .sys_rfixed_i   ({ 1'b0           ,  1'b0           }), // system read burst type (fixed / incremental)
-  .sys_rdata_o    (                                    ), // system read data
-  .sys_rrdy_o     (                                    ), // system read data is ready
-  .sys_rerr_o     (                                    )  // system read error
+  .sys_raddr_i    ({axi1_raddr_i    , axi0_raddr_i    }), // system read address
+  .sys_rvalid_i   ({axi1_rvalid_i   , axi0_rvalid_i   }), // system read address valid
+  .sys_rsel_i     ({axi1_rsel_i     , axi0_rsel_i     }), // system read byte select
+  .sys_rlen_i     ({axi1_rlen_i     , axi0_rlen_i     }), // system read burst length
+  .sys_rfixed_i   ({axi1_rfixed_i   , axi0_rfixed_i   }), // system read burst type (fixed / incremental)
+  .sys_rdata_o    ({axi1_rdata_o    , axi0_rdata_o    }), // system read data
+  .sys_rrdy_o     ({axi1_rrdy_o     , axi0_rrdy_o     }), // system read data is ready
+  .sys_rerr_o     ({axi1_rerr_o     , axi0_rerr_o     })  // system read error
 );
 
-assign hp0_saxi_arqos  = 4'h0 ;
-assign hp0_saxi_awqos  = 4'h0 ;
+assign hp0_saxi_arqos  = 4'h0           ;
+assign hp0_saxi_awqos  = 4'h0           ;
 assign hp0_saxi_clk_i  = axi0_clk_i     ;
 assign hp0_saxi_rstn_i = axi0_rstn_i    ;
 assign hp0_saxi_aclk   = hp0_saxi_clk_i ;
 
-assign hp1_saxi_arqos  = 4'h0 ;
-assign hp1_saxi_awqos  = 4'h0 ;
+assign hp1_saxi_arqos  = 4'h0           ;
+assign hp1_saxi_awqos  = 4'h0           ;
 assign hp1_saxi_clk_i  = axi1_clk_i     ;
 assign hp1_saxi_rstn_i = axi1_rstn_i    ;
 assign hp1_saxi_aclk   = hp1_saxi_clk_i ;
+*/
+
+assign hp1_saxi_aclk = S_AXI_HP0_aclk;
+
 
 //------------------------------------------------------------------------------
 // AXI SLAVE
@@ -361,13 +461,16 @@ axi_slave #(
   .sys_ack_i        (  sys_ack_i               )   // system acknowledge signal
 );
 
+
+assign gp0_maxi_aclk  =  fclk_clk[0];
+
+always @(posedge fclk_clk[0])
+gp0_maxi_arstn <= fclk_rstn[0];
+
 assign sys_clk_o  = gp0_maxi_aclk   ;
 assign sys_rstn_o = gp0_maxi_arstn  ;
 
-assign gp0_maxi_aclk  =  axi0_clk_i ;
 
-always @(posedge axi0_clk_i)
-gp0_maxi_arstn <= fclk_rstn[0];
 
 //------------------------------------------------------------------------------
 // PS STUB
@@ -422,7 +525,7 @@ system_wrapper system_i (
   .IRQ_F2P_xlconcat  (irq_f2p          ),
 
   // GP0
-  .M_AXI_GP0_ACLK    (axi0_clk_i       ),
+  .M_AXI_GP0_ACLK    (gp0_maxi_aclk    ),
   .M_AXI_GP0_arvalid (gp0_maxi_arvalid ),  // out
   .M_AXI_GP0_awvalid (gp0_maxi_awvalid ),  // out
   .M_AXI_GP0_bready  (gp0_maxi_bready  ),  // out
@@ -462,6 +565,93 @@ system_wrapper system_i (
   .M_AXI_GP0_rresp   (gp0_maxi_rresp   ),  // in 2
   .M_AXI_GP0_rdata   (gp0_maxi_rdata   ),  // in 32
 
+/* not in use
+  // ACP
+  .S_AXI_ACP_aclk    (S_AXI_ACP_aclk   ),
+  .S_AXI_ACP_araddr  (S_AXI_ACP_araddr ),
+  .S_AXI_ACP_arburst (S_AXI_ACP_arburst),
+  .S_AXI_ACP_arcache (S_AXI_ACP_arcache),
+  .S_AXI_ACP_arid    (S_AXI_ACP_arid   ),
+  .S_AXI_ACP_arlen   (S_AXI_ACP_arlen  ),
+  .S_AXI_ACP_arlock  (S_AXI_ACP_arlock ),
+  .S_AXI_ACP_arprot  (S_AXI_ACP_arprot ),
+  .S_AXI_ACP_arqos   (S_AXI_ACP_arqos  ),
+  .S_AXI_ACP_arready (S_AXI_ACP_arready),
+  .S_AXI_ACP_arsize  (S_AXI_ACP_arsize ),
+  .S_AXI_ACP_aruser  (S_AXI_ACP_aruser ),
+  .S_AXI_ACP_arvalid (S_AXI_ACP_arvalid),
+  .S_AXI_ACP_awaddr  (S_AXI_ACP_awaddr ),
+  .S_AXI_ACP_awburst (S_AXI_ACP_awburst),
+  .S_AXI_ACP_awcache (S_AXI_ACP_awcache),
+  .S_AXI_ACP_awid    (S_AXI_ACP_awid   ),
+  .S_AXI_ACP_awlen   (S_AXI_ACP_awlen  ),
+  .S_AXI_ACP_awlock  (S_AXI_ACP_awlock ),
+  .S_AXI_ACP_awprot  (S_AXI_ACP_awprot ),
+  .S_AXI_ACP_awqos   (S_AXI_ACP_awqos  ),
+  .S_AXI_ACP_awready (S_AXI_ACP_awready),
+  .S_AXI_ACP_awsize  (S_AXI_ACP_awsize ),
+  .S_AXI_ACP_awuser  (S_AXI_ACP_awuser ),
+  .S_AXI_ACP_awvalid (S_AXI_ACP_awvalid),
+  .S_AXI_ACP_bid     (S_AXI_ACP_bid    ),
+  .S_AXI_ACP_bready  (S_AXI_ACP_bready ),
+  .S_AXI_ACP_bresp   (S_AXI_ACP_bresp  ),
+  .S_AXI_ACP_bvalid  (S_AXI_ACP_bvalid ),
+  .S_AXI_ACP_rdata   (S_AXI_ACP_rdata  ),
+  .S_AXI_ACP_rid     (S_AXI_ACP_rid    ),
+  .S_AXI_ACP_rlast   (S_AXI_ACP_rlast  ),
+  .S_AXI_ACP_rready  (S_AXI_ACP_rready ),
+  .S_AXI_ACP_rresp   (S_AXI_ACP_rresp  ),
+  .S_AXI_ACP_rvalid  (S_AXI_ACP_rvalid ),
+  .S_AXI_ACP_wdata   (S_AXI_ACP_wdata  ),
+  .S_AXI_ACP_wid     (S_AXI_ACP_wid    ),
+  .S_AXI_ACP_wlast   (S_AXI_ACP_wlast  ),
+  .S_AXI_ACP_wready  (S_AXI_ACP_wready ),
+  .S_AXI_ACP_wstrb   (S_AXI_ACP_wstrb  ),
+  .S_AXI_ACP_wvalid  (S_AXI_ACP_wvalid ),
+*/
+
+  // AXI_HP0 master
+  .S_AXI_HP0_aclk    (S_AXI_HP0_aclk   ),
+  .S_AXI_HP0_araddr  (S_AXI_HP0_araddr ),
+  .S_AXI_HP0_arburst (S_AXI_HP0_arburst),
+  .S_AXI_HP0_arcache (S_AXI_HP0_arcache),
+  .S_AXI_HP0_arid    (S_AXI_HP0_arid   ),
+  .S_AXI_HP0_arlen   (S_AXI_HP0_arlen  ),
+  .S_AXI_HP0_arlock  (S_AXI_HP0_arlock ),
+  .S_AXI_HP0_arprot  (S_AXI_HP0_arprot ),
+  .S_AXI_HP0_arqos   (S_AXI_HP0_arqos  ),
+  .S_AXI_HP0_arready (S_AXI_HP0_arready),
+  .S_AXI_HP0_arsize  (S_AXI_HP0_arsize ),
+  .S_AXI_HP0_arvalid (S_AXI_HP0_arvalid),
+  .S_AXI_HP0_awaddr  (S_AXI_HP0_awaddr ),
+  .S_AXI_HP0_awburst (S_AXI_HP0_awburst),
+  .S_AXI_HP0_awcache (S_AXI_HP0_awcache),
+  .S_AXI_HP0_awid    (S_AXI_HP0_awid   ),
+  .S_AXI_HP0_awlen   (S_AXI_HP0_awlen  ),
+  .S_AXI_HP0_awlock  (S_AXI_HP0_awlock ),
+  .S_AXI_HP0_awprot  (S_AXI_HP0_awprot ),
+  .S_AXI_HP0_awqos   (S_AXI_HP0_awqos  ),
+  .S_AXI_HP0_awready (S_AXI_HP0_awready),
+  .S_AXI_HP0_awsize  (S_AXI_HP0_awsize ),
+  .S_AXI_HP0_awvalid (S_AXI_HP0_awvalid),
+  .S_AXI_HP0_bid     (S_AXI_HP0_bid    ),
+  .S_AXI_HP0_bready  (S_AXI_HP0_bready ),
+  .S_AXI_HP0_bresp   (S_AXI_HP0_bresp  ),
+  .S_AXI_HP0_bvalid  (S_AXI_HP0_bvalid ),
+  .S_AXI_HP0_rdata   (S_AXI_HP0_rdata  ),
+  .S_AXI_HP0_rid     (S_AXI_HP0_rid    ),
+  .S_AXI_HP0_rlast   (S_AXI_HP0_rlast  ),
+  .S_AXI_HP0_rready  (S_AXI_HP0_rready ),
+  .S_AXI_HP0_rresp   (S_AXI_HP0_rresp  ),
+  .S_AXI_HP0_rvalid  (S_AXI_HP0_rvalid ),
+  .S_AXI_HP0_wdata   (S_AXI_HP0_wdata  ),
+  .S_AXI_HP0_wid     (S_AXI_HP0_wid    ),
+  .S_AXI_HP0_wlast   (S_AXI_HP0_wlast  ),
+  .S_AXI_HP0_wready  (S_AXI_HP0_wready ),
+  .S_AXI_HP0_wstrb   (S_AXI_HP0_wstrb  ),
+  .S_AXI_HP0_wvalid  (S_AXI_HP0_wvalid ),
+
+/* not in use
   // HP0                                  // HP1
   .S_AXI_HP0_arready (hp0_saxi_arready ),  .S_AXI_HP1_arready (hp1_saxi_arready ), // out
   .S_AXI_HP0_awready (hp0_saxi_awready ),  .S_AXI_HP1_awready (hp1_saxi_awready ), // out
@@ -474,8 +664,8 @@ system_wrapper system_i (
   .S_AXI_HP0_bid     (hp0_saxi_bid     ),  .S_AXI_HP1_bid     (hp1_saxi_bid     ), // out 6
   .S_AXI_HP0_rid     (hp0_saxi_rid     ),  .S_AXI_HP1_rid     (hp1_saxi_rid     ), // out 6
   .S_AXI_HP0_rdata   (hp0_saxi_rdata   ),  .S_AXI_HP1_rdata   (hp1_saxi_rdata   ), // out 64
-  .S_AXI_HP0_aclk    (hp0_saxi_aclk    ),  .S_AXI_HP1_aclk    (hp1_saxi_aclk    ), // in
-  .S_AXI_HP0_arvalid (hp0_saxi_arvalid ),  .S_AXI_HP1_arvalid (hp1_saxi_arvalid ), // in
+  .S_AXI_HP0_aclk    (hp0_saxi_aclk    ),*/.S_AXI_HP1_aclk    (hp1_saxi_aclk    ), // in
+/*.S_AXI_HP0_arvalid (hp0_saxi_arvalid ),  .S_AXI_HP1_arvalid (hp1_saxi_arvalid ), // in
   .S_AXI_HP0_awvalid (hp0_saxi_awvalid ),  .S_AXI_HP1_awvalid (hp1_saxi_awvalid ), // in
   .S_AXI_HP0_bready  (hp0_saxi_bready  ),  .S_AXI_HP1_bready  (hp1_saxi_bready  ), // in
   .S_AXI_HP0_rready  (hp0_saxi_rready  ),  .S_AXI_HP1_rready  (hp1_saxi_rready  ), // in
@@ -502,6 +692,7 @@ system_wrapper system_i (
   .S_AXI_HP0_wid     (hp0_saxi_wid     ),  .S_AXI_HP1_wid     (hp1_saxi_wid     ), // in 6
   .S_AXI_HP0_wdata   (hp0_saxi_wdata   ),  .S_AXI_HP1_wdata   (hp1_saxi_wdata   ), // in 64
   .S_AXI_HP0_wstrb   (hp0_saxi_wstrb   ),  .S_AXI_HP1_wstrb   (hp1_saxi_wstrb   ), // in 8
+*/
 
   // XADC
   .Vaux0_v_n (vinn_i[1]),  .Vaux0_v_p (vinp_i[1]),
@@ -521,4 +712,5 @@ system_wrapper system_i (
   .dcm_locked        (dcm_locked       )
 );
 
-endmodule
+
+endmodule: red_pitaya_ps

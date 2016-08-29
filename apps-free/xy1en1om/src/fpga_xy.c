@@ -18,6 +18,7 @@
 #include "fpga.h"
 #include "cb_http.h"
 #include "test_sha256_fifo.h"
+#include "test_sha256_dma.h"
 
 
 /** @brief CallBack copy of params from the worker when requested */
@@ -66,16 +67,25 @@ int fpga_xy_init(void)
     }
 
     // enable xy1en1om sub-module
+    fpga_xy_enable(0);
     fpga_xy_enable(1);
 
     // studying section as quick hack
     {
         fprintf(stderr, "INFO study section: INIT - BEGIN\n");
+#if 0
         test_sha256_fifo_INIT();
+#else
+        test_sha256_dma_INIT();
+#endif
         fprintf(stderr, "INFO study section: INIT - END\n");
 
         fprintf(stderr, "INFO study section: TEST - BEGIN\n");
+#if 0
         test_sha256_fifo_TEST();
+#else
+        test_sha256_dma_TEST();
+#endif
         fprintf(stderr, "INFO study section: TEST - END\n");
     }
 
@@ -89,7 +99,11 @@ int fpga_xy_exit(void)
     //fprintf(stderr, "fpga_xy_exit: BEGIN\n");
 
     fprintf(stderr, "INFO study section: FINALIZE - BEGIN\n");
+#if 0
     test_sha256_fifo_FINALIZE();
+#else
+    test_sha256_dma_FINALIZE();
+#endif
     fprintf(stderr, "INFO study section: FINALIZE - END\n");
 
 	/* disable xy1en1om sub-module */

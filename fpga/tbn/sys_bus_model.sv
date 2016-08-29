@@ -31,8 +31,8 @@ module sys_bus_model #(
   int unsigned AXI_SW = AXI_DW/8  // strobe width - 1 bit for every data byte
 )(
   // system signals
-  input  logic              clk  ,  // system clock
-  input  logic              rstn ,  // system reset - active low
+  input  logic              clk      ,  // system clock
+  input  logic              rstn     ,  // system reset - active low
   // bus protocol signals
   output logic [AXI_AW-1:0] sys_addr ,  // system read/write address.
   output logic [AXI_DW-1:0] sys_wdata,  // system write data.
@@ -44,12 +44,14 @@ module sys_bus_model #(
   input  logic              sys_ack     // system acknowledge signal.
 );
 
+
 initial begin
    sys_wen <= 1'b0 ;
    sys_ren <= 1'b0 ;
 end
 
-// bus write transfer
+
+// bus read/write transfer
 task transaction (
   input  logic          we,
   input  logic [32-1:0] addr,

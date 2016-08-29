@@ -223,4 +223,5 @@ end
 assign sys_addr_o  = rd_do ? rd_araddr : wr_awaddr  ;
 assign sys_wdata_o = wr_wdata                       ;
 
-endmodule
+
+endmodule: axi_slave

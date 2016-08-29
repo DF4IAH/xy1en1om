@@ -133,4 +133,5 @@ begin
    end
 end
 
-endmodule
+
+endmodule: axi_pc2leds

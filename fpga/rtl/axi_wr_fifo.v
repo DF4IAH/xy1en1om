@@ -296,5 +296,4 @@ end
 assign stat_cur_addr_o = next_address ; // current address
 
 
-
-endmodule // axi_wr_fifo
+endmodule: axi_wr_fifo                            // axi_wr_fifo

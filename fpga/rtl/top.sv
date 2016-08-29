@@ -131,6 +131,10 @@ assign rb_out_ch[1] = 16'b0;
 assign dac_pwm_o    =  4'b0;
 
 
+// master clock
+reg unsigned [  63:0] masterclock = 64'b0;
+
+
 //---------------------------------------------------------------------------------
 //
 //  Connections to PS
@@ -149,7 +153,94 @@ wire  [   31: 0] ps_sys_rdata              ;
 wire             ps_sys_err                ;
 wire             ps_sys_ack                ;
 
-// AXI masters
+/*
+// AXI_ACP master
+wire             S_AXI_ACP_aclk            ;
+wire  [   31: 0] S_AXI_ACP_araddr          ;
+wire  [    1: 0] S_AXI_ACP_arburst         ;
+wire  [    3: 0] S_AXI_ACP_arcache         ;
+wire  [    2: 0] S_AXI_ACP_arid            ;
+wire  [    3: 0] S_AXI_ACP_arlen           ;
+wire  [    1: 0] S_AXI_ACP_arlock          ;
+wire  [    2: 0] S_AXI_ACP_arprot          ;
+wire  [    3: 0] S_AXI_ACP_arqos           ;
+wire             S_AXI_ACP_arready         ;
+wire  [    2: 0] S_AXI_ACP_arsize          ;
+wire  [    4: 0] S_AXI_ACP_aruser          ;
+wire             S_AXI_ACP_arvalid         ;
+wire  [   31: 0] S_AXI_ACP_awaddr          ;
+wire  [    1: 0] S_AXI_ACP_awburst         ;
+wire  [    3: 0] S_AXI_ACP_awcache         ;
+wire  [    2: 0] S_AXI_ACP_awid            ;
+wire  [    3: 0] S_AXI_ACP_awlen           ;
+wire  [    1: 0] S_AXI_ACP_awlock          ;
+wire  [    2: 0] S_AXI_ACP_awprot          ;
+wire  [    3: 0] S_AXI_ACP_awqos           ;
+wire             S_AXI_ACP_awready         ;
+wire  [    2: 0] S_AXI_ACP_awsize          ;
+wire  [    4: 0] S_AXI_ACP_awuser          ;
+wire             S_AXI_ACP_awvalid         ;
+wire  [    2: 0] S_AXI_ACP_bid             ;
+wire             S_AXI_ACP_bready          ;
+wire  [    1: 0] S_AXI_ACP_bresp           ;
+wire             S_AXI_ACP_bvalid          ;
+wire  [   63: 0] S_AXI_ACP_rdata           ;
+wire  [    2: 0] S_AXI_ACP_rid             ;
+wire             S_AXI_ACP_rlast           ;
+wire             S_AXI_ACP_rready          ;
+wire  [    1: 0] S_AXI_ACP_rresp           ;
+wire             S_AXI_ACP_rvalid          ;
+wire  [   63: 0] S_AXI_ACP_wdata           ;
+wire  [    2: 0] S_AXI_ACP_wid             ;
+wire             S_AXI_ACP_wlast           ;
+wire             S_AXI_ACP_wready          ;
+wire  [    7: 0] S_AXI_ACP_wstrb           ;
+wire             S_AXI_ACP_wvalid          ;
+*/
+
+// AXI_HP0 master
+wire             S_AXI_HP0_aclk            ;
+wire  [   31: 0] S_AXI_HP0_araddr          ;
+wire  [    1: 0] S_AXI_HP0_arburst         ;
+wire  [    3: 0] S_AXI_HP0_arcache         ;
+wire  [    5: 0] S_AXI_HP0_arid            ;
+wire  [    3: 0] S_AXI_HP0_arlen           ;
+wire  [    1: 0] S_AXI_HP0_arlock          ;
+wire  [    2: 0] S_AXI_HP0_arprot          ;
+wire  [    3: 0] S_AXI_HP0_arqos           ;
+wire             S_AXI_HP0_arready         ;
+wire  [    2: 0] S_AXI_HP0_arsize          ;
+wire             S_AXI_HP0_arvalid         ;
+wire  [   31: 0] S_AXI_HP0_awaddr          ;
+wire  [    1: 0] S_AXI_HP0_awburst         ;
+wire  [    3: 0] S_AXI_HP0_awcache         ;
+wire  [    5: 0] S_AXI_HP0_awid            ;
+wire  [    3: 0] S_AXI_HP0_awlen           ;
+wire  [    1: 0] S_AXI_HP0_awlock          ;
+wire  [    2: 0] S_AXI_HP0_awprot          ;
+wire  [    3: 0] S_AXI_HP0_awqos           ;
+wire             S_AXI_HP0_awready         ;
+wire  [    2: 0] S_AXI_HP0_awsize          ;
+wire             S_AXI_HP0_awvalid         ;
+wire  [    5: 0] S_AXI_HP0_bid             ;
+wire             S_AXI_HP0_bready          ;
+wire  [    1: 0] S_AXI_HP0_bresp           ;
+wire             S_AXI_HP0_bvalid          ;
+wire  [   63: 0] S_AXI_HP0_rdata           ;
+wire  [    5: 0] S_AXI_HP0_rid             ;
+wire             S_AXI_HP0_rlast           ;
+wire             S_AXI_HP0_rready          ;
+wire  [    1: 0] S_AXI_HP0_rresp           ;
+wire             S_AXI_HP0_rvalid          ;
+wire  [   63: 0] S_AXI_HP0_wdata           ;
+wire  [    5: 0] S_AXI_HP0_wid             ;
+wire             S_AXI_HP0_wlast           ;
+wire             S_AXI_HP0_wready          ;
+wire  [    7: 0] S_AXI_HP0_wstrb           ;
+wire             S_AXI_HP0_wvalid          ;
+
+/* not in use
+// AXI masters via axi_master
 wire             axi1_clk    , axi0_clk    ;
 wire             axi1_rstn   , axi0_rstn   ;
 wire  [   31: 0] axi1_waddr  , axi0_waddr  ;
@@ -160,6 +251,15 @@ wire  [    3: 0] axi1_wlen   , axi0_wlen   ;
 wire             axi1_wfixed , axi0_wfixed ;
 wire             axi1_werr   , axi0_werr   ;
 wire             axi1_wrdy   , axi0_wrdy   ;
+wire  [   31: 0] axi1_raddr  , axi0_raddr  ;
+wire             axi1_rvalid , axi0_rvalid ;
+wire  [    7: 0] axi1_rsel   , axi0_rsel   ;
+wire  [    3: 0] axi1_rlen   , axi0_rlen   ;
+wire             axi1_rfixed , axi0_rfixed ;
+wire  [   63: 0] axi1_rdata  , axi0_rdata  ;
+wire             axi1_rrdy   , axi0_rrdy   ;
+wire             axi1_rerr   , axi0_rerr   ;
+*/
 
 // AXIS MASTER from the XADC
 wire             xadc_axis_aclk            ;
@@ -169,64 +269,160 @@ wire             xadc_axis_tready          ;
 wire             xadc_axis_tvalid          ;
 
 red_pitaya_ps i_ps (
-  .FIXED_IO_mio       (  FIXED_IO_mio                ),
-  .FIXED_IO_ps_clk    (  FIXED_IO_ps_clk             ),
-  .FIXED_IO_ps_porb   (  FIXED_IO_ps_porb            ),
-  .FIXED_IO_ps_srstb  (  FIXED_IO_ps_srstb           ),
-  .FIXED_IO_ddr_vrn   (  FIXED_IO_ddr_vrn            ),
-  .FIXED_IO_ddr_vrp   (  FIXED_IO_ddr_vrp            ),
+  .FIXED_IO_mio       (FIXED_IO_mio               ),
+  .FIXED_IO_ps_clk    (FIXED_IO_ps_clk            ),
+  .FIXED_IO_ps_porb   (FIXED_IO_ps_porb           ),
+  .FIXED_IO_ps_srstb  (FIXED_IO_ps_srstb          ),
+  .FIXED_IO_ddr_vrn   (FIXED_IO_ddr_vrn           ),
+  .FIXED_IO_ddr_vrp   (FIXED_IO_ddr_vrp           ),
 
   // DDR
-  .DDR_addr      (DDR_addr    ),
-  .DDR_ba        (DDR_ba      ),
-  .DDR_cas_n     (DDR_cas_n   ),
-  .DDR_ck_n      (DDR_ck_n    ),
-  .DDR_ck_p      (DDR_ck_p    ),
-  .DDR_cke       (DDR_cke     ),
-  .DDR_cs_n      (DDR_cs_n    ),
-  .DDR_dm        (DDR_dm      ),
-  .DDR_dq        (DDR_dq      ),
-  .DDR_dqs_n     (DDR_dqs_n   ),
-  .DDR_dqs_p     (DDR_dqs_p   ),
-  .DDR_odt       (DDR_odt     ),
-  .DDR_ras_n     (DDR_ras_n   ),
-  .DDR_reset_n   (DDR_reset_n ),
-  .DDR_we_n      (DDR_we_n    ),
+  .DDR_addr           (DDR_addr                   ),
+  .DDR_ba             (DDR_ba                     ),
+  .DDR_cas_n          (DDR_cas_n                  ),
+  .DDR_ck_n           (DDR_ck_n                   ),
+  .DDR_ck_p           (DDR_ck_p                   ),
+  .DDR_cke            (DDR_cke                    ),
+  .DDR_cs_n           (DDR_cs_n                   ),
+  .DDR_dm             (DDR_dm                     ),
+  .DDR_dq             (DDR_dq                     ),
+  .DDR_dqs_n          (DDR_dqs_n                  ),
+  .DDR_dqs_p          (DDR_dqs_p                  ),
+  .DDR_odt            (DDR_odt                    ),
+  .DDR_ras_n          (DDR_ras_n                  ),
+  .DDR_reset_n        (DDR_reset_n                ),
+  .DDR_we_n           (DDR_we_n                   ),
 
-  .fclk_clk_o    (fclk        ),
-  .fclk_rstn_o   (frstn       ),
-  .dcm_locked    (pll_locked  ),
+  .fclk_clk_o         (fclk                       ),
+  .fclk_rstn_o        (frstn                      ),
+  .dcm_locked         (pll_locked                 ),
 
   // Interrupts
-  .irq_f2p       (irqs        ),
+  .irq_f2p            (irqs                       ),
+
+  // system read/write channel
+  .sys_clk_o          (ps_sys_clk                 ),  // system clock
+  .sys_rstn_o         (ps_sys_rstn                ),  // system reset - active low
+  .sys_addr_o         (ps_sys_addr                ),  // system read/write address
+  .sys_wdata_o        (ps_sys_wdata               ),  // system write data
+  .sys_sel_o          (ps_sys_sel                 ),  // system write byte select
+  .sys_wen_o          (ps_sys_wen                 ),  // system write enable
+  .sys_ren_o          (ps_sys_ren                 ),  // system read enable
+  .sys_rdata_i        (ps_sys_rdata               ),  // system read data
+  .sys_err_i          (ps_sys_err                 ),  // system error indicator
+  .sys_ack_i          (ps_sys_ack                 ),  // system acknowledge signal
+
+/*
+  // AXI_ACP master
+  .S_AXI_ACP_aclk     (S_AXI_ACP_aclk             ),
+  .S_AXI_ACP_araddr   (S_AXI_ACP_araddr           ),
+  .S_AXI_ACP_arburst  (S_AXI_ACP_arburst          ),
+  .S_AXI_ACP_arcache  (S_AXI_ACP_arcache          ),
+  .S_AXI_ACP_arid     (S_AXI_ACP_arid             ),
+  .S_AXI_ACP_arlen    (S_AXI_ACP_arlen            ),
+  .S_AXI_ACP_arlock   (S_AXI_ACP_arlock           ),
+  .S_AXI_ACP_arprot   (S_AXI_ACP_arprot           ),
+  .S_AXI_ACP_arqos    (S_AXI_ACP_arqos            ),
+  .S_AXI_ACP_arready  (S_AXI_ACP_arready          ),
+  .S_AXI_ACP_arsize   (S_AXI_ACP_arsize           ),
+  .S_AXI_ACP_aruser   (S_AXI_ACP_aruser           ),
+  .S_AXI_ACP_arvalid  (S_AXI_ACP_arvalid          ),
+  .S_AXI_ACP_awaddr   (S_AXI_ACP_awaddr           ),
+  .S_AXI_ACP_awburst  (S_AXI_ACP_awburst          ),
+  .S_AXI_ACP_awcache  (S_AXI_ACP_awcache          ),
+  .S_AXI_ACP_awid     (S_AXI_ACP_awid             ),
+  .S_AXI_ACP_awlen    (S_AXI_ACP_awlen            ),
+  .S_AXI_ACP_awlock   (S_AXI_ACP_awlock           ),
+  .S_AXI_ACP_awprot   (S_AXI_ACP_awprot           ),
+  .S_AXI_ACP_awqos    (S_AXI_ACP_awqos            ),
+  .S_AXI_ACP_awready  (S_AXI_ACP_awready          ),
+  .S_AXI_ACP_awsize   (S_AXI_ACP_awsize           ),
+  .S_AXI_ACP_awuser   (S_AXI_ACP_awuser           ),
+  .S_AXI_ACP_awvalid  (S_AXI_ACP_awvalid          ),
+  .S_AXI_ACP_bid      (S_AXI_ACP_bid              ),
+  .S_AXI_ACP_bready   (S_AXI_ACP_bready           ),
+  .S_AXI_ACP_bresp    (S_AXI_ACP_bresp            ),
+  .S_AXI_ACP_bvalid   (S_AXI_ACP_bvalid           ),
+  .S_AXI_ACP_rdata    (S_AXI_ACP_rdata            ),
+  .S_AXI_ACP_rid      (S_AXI_ACP_rid              ),
+  .S_AXI_ACP_rlast    (S_AXI_ACP_rlast            ),
+  .S_AXI_ACP_rready   (S_AXI_ACP_rready           ),
+  .S_AXI_ACP_rresp    (S_AXI_ACP_rresp            ),
+  .S_AXI_ACP_rvalid   (S_AXI_ACP_rvalid           ),
+  .S_AXI_ACP_wdata    (S_AXI_ACP_wdata            ),
+  .S_AXI_ACP_wid      (S_AXI_ACP_wid              ),
+  .S_AXI_ACP_wlast    (S_AXI_ACP_wlast            ),
+  .S_AXI_ACP_wready   (S_AXI_ACP_wready           ),
+  .S_AXI_ACP_wstrb    (S_AXI_ACP_wstrb            ),
+  .S_AXI_ACP_wvalid   (S_AXI_ACP_wvalid           ),
+*/
+
+  // AXI_HP master
+  .S_AXI_HP0_aclk     (S_AXI_HP0_aclk             ),
+  .S_AXI_HP0_araddr   (S_AXI_HP0_araddr           ),
+  .S_AXI_HP0_arburst  (S_AXI_HP0_arburst          ),
+  .S_AXI_HP0_arcache  (S_AXI_HP0_arcache          ),
+  .S_AXI_HP0_arid     (S_AXI_HP0_arid             ),
+  .S_AXI_HP0_arlen    (S_AXI_HP0_arlen            ),
+  .S_AXI_HP0_arlock   (S_AXI_HP0_arlock           ),
+  .S_AXI_HP0_arprot   (S_AXI_HP0_arprot           ),
+  .S_AXI_HP0_arqos    (S_AXI_HP0_arqos            ),
+  .S_AXI_HP0_arready  (S_AXI_HP0_arready          ),
+  .S_AXI_HP0_arsize   (S_AXI_HP0_arsize           ),
+  .S_AXI_HP0_arvalid  (S_AXI_HP0_arvalid          ),
+  .S_AXI_HP0_awaddr   (S_AXI_HP0_awaddr           ),
+  .S_AXI_HP0_awburst  (S_AXI_HP0_awburst          ),
+  .S_AXI_HP0_awcache  (S_AXI_HP0_awcache          ),
+  .S_AXI_HP0_awid     (S_AXI_HP0_awid             ),
+  .S_AXI_HP0_awlen    (S_AXI_HP0_awlen            ),
+  .S_AXI_HP0_awlock   (S_AXI_HP0_awlock           ),
+  .S_AXI_HP0_awprot   (S_AXI_HP0_awprot           ),
+  .S_AXI_HP0_awqos    (S_AXI_HP0_awqos            ),
+  .S_AXI_HP0_awready  (S_AXI_HP0_awready          ),
+  .S_AXI_HP0_awsize   (S_AXI_HP0_awsize           ),
+  .S_AXI_HP0_awvalid  (S_AXI_HP0_awvalid          ),
+  .S_AXI_HP0_bid      (S_AXI_HP0_bid              ),
+  .S_AXI_HP0_bready   (S_AXI_HP0_bready           ),
+  .S_AXI_HP0_bresp    (S_AXI_HP0_bresp            ),
+  .S_AXI_HP0_bvalid   (S_AXI_HP0_bvalid           ),
+  .S_AXI_HP0_rdata    (S_AXI_HP0_rdata            ),
+  .S_AXI_HP0_rid      (S_AXI_HP0_rid              ),
+  .S_AXI_HP0_rlast    (S_AXI_HP0_rlast            ),
+  .S_AXI_HP0_rready   (S_AXI_HP0_rready           ),
+  .S_AXI_HP0_rresp    (S_AXI_HP0_rresp            ),
+  .S_AXI_HP0_rvalid   (S_AXI_HP0_rvalid           ),
+  .S_AXI_HP0_wdata    (S_AXI_HP0_wdata            ),
+  .S_AXI_HP0_wid      (S_AXI_HP0_wid              ),
+  .S_AXI_HP0_wlast    (S_AXI_HP0_wlast            ),
+  .S_AXI_HP0_wready   (S_AXI_HP0_wready           ),
+  .S_AXI_HP0_wstrb    (S_AXI_HP0_wstrb            ),
+  .S_AXI_HP0_wvalid   (S_AXI_HP0_wvalid           ),
+
+/* not in use
+  // AXI master via axi_master
+  .axi1_clk_i        (axi1_clk    ),  .axi0_clk_i        (axi0_clk    ),  // global clock
+  .axi1_rstn_i       (axi1_rstn   ),  .axi0_rstn_i       (axi0_rstn   ),  // global reset
+  .axi1_waddr_i      (axi1_waddr  ),  .axi0_waddr_i      (axi0_waddr  ),  // system write address
+  .axi1_wdata_i      (axi1_wdata  ),  .axi0_wdata_i      (axi0_wdata  ),  // system write data
+  .axi1_wsel_i       (axi1_wsel   ),  .axi0_wsel_i       (axi0_wsel   ),  // system write byte select
+  .axi1_wvalid_i     (axi1_wvalid ),  .axi0_wvalid_i     (axi0_wvalid ),  // system write data valid
+  .axi1_wlen_i       (axi1_wlen   ),  .axi0_wlen_i       (axi0_wlen   ),  // system write burst length
+  .axi1_wfixed_i     (axi1_wfixed ),  .axi0_wfixed_i     (axi0_wfixed ),  // system write burst type (fixed / incremental)
+  .axi1_werr_o       (axi1_werr   ),  .axi0_werr_o       (axi0_werr   ),  // system write error
+  .axi1_wrdy_o       (axi1_wrdy   ),  .axi0_wrdy_o       (axi0_wrdy   ),  // system write ready
+  .axi1_raddr_i      (axi1_raddr  ),  .axi0_raddr_i      (axi0_raddr  ),  // system read address
+  .axi1_rvalid_i     (axi1_rvalid ),  .axi0_rvalid_i     (axi0_rvalid ),  // system read data valid
+  .axi1_rsel_i       (axi1_rsel   ),  .axi0_rsel_i       (axi0_rsel   ),  // system read byte select
+  .axi1_rlen_i       (axi1_rlen   ),  .axi0_rlen_i       (axi0_rlen   ),  // system read burst length
+  .axi1_rfixed_i     (axi1_rfixed ),  .axi0_rfixed_i     (axi0_rfixed ),  // system read burst type (fixed / incremental)
+  .axi1_rdata_o      (axi1_rdata  ),  .axi0_rdata_o      (axi0_rdata  ),  // system read data
+  .axi1_rrdy_o       (axi1_rrdy   ),  .axi0_rrdy_o       (axi0_rrdy   ),  // system read data is ready
+  .axi1_rerr_o       (axi1_rerr   ),  .axi0_rerr_o       (axi0_rerr   ),  // system read error
+*/
 
   // ADC analog inputs
-  .vinp_i        (vinp_i      ),  // voltages p
-  .vinn_i        (vinn_i      ),  // voltages n
-
-   // system read/write channel
-  .sys_clk_o     (ps_sys_clk  ),  // system clock
-  .sys_rstn_o    (ps_sys_rstn ),  // system reset - active low
-  .sys_addr_o    (ps_sys_addr ),  // system read/write address
-  .sys_wdata_o   (ps_sys_wdata),  // system write data
-  .sys_sel_o     (ps_sys_sel  ),  // system write byte select
-  .sys_wen_o     (ps_sys_wen  ),  // system write enable
-  .sys_ren_o     (ps_sys_ren  ),  // system read enable
-  .sys_rdata_i   (ps_sys_rdata),  // system read data
-  .sys_err_i     (ps_sys_err  ),  // system error indicator
-  .sys_ack_i     (ps_sys_ack  ),  // system acknowledge signal
-
-  // AXI masters
-  .axi1_clk_i    (axi1_clk    ),  .axi0_clk_i    (axi0_clk    ),  // global clock
-  .axi1_rstn_i   (axi1_rstn   ),  .axi0_rstn_i   (axi0_rstn   ),  // global reset
-  .axi1_waddr_i  (axi1_waddr  ),  .axi0_waddr_i  (axi0_waddr  ),  // system write address
-  .axi1_wdata_i  (axi1_wdata  ),  .axi0_wdata_i  (axi0_wdata  ),  // system write data
-  .axi1_wsel_i   (axi1_wsel   ),  .axi0_wsel_i   (axi0_wsel   ),  // system write byte select
-  .axi1_wvalid_i (axi1_wvalid ),  .axi0_wvalid_i (axi0_wvalid ),  // system write data valid
-  .axi1_wlen_i   (axi1_wlen   ),  .axi0_wlen_i   (axi0_wlen   ),  // system write burst length
-  .axi1_wfixed_i (axi1_wfixed ),  .axi0_wfixed_i (axi0_wfixed ),  // system write burst type (fixed / incremental)
-  .axi1_werr_o   (axi1_werr   ),  .axi0_werr_o   (axi0_werr   ),  // system write error
-  .axi1_wrdy_o   (axi1_wrdy   ),  .axi0_wrdy_o   (axi0_wrdy   ),  // system write ready
+  .vinp_i             (vinp_i                     ),  // voltages p
+  .vinn_i             (vinn_i                     ),  // voltages n
 
   // AXIS MASTER from the XADC
   .xadc_axis_aclk     (xadc_axis_aclk             ),  // AXI-streaming from the XADC, clock to the AXI-S FIFO
@@ -272,20 +468,20 @@ assign ps_sys_ack   = |(sys_cs & sys_ack);
 //(* //ASYNC_REG = "TRUE" *)
 adc_clk_pll i_adc_clk_pll (
  // Clock in ports
-  .clk_adc_in_p      ( adc_clk_p_i     ),
-  .clk_adc_in_n      ( adc_clk_n_i     ),
+  .clk_adc_in_p       (adc_clk_p_i                ),
+  .clk_adc_in_n       (adc_clk_n_i                ),
 
   // Clock out ports
-  .clk_adc           ( adc_clk         ),
-  .clk_dac_1x        ( dac_clk_1x      ),
-  .clk_dac_2x        ( dac_clk_2x      ),
-  .clk_dac_2p        ( dac_clk_2p      ),
-  .clk_ser           ( ser_clk         ),
-  .clk_pwm           ( pwm_clk         ),
+  .clk_adc            (adc_clk                    ),
+  .clk_dac_1x         (dac_clk_1x                 ),
+  .clk_dac_2x         (dac_clk_2x                 ),
+  .clk_dac_2p         (dac_clk_2p                 ),
+  .clk_ser            (ser_clk                    ),
+  .clk_pwm            (pwm_clk                    ),
 
    // Status and control signals
-  .reset             ( frstn[0]        ),
-  .locked            ( pll_locked      )
+  .reset              (frstn[0]                   ),
+  .locked             (pll_locked                 )
 );
 
 // ADC reset (active low) 
@@ -351,32 +547,32 @@ wire  [  8-1: 0] exp_p_dir, exp_n_dir;
 
 red_pitaya_hk i_hk (
   // system signals
-  .clk_i           (  fclk[0]                    ),  // clock 125.0 MHz
-  .rstn_i          (  frstn[0]                   ),  // clock reset - active low
+  .clk_i              (fclk[0]                    ),  // clock 125.0 MHz
+  .rstn_i             (frstn[0]                   ),  // clock reset - active low
 
   // LED
-  .led_o           (  led_o                      ),  // LED output
+  .led_o              (led_o                      ),  // LED output
 
   // global configuration
-  .digital_loop    (  digital_loop               ),
+  .digital_loop       (digital_loop               ),
 
   // Expansion connector
-  .exp_p_dat_i     (  exp_p_in                   ),  // input data
-  .exp_p_dat_o     (  exp_p_out                  ),  // output data
-  .exp_p_dir_o     (  exp_p_dir                  ),  // 1-output enable
-  .exp_n_dat_i     (  exp_n_in                   ),
-  .exp_n_dat_o     (  exp_n_out                  ),
-  .exp_n_dir_o     (  exp_n_dir                  ),
+  .exp_p_dat_i        (exp_p_in                   ),  // input data
+  .exp_p_dat_o        (exp_p_out                  ),  // output data
+  .exp_p_dir_o        (exp_p_dir                  ),  // 1-output enable
+  .exp_n_dat_i        (exp_n_in                   ),
+  .exp_n_dat_o        (exp_n_out                  ),
+  .exp_n_dir_o        (exp_n_dir                  ),
 
    // System bus
-  .sys_addr        (  sys_addr                   ),  // address
-  .sys_wdata       (  sys_wdata                  ),  // write data
-  .sys_sel         (  sys_sel                    ),  // write byte select
-  .sys_wen         (  sys_wen[0]                 ),  // write enable
-  .sys_ren         (  sys_ren[0]                 ),  // read enable
-  .sys_rdata       (  sys_rdata[ 0*32+31: 0*32]  ),  // read data
-  .sys_err         (  sys_err[0]                 ),  // error indicator
-  .sys_ack         (  sys_ack[0]                 )   // acknowledge signal
+  .sys_addr           (sys_addr                   ),  // address
+  .sys_wdata          (sys_wdata                  ),  // write data
+  .sys_sel            (sys_sel                    ),  // write byte select
+  .sys_wen            (sys_wen[0]                 ),  // write enable
+  .sys_ren            (sys_ren[0]                 ),  // read enable
+  .sys_rdata          (sys_rdata[ 0*32+31: 0*32]  ),  // read data
+  .sys_err            (sys_err[0]                 ),  // error indicator
+  .sys_ack            (sys_ack[0]                 )   // acknowledge signal
 );
 
 IOBUF i_iobufp [7:0] (.O(exp_p_in), .IO(exp_p_io), .I(exp_p_out), .T(~exp_p_dir) );
@@ -394,50 +590,72 @@ assign sys_ack  [1       ] =  1'b1;
 
 regs i_regs (
   // clock & reset
-  .clks            ( fclk                        ),  // clocks
-  .rstsn           ( frstn                       ),  // clock reset lines - active low
+  .clks_i             (fclk                       ),  // clocks
+  .rstsn_i            (frstn                      ),  // clock reset lines - active low
 
   // activation
-  .x11_activated   ( x11_activated               ),  // x11 crypto engine is enabled
-
-/*
-  // ADC data
-  .adc_i           ( {adc_b, adc_a}              ),  // ADC data { CHB, CHA }
-*/
-
-/*
-  // DAC data
-  .rb_out_ch       ({rb_out_ch[1], rb_out_ch[0] }),  // RadioBox output signals
-*/
+  .x11_activated_o    (x11_activated              ),  // x11 crypto engine is enabled
 
   // System bus
-  .sys_addr        ( sys_addr                    ),  // address
-  .sys_wdata       ( sys_wdata                   ),  // write data
-  .sys_sel         ( sys_sel                     ),  // write byte select
-  .sys_wen         ( sys_wen[1]                  ),  // write enable
-  .sys_ren         ( sys_ren[1]                  ),  // read enable
-  .sys_rdata       ( sys_rdata[ 1*32+:32]        ),  // read data
-  .sys_err         ( sys_err[1]                  ),  // error indicator
-  .sys_ack         ( sys_ack[1]                  ),  // acknowledge signal
+  .sys_addr_i         (sys_addr                   ),  // address
+  .sys_wdata_i        (sys_wdata                  ),  // write data
+  .sys_sel_i          (sys_sel                    ),  // write byte select
+  .sys_wen_i          (sys_wen[1]                 ),  // write enable
+  .sys_ren_i          (sys_ren[1]                 ),  // read enable
+  .sys_rdata_o        (sys_rdata[ 1*32+:32]       ),  // read data
+  .sys_err_o          (sys_err[1]                 ),  // error indicator
+  .sys_ack_o          (sys_ack[1]                 ),  // acknowledge signal
+
+  // AXI_HP0 master
+  .S_AXI_HP0_aclk_o   (S_AXI_HP0_aclk             ),
+  .S_AXI_HP0_araddr_o (S_AXI_HP0_araddr           ),
+  .S_AXI_HP0_arburst_o(S_AXI_HP0_arburst          ),
+  .S_AXI_HP0_arcache_o(S_AXI_HP0_arcache          ),
+  .S_AXI_HP0_arid_o   (S_AXI_HP0_arid             ),
+  .S_AXI_HP0_arlen_o  (S_AXI_HP0_arlen            ),
+  .S_AXI_HP0_arlock_o (S_AXI_HP0_arlock           ),
+  .S_AXI_HP0_arprot_o (S_AXI_HP0_arprot           ),
+  .S_AXI_HP0_arqos_o  (S_AXI_HP0_arqos            ),
+  .S_AXI_HP0_arready_i(S_AXI_HP0_arready          ),
+  .S_AXI_HP0_arsize_o (S_AXI_HP0_arsize           ),
+  .S_AXI_HP0_arvalid_o(S_AXI_HP0_arvalid          ),
+  .S_AXI_HP0_awaddr_o (S_AXI_HP0_awaddr           ),
+  .S_AXI_HP0_awburst_o(S_AXI_HP0_awburst          ),
+  .S_AXI_HP0_awcache_o(S_AXI_HP0_awcache          ),
+  .S_AXI_HP0_awid_o   (S_AXI_HP0_awid             ),
+  .S_AXI_HP0_awlen_o  (S_AXI_HP0_awlen            ),
+  .S_AXI_HP0_awlock_o (S_AXI_HP0_awlock           ),
+  .S_AXI_HP0_awprot_o (S_AXI_HP0_awprot           ),
+  .S_AXI_HP0_awqos_o  (S_AXI_HP0_awqos            ),
+  .S_AXI_HP0_awready_i(S_AXI_HP0_awready          ),
+  .S_AXI_HP0_awsize_o (S_AXI_HP0_awsize           ),
+  .S_AXI_HP0_awvalid_o(S_AXI_HP0_awvalid          ),
+  .S_AXI_HP0_bid_i    (S_AXI_HP0_bid              ),
+  .S_AXI_HP0_bready_o (S_AXI_HP0_bready           ),
+  .S_AXI_HP0_bresp_i  (S_AXI_HP0_bresp            ),
+  .S_AXI_HP0_bvalid_i (S_AXI_HP0_bvalid           ),
+  .S_AXI_HP0_rdata_i  (S_AXI_HP0_rdata            ),
+  .S_AXI_HP0_rid_i    (S_AXI_HP0_rid              ),
+  .S_AXI_HP0_rlast_i  (S_AXI_HP0_rlast            ),
+  .S_AXI_HP0_rready_o (S_AXI_HP0_rready           ),
+  .S_AXI_HP0_rresp_i  (S_AXI_HP0_rresp            ),
+  .S_AXI_HP0_rvalid_i (S_AXI_HP0_rvalid           ),
+  .S_AXI_HP0_wdata_o  (S_AXI_HP0_wdata            ),
+  .S_AXI_HP0_wid_o    (S_AXI_HP0_wid              ),
+  .S_AXI_HP0_wlast_o  (S_AXI_HP0_wlast            ),
+  .S_AXI_HP0_wready_i (S_AXI_HP0_wready           ),
+  .S_AXI_HP0_wstrb_o  (S_AXI_HP0_wstrb            ),
+  .S_AXI_HP0_wvalid_o (S_AXI_HP0_wvalid           ),
 
   // AXIS MASTER from the XADC
-  .xadc_axis_aclk  ( xadc_axis_aclk              ),  // AXI-streaming from the XADC, clock from the AXI-S FIFO
-  .xadc_axis_tdata ( xadc_axis_tdata             ),  // AXI-streaming from the XADC, data
-  .xadc_axis_tid   ( xadc_axis_tid               ),  // AXI-streaming from the XADC, analog data source channel for this data
-  .xadc_axis_tready( xadc_axis_tready            ),  // AXI-streaming from the XADC, slave indicating ready for data
-  .xadc_axis_tvalid( xadc_axis_tvalid            ),  // AXI-streaming from the XADC, data transfer valid
+  .xadc_axis_aclk_i   (xadc_axis_aclk             ),  // AXI-streaming from the XADC, clock from the AXI-S FIFO
+  .xadc_axis_tdata_i  (xadc_axis_tdata            ),  // AXI-streaming from the XADC, data
+  .xadc_axis_tid_i    (xadc_axis_tid              ),  // AXI-streaming from the XADC, analog data source channel for this data
+  .xadc_axis_tready_o (xadc_axis_tready           ),  // AXI-streaming from the XADC, slave indicating ready for data
+  .xadc_axis_tvalid_i (xadc_axis_tvalid           ),  // AXI-streaming from the XADC, data transfer valid
 
-  // AXI0 master                 // AXI1 master
-  .axi0_clk_o    (axi0_clk   ),  .axi1_clk_o    (axi1_clk   ),
-  .axi0_rstn_o   (axi0_rstn  ),  .axi1_rstn_o   (axi1_rstn  ),
-  .axi0_waddr_o  (axi0_waddr ),  .axi1_waddr_o  (axi1_waddr ),
-  .axi0_wdata_o  (axi0_wdata ),  .axi1_wdata_o  (axi1_wdata ),
-  .axi0_wsel_o   (axi0_wsel  ),  .axi1_wsel_o   (axi1_wsel  ),
-  .axi0_wvalid_o (axi0_wvalid),  .axi1_wvalid_o (axi1_wvalid),
-  .axi0_wlen_o   (axi0_wlen  ),  .axi1_wlen_o   (axi1_wlen  ),
-  .axi0_wfixed_o (axi0_wfixed),  .axi1_wfixed_o (axi1_wfixed),
-  .axi0_werr_i   (axi0_werr  ),  .axi1_werr_i   (axi1_werr  ),
-  .axi0_wrdy_i   (axi0_wrdy  ),  .axi1_wrdy_i   (axi1_wrdy  )
+  // masterclock progress with each 125 MHz tick and starts after release of reset
+  .masterclock_i      (masterclock[31:0]          )
 );
 
 
@@ -492,4 +710,13 @@ assign daisy_p_o = 2'bzz;
 assign daisy_n_o = 2'bzz;
 
 
-endmodule
+// masterclock progress with each 125 MHz tick and starts after release of reset
+
+always @(posedge fclk[0])
+if (!frstn[0])
+   masterclock <= 64'b0;
+else
+   masterclock <= masterclock + 1'b1;
+
+
+endmodule: top

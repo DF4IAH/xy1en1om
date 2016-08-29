@@ -432,4 +432,4 @@ end
 
 
 
-endmodule // amba_axi_master 
+endmodule: axi_master                             // amba_axi_master
