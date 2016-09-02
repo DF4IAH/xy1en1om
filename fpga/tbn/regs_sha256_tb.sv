@@ -49,6 +49,7 @@ wire           [ 32-1: 0]  sys_rdata;
 wire                       sys_err;
 wire                       sys_ack;
 
+/*
 // AXI0 bus
 wire                       axi0_clk;
 wire                       axi0_rstn;
@@ -88,6 +89,8 @@ wire                       axi1_rfixed;
 wire           [   63: 0]  axi1_rdata;
 wire                       axi1_rrdy;
 wire                       axi1_rerr;
+*/
+
 
 // Local
 int unsigned               clk_cntr    = 999999;
@@ -121,6 +124,7 @@ sys_bus_model i_sys_bus (
   .sys_ack        ( sys_ack                 )
 );
 
+/*
 dma_bus_model i0_dma_bus (
   // system signals
   .axi_clk_i      ( axi0_clk                ),  // global clock
@@ -166,33 +170,35 @@ dma_bus_model i1_dma_bus (
   .axi_rrdy_o     ( axi1_rrdy               ),  // system read data is ready
   .axi_rerr_o     ( axi1_rerr               )   // system read error
 );
+*/
 
 
 regs i_regs (
   // clocks & reset
-  .clks           ( clks                    ),  // clocks
-  .rstsn          ( rstsn                   ),  // clock reset lines - active low
+  .clks_i             ( clks                    ),  // clocks
+  .rstsn_i            ( rstsn                   ),  // clock reset lines - active low
 
    // activation
-  .x11_activated  ( x11_activated           ),
+  .x11_activated_o    ( x11_activated           ),
 
   // System bus
-  .sys_addr       ( sys_addr                ),
-  .sys_wdata      ( sys_wdata               ),
-  .sys_sel        ( sys_sel                 ),
-  .sys_wen        ( sys_wen                 ),
-  .sys_ren        ( sys_ren                 ),
-  .sys_rdata      ( sys_rdata               ),
-  .sys_err        ( sys_err                 ),
-  .sys_ack        ( sys_ack                 ),
+  .sys_addr_i         ( sys_addr                ),
+  .sys_wdata_i        ( sys_wdata               ),
+  .sys_sel_i          ( sys_sel                 ),
+  .sys_wen_i          ( sys_wen                 ),
+  .sys_ren_i          ( sys_ren                 ),
+  .sys_rdata_o        ( sys_rdata               ),
+  .sys_err_o          ( sys_err                 ),
+  .sys_ack_o          ( sys_ack                 ),
 
   // AXI streaming master from XADC
-  .xadc_axis_aclk   ( clk_125mhz            ),
-  .xadc_axis_tdata  ( 16'b0                 ),
-  .xadc_axis_tid    (  5'b0                 ),
-  .xadc_axis_tready (                       ),
-  .xadc_axis_tvalid (  1'b0                 ),
+  .xadc_axis_aclk_i   ( clk_125mhz              ),
+  .xadc_axis_tdata_i  ( 16'b0                   ),
+  .xadc_axis_tid_i    (  5'b0                   ),
+  .xadc_axis_tready_o (                         ),
+  .xadc_axis_tvalid_i (  1'b0                   )
 
+/*
   // AXI0 master
   .axi0_clk_o     ( axi0_clk                ),  // global clock
   .axi0_rstn_o    ( axi0_rstn               ),  // global reset
@@ -232,6 +238,7 @@ regs i_regs (
   .axi1_rdata_i   ( axi1_rdata              ),  // system read data
   .axi1_rrdy_i    ( axi1_rrdy               ),  // system read data is ready
   .axi1_rerr_i    ( axi1_rerr               )   // system read error
+*/
 );
 
 
@@ -364,25 +371,39 @@ initial begin
   repeat(2) @(posedge clk_125mhz);
 */
 
-/*
   // write data to the FIFO - test FIFO
-  i_sys_bus.write(20'h0010C, 32'h12345678);       // SHA256 FIFO MSB - #0
-  i_sys_bus.write(20'h0010C, 32'h23456789);       // SHA256 FIFO LSB - #0 - one bit after the last data message is set
-  i_sys_bus.write(20'h0010C, 32'h3456789A);       // SHA256 FIFO MSB - #1
-  i_sys_bus.write(20'h0010C, 32'h456789AB);       // SHA256 FIFO LSB - #1
-  i_sys_bus.write(20'h0010C, 32'h56789ABC);       // SHA256 FIFO MSB - #2
-  i_sys_bus.write(20'h0010C, 32'h6789ABCD);       // SHA256 FIFO LSB - #2
-  i_sys_bus.write(20'h0010C, 32'h789ABCDE);       // SHA256 FIFO MSB - #3
-  i_sys_bus.write(20'h0010C, 32'h89ABCDEF);       // SHA256 FIFO LSB - #3
-  i_sys_bus.write(20'h0010C, 32'h9ABCDEF0);       // SHA256 FIFO MSB - #4
-  i_sys_bus.write(20'h0010C, 32'hABCDEF01);       // SHA256 FIFO LSB - #4
-  i_sys_bus.write(20'h0010C, 32'hBCDEF012);       // SHA256 FIFO MSB - #5
-  i_sys_bus.write(20'h0010C, 32'hCDEF0123);       // SHA256 FIFO LSB - #5
-  i_sys_bus.write(20'h0010C, 32'hDEF01234);       // SHA256 FIFO MSB - #6
-  i_sys_bus.write(20'h0010C, 32'hEF012345);       // SHA256 FIFO LSB - #6
-  i_sys_bus.write(20'h0010C, 32'hF0123456);       // SHA256 FIFO MSB - #7
-  i_sys_bus.write(20'h0010C, 32'h01234567);       // SHA256 FIFO LSB - #7
-*/
+  i_sys_bus.write(20'h00108, 32'h12345678);       // SHA256 FIFO MSB - #00
+  i_sys_bus.write(20'h0010C, 32'h12345678);       // SHA256 FIFO LSB - #00
+  i_sys_bus.write(20'h00108, 32'h23456789);       // SHA256 FIFO MSB - #01
+  i_sys_bus.write(20'h0010C, 32'h23456789);       // SHA256 FIFO LSB - #01
+  i_sys_bus.write(20'h00108, 32'h3456789A);       // SHA256 FIFO MSB - #02
+  i_sys_bus.write(20'h0010C, 32'h3456789A);       // SHA256 FIFO LSB - #02
+  i_sys_bus.write(20'h00108, 32'h456789AB);       // SHA256 FIFO MSB - #03
+  i_sys_bus.write(20'h0010C, 32'h456789AB);       // SHA256 FIFO LSB - #03
+  i_sys_bus.write(20'h00108, 32'h56789ABC);       // SHA256 FIFO MSB - #04
+  i_sys_bus.write(20'h0010C, 32'h56789ABC);       // SHA256 FIFO LSB - #04
+  i_sys_bus.write(20'h00108, 32'h6789ABCD);       // SHA256 FIFO MSB - #05
+  i_sys_bus.write(20'h0010C, 32'h6789ABCD);       // SHA256 FIFO LSB - #05
+  i_sys_bus.write(20'h00108, 32'h789ABCDE);       // SHA256 FIFO MSB - #06
+  i_sys_bus.write(20'h0010C, 32'h789ABCDE);       // SHA256 FIFO LSB - #06
+  i_sys_bus.write(20'h00108, 32'h89ABCDEF);       // SHA256 FIFO MSB - #07
+  i_sys_bus.write(20'h0010C, 32'h89ABCDEF);       // SHA256 FIFO LSB - #07
+  i_sys_bus.write(20'h00108, 32'h9ABCDEF0);       // SHA256 FIFO MSB - #08
+  i_sys_bus.write(20'h0010C, 32'h9ABCDEF0);       // SHA256 FIFO LSB - #08
+  i_sys_bus.write(20'h00108, 32'hABCDEF01);       // SHA256 FIFO MSB - #09
+  i_sys_bus.write(20'h0010C, 32'hABCDEF01);       // SHA256 FIFO LSB - #09
+  i_sys_bus.write(20'h00108, 32'hBCDEF012);       // SHA256 FIFO MSB - #10
+  i_sys_bus.write(20'h0010C, 32'hBCDEF012);       // SHA256 FIFO LSB - #10
+  i_sys_bus.write(20'h00108, 32'hCDEF0123);       // SHA256 FIFO MSB - #11
+  i_sys_bus.write(20'h0010C, 32'hCDEF0123);       // SHA256 FIFO LSB - #11
+  i_sys_bus.write(20'h00108, 32'hDEF01234);       // SHA256 FIFO MSB - #12
+  i_sys_bus.write(20'h0010C, 32'hDEF01234);       // SHA256 FIFO LSB - #12
+  i_sys_bus.write(20'h00108, 32'hEF012345);       // SHA256 FIFO MSB - #13
+  i_sys_bus.write(20'h0010C, 32'hEF012345);       // SHA256 FIFO LSB - #13
+  i_sys_bus.write(20'h00108, 32'hF0123456);       // SHA256 FIFO MSB - #14
+  i_sys_bus.write(20'h0010C, 32'hF0123456);       // SHA256 FIFO LSB - #14
+  i_sys_bus.write(20'h00108, 32'h01234567);       // SHA256 FIFO MSB - #15
+  i_sys_bus.write(20'h0010C, 32'h01234567);       // SHA256 FIFO LSB - #15
 
 /*
   // variant 1: have a single letter 'A' - OK
@@ -617,6 +638,7 @@ initial begin
 
 // --- DMA TEST
 
+/*
   i_sys_bus.write(20'h00140, 32'h10000000);       // SHA256 DMA - base address
   i_sys_bus.write(20'h00144, 32'h00000400);       // SHA256 DMA - bit len
   i_sys_bus.write(20'h00148, 32'h00000260);       // SHA256 DMA - nonce register bit offset (DOUBLE HASH TEST DATA)
@@ -628,6 +650,7 @@ initial begin
   while (!(task_check & 32'h00000002)) begin      // wait until sha256_hash_valid is set
      i_sys_bus.read (20'h00104, task_check);
      end
+*/
 
   // INFO: result to be interpreted as Litte Endian
 

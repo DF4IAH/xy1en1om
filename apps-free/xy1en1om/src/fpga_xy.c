@@ -73,7 +73,7 @@ int fpga_xy_init(void)
     // studying section as quick hack
     {
         fprintf(stderr, "INFO study section: INIT - BEGIN\n");
-#if 0
+#if 1
         test_sha256_fifo_INIT();
 #else
         test_sha256_dma_INIT();
@@ -81,7 +81,7 @@ int fpga_xy_init(void)
         fprintf(stderr, "INFO study section: INIT - END\n");
 
         fprintf(stderr, "INFO study section: TEST - BEGIN\n");
-#if 0
+#if 1
         test_sha256_fifo_TEST();
 #else
         test_sha256_dma_TEST();
@@ -99,7 +99,7 @@ int fpga_xy_exit(void)
     //fprintf(stderr, "fpga_xy_exit: BEGIN\n");
 
     fprintf(stderr, "INFO study section: FINALIZE - BEGIN\n");
-#if 0
+#if 1
     test_sha256_fifo_FINALIZE();
 #else
     test_sha256_dma_FINALIZE();

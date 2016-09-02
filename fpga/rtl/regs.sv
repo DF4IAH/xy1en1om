@@ -100,7 +100,7 @@ module regs #(
 //---------------------------------------------------------------------------------
 // current date of compilation
 
-localparam CURRENT_DATE = 32'h16082901;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
+localparam CURRENT_DATE = 32'h16082902;         // current date: 0xYYMMDDss - YY=year, MM=month, DD=day, ss=serial from 0x01 .. 0x09, 0x10, 0x11 .. 0x99
 
 
 //---------------------------------------------------------------------------------
@@ -115,7 +115,8 @@ enum {
     /* SHA256 section */
     REG_RW_SHA256_CTRL,                         // h100: SHA256 submodule control register
 //  REG_RD_SHA256_STATUS,                       // h104: SHA256 submodule status register
-//  REG_WR_SHA256_DATA_PUSH,                    // h10C: SHA256 submodule data push in FIFO
+//  REG_WR_SHA256_DATA_PUSH_MSB,                // h108: SHA256 submodule data push in FIFO MSB prepare
+//  REG_WR_SHA256_DATA_PUSH_LSB,                // h10C: SHA256 submodule data push in FIFO LSB and push
     REG_RD_SHA256_HASH_H7,                      // h110: SHA256 submodule hash out H7, LSB
     REG_RD_SHA256_HASH_H6,                      // h114: SHA256 submodule hash out H6
     REG_RD_SHA256_HASH_H5,                      // h118: SHA256 submodule hash out H5
@@ -303,20 +304,20 @@ wire         [ 31:0]     sha256_status;
 wire                     sha256_rdy;
 
 reg                      sha256_port_fifo_wr_en = 'b0;
-reg          [ 31:0]     sha256_port_fifo_wr_in = 'b0;
+reg          [ 63:0]     sha256_port_fifo_wr_in = 'b0;
 
 wire                     sha256_dma_fifo_wr_en;
-wire         [ 31:0]     sha256_dma_fifo_wr_in;
+wire         [ 63:0]     sha256_dma_fifo_wr_in;
 
-wire                     sha256_32b_fifo_wr_en;
-wire         [ 31:0]     sha256_32b_fifo_wr_in;
+wire                     sha256_64b_fifo_wr_en;
+wire         [ 63:0]     sha256_64b_fifo_wr_in;
 wire                     sha256_fifo_m1full;
 wire                     sha256_fifo_full;
-wire         [  8:0]     sha256_fifo_wr_count;
+wire         [ 11:0]     sha256_fifo_wr_count;
 
-wire                     sha256_32b_fifo_rd_en;
-wire         [ 31:0]     sha256_32b_fifo_rd_out;
-wire                     sha256_32b_fifo_rd_vld;
+wire                     sha256_512b_fifo_rd_en;
+wire         [511:0]     sha256_512b_fifo_rd_out;
+wire                     sha256_512b_fifo_rd_vld;
 wire                     sha256_fifo_empty;
 wire         [  8:0]     sha256_fifo_rd_count;
 
@@ -330,11 +331,6 @@ wire         [255:0]     sha256_hash_data;
 wire         [ 31:0]     sha256_dma_clock_start;
 wire         [ 31:0]     sha256_dma_clock_last;
 wire         [ 31:0]     sha256_dma_clock_stop;
-wire         [ 31:0]     sha256_eng_clock_continue;
-wire         [ 31:0]     sha256_eng_clock_dblhash;
-wire         [ 31:0]     sha256_eng_clock_complete;
-wire         [ 31:0]     sha256_eng_clock_finish;
-wire         [ 31:0]     sha256_eng_state_loop;
 wire         [  7:0]     sha256_dma_state;
 wire         [ 31:0]     sha256_dma_axi_r_state;
 wire         [ 31:0]     sha256_dma_axi_w_state;
@@ -544,23 +540,23 @@ dma_engine i_dma_engine (
 );
 
 // FIFO input MUX for DMA access or push()
-assign sha256_32b_fifo_wr_en = sha256_dma_mode ?  sha256_dma_fifo_wr_en : sha256_port_fifo_wr_en;
-assign sha256_32b_fifo_wr_in = sha256_dma_mode ?  sha256_dma_fifo_wr_in : sha256_port_fifo_wr_in;
+assign sha256_64b_fifo_wr_en = sha256_dma_mode ?  sha256_dma_fifo_wr_en : sha256_port_fifo_wr_en;
+assign sha256_64b_fifo_wr_in = sha256_dma_mode ?  sha256_dma_fifo_wr_in : sha256_port_fifo_wr_in;
 
-fifo_32i_32o_512d i_fifo_32i_32o (
+fifo_64i_512o_4096d_r i_fifo_64i_512o (
   .rst                     ( !sha256_reset_n             ), // reset active high
   .wr_clk                  ( bus_clk                     ), // clock 125.0 MHz
   .rd_clk                  ( sha256_clk  /*bus_clk*/     ), // clock  62.5 MHz
 
-  .wr_en                   ( sha256_32b_fifo_wr_en       ), // write signal to push into the FIFO
-  .din                     ( sha256_32b_fifo_wr_in       ), // 32 bit word in
+  .wr_en                   ( sha256_64b_fifo_wr_en       ), // write signal to push into the FIFO
+  .din                     ( sha256_64b_fifo_wr_in       ), // 64 bit word in
   .almost_full             ( sha256_fifo_m1full          ), // FIFO does except one more write access
   .full                    ( sha256_fifo_full            ), // FIFO would spill over by next write access
   .wr_data_count           ( sha256_fifo_wr_count        ), // at least this number of entries are pushed on the FIFO
 
-  .rd_en                   ( sha256_32b_fifo_rd_en  /*dbg_fifo_read_next*/), // enable reading from the FIFO
-  .valid                   ( sha256_32b_fifo_rd_vld      ), // read data is valid
-  .dout                    ( sha256_32b_fifo_rd_out      ), // 32 bit word out for the SHA-256 engine to process
+  .rd_en                   ( sha256_512b_fifo_rd_en      ), // enable reading from the FIFO
+  .valid                   ( sha256_512b_fifo_rd_vld     ), // read data is valid
+  .dout                    ( sha256_512b_fifo_rd_out     ), // 16x 32 bit word out for the SHA-256 engine to process
   .empty                   ( sha256_fifo_empty           ), // FIFO does not contain any data
   .rd_data_count           ( sha256_fifo_rd_count        )  // at most this number of entries can be pulled from the FIFO
 );
@@ -580,22 +576,14 @@ sha256_engine i_sha256_engine (
   .sha256_dbl_hash_i       ( sha256_dbl_hash             ), // do a sha256(sha256(x)) operation
 
   .fifo_empty_i            ( sha256_fifo_empty           ), // indicator for continuation with next block
-  .fifo_rd_en_o            ( sha256_32b_fifo_rd_en       ), // enable reading of the FIFO
-  .fifo_rd_vld_i           ( sha256_32b_fifo_rd_vld      ), // read data from the FIFO is valid
-  .fifo_rd_dat_i           ( sha256_32b_fifo_rd_out      ), // 32 bit word out of the FIFO for the SHA-256 engine to process
+  .fifo_rd_en_o            ( sha256_512b_fifo_rd_en      ), // enable reading of the FIFO
+  .fifo_rd_vld_i           ( sha256_512b_fifo_rd_vld     ), // read data from the FIFO is valid
+  .fifo_rd_dat_i           ( sha256_512b_fifo_rd_out     ), // 32 bit word out of the FIFO for the SHA-256 engine to process
 
   .dma_in_progress_i       ( sha256_dma_in_progress      ), // DMA process is running and has not completed now
 
   .valid_o                 ( sha256_hash_valid           ), // hash output vector is valid
-  .hash_o                  ( sha256_hash_data            ), // computated hash value
-
-  .masterclock_i           ( masterclock_i[31:0]         ), // masterclock progress with each 125 MHz tick and starts after release of reset 
-
-  .dbg_state_loop_o        ( sha256_eng_state_loop       ),
-  .dbg_clock_continue_o    ( sha256_eng_clock_continue   ),
-  .dbg_clock_dblhash_o     ( sha256_eng_clock_dblhash    ),
-  .dbg_clock_complete_o    ( sha256_eng_clock_complete   ),
-  .dbg_clock_finish_o      ( sha256_eng_clock_finish     )
+  .hash_o                  ( sha256_hash_data            )  // computated hash value
 );
 
 always @(posedge sha256_clk)
@@ -611,8 +599,8 @@ assign sha256_status = { 24'b0,  1'b0, sha256_fifo_full, sha256_fifo_m1full, sha
 always @(posedge sha256_clk)
 if (!sha256_reset_n)
    sha256_fifo_read_last <= 32'b0;
-else if (sha256_32b_fifo_rd_vld)
-   sha256_fifo_read_last <= sha256_32b_fifo_rd_out;
+else if (sha256_512b_fifo_rd_vld)
+   sha256_fifo_read_last <= sha256_512b_fifo_rd_out[511:480];  // use upper part only
 
 
 // === IMPL: KECCAK512 section ===
@@ -672,11 +660,11 @@ else begin
     20'h00100: begin
       regs[REG_RW_SHA256_CTRL]                    <= sys_wdata_i[31:0];
       end
-/*  20'h00108: begin
-      regs[REG_RW_SHA256_BIT_LEN]                 <= sys_wdata[31:0];
-      end */
+    20'h00108: begin
+      sha256_port_fifo_wr_in[63:32]               <= sys_wdata_i[31:0];
+      end
     20'h0010C: begin
-      sha256_port_fifo_wr_in[31:0]                <= sys_wdata_i[31:0];
+      sha256_port_fifo_wr_in[31: 0]               <= sys_wdata_i[31:0];
       sha256_port_fifo_wr_en <= 1'b1;
       end
 
@@ -807,7 +795,7 @@ else begin
       end
     20'h00134: begin
       sys_ack_o   <= sys_en;
-      sys_rdata_o <= { 23'b0, sha256_fifo_rd_count[8:0] };
+      sys_rdata_o <= { 20'b0, sha256_fifo_rd_count[11:0] };
       end
 
     20'h00140: begin
@@ -837,7 +825,7 @@ else begin
       end
     20'h0015C: begin
       sys_ack_o   <= sys_en;
-      sys_rdata_o <= sha256_dma_last_data;
+      sys_rdata_o <= sha256_dma_last_data;                  // use upper part only
       end
     20'h00160: begin
       sys_ack_o   <= sys_en;
@@ -850,26 +838,6 @@ else begin
     20'h00168: begin
       sys_ack_o   <= sys_en;
       sys_rdata_o <= sha256_dma_clock_stop;
-      end
-    20'h0016C: begin
-      sys_ack_o   <= sys_en;
-      sys_rdata_o <= sha256_eng_clock_continue;
-      end
-    20'h00170: begin
-      sys_ack_o   <= sys_en;
-      sys_rdata_o <= sha256_eng_clock_dblhash;
-      end
-    20'h00174: begin
-      sys_ack_o   <= sys_en;
-      sys_rdata_o <= sha256_eng_clock_complete;
-      end
-    20'h00178: begin
-      sys_ack_o   <= sys_en;
-      sys_rdata_o <= sha256_eng_clock_finish;
-      end
-    20'h0017C: begin
-      sys_ack_o   <= sys_en;
-      sys_rdata_o <= sha256_eng_state_loop;
       end
 
 

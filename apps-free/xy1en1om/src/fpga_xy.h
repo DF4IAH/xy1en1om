@@ -149,19 +149,19 @@ typedef struct fpga_xy_reg_mem_s {
      */
     uint32_t sha256_status;
 
-    /** @brief  Placeholder for addr: 0x40100108
-     *
-     * n/a
-     *
-     */
-    uint32_t reserved_108;
-
-    /** @brief  W/O XY_SHA256_DATA_PUSH - Data push register (addr: 0x4010010C)
+    /** @brief  W/O XY_SHA256_DATA_PUSH_MSB - Data push register to be followed by XY_SHA256_DATA_PUSH_LSB  (addr: 0x40100108)
      *
      * bit h1F..h00: bits to be hashed. Starting with the MSB bit h1F.
      *
      */
-    uint32_t sha256_data_push;
+    uint32_t sha256_data_push_msb;
+
+    /** @brief  W/O XY_SHA256_DATA_PUSH_LSB - Data push register and execute (addr: 0x4010010C)
+     *
+     * bit h1F..h00: bits to be hashed. Continuing with the LSB part and FIFO push operation.
+     *
+     */
+    uint32_t sha256_data_push_lsb;
 
 
     /** @brief  R/O XY_SHA256_HASH_H7 - Returned hash value register (addr: 0x40100110)
